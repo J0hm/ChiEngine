@@ -1,6 +1,12 @@
 #include <iostream>
+#include "ChessEngine.cpp"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    ChessEngine* engine;
+
+    engine = new ChessEngine();
+    engine->run();
+    delete engine;
+
     return 0;
 }
