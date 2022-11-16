@@ -26,3 +26,4 @@ A chess engine written in Python
   - [ ] Board representation (data structures, methods, etc)
     - Hybrid solution, possibly using python-chess builtin?
   - [ ] Interface and communication with a GUI using CECP or UCI
+  - [ ] Evaluation algorithm
