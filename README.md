@@ -1,5 +1,5 @@
 # ChiEngine
-A chess engine written in Python
+A chess engine written in Python. Or maybe C++?
 
 ### Dataset: Cassiabase
 
@@ -27,3 +27,4 @@ A chess engine written in Python
     - Hybrid solution, possibly using python-chess builtin?
   - [ ] Interface and communication with a GUI using CECP or UCI
   - [ ] Evaluation algorithm
+  - [ ] Search algorithm
