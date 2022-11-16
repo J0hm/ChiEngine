@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ChessEngine.cpp"
+#include "Engine.cpp"
 
 int main() {
     ChessEngine* engine;
