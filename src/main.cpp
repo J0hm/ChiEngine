@@ -6,7 +6,7 @@ int main() {
 
     engine = new Engine();
     engine->run();
-    //delete engine;
+    delete engine;
 
     return 0;
 }
