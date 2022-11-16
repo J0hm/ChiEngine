@@ -21,14 +21,15 @@ A chess engine written in C++?
 - [Cassiabase Dataset](http://caissabase.co.uk/)
 - [Chess Programming Wiki](https://www.chessprogramming.org/)
 - [SCID](https://scid.sourceforge.net/)
-- [Arena GUI](http://www.playwitharena.de/)
+- [Getting Started with Building Chess Engines](http://www.fam-petzke.de/cp_getstarted_en.shtml)
+- [UCI Protocol](http://wbec-ridderkerk.nl/html/UCIProtocol.html)
   
 ### TODO:
 
   - [ ] Board representation (data structures, methods, etc)
     - Hybrid solution, possibly using python-chess builtin?
   - [ ] Interface and communication with a GUI using UCI
-  	- Learn the protocol and write a basic CLI for playing a game with a UCI GUI
+  	- SCID over UCI
   - [ ] Evaluation algorithm
   - [ ] Search algorithm
   - [ ] Rewrite python-chess in C++
