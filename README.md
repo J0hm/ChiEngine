@@ -21,6 +21,7 @@ A chess engine written in C++?
 - [Cassiabase Dataset](http://caissabase.co.uk/)
 - [Chess Programming Wiki](https://www.chessprogramming.org/)
 - [SCID](https://scid.sourceforge.net/)
+- [Arena GUI](http://www.playwitharena.de/)
   
 ### TODO:
 
