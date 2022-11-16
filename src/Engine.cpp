@@ -2,7 +2,7 @@
 
 void Engine::run() {
     while (true) {
-        if (!processGuiMessages(50)) break;
+        if (!processGuiMessages(500)) break;
     }
 }
 
@@ -19,17 +19,23 @@ bool Engine::processGuiMessages(int wait) {
 bool Engine::inputHandler(std::string input) {
     std::string command;
 
-
+    // convert command to a vector
     std::stringstream ss(input);
     std::istream_iterator<std::string> begin(ss);
     std::istream_iterator<std::string> end;
     std::vector<std::string> v(begin, end);
 
-    command = v[0];         // the 1st word is the command id
-    if (command == "quit") return false;
-    if (command == "uci") {
-        sendUCIResponse();
+    command = v[0]; // the 1st word is the command id
+    if (command == "quit") {
+        return false;
+    } else if (command == "uci") {
+        //sendUCIResponse();
+        return true;
+    } else {
+        std::cout << "info unrecognized command:";
+        for (std::vector<std::string>::iterator i = v.begin() ; i != v.end(); ++i)
+            std::cout << ' ' << *i;
+        std::cout << std::endl;
         return true;
     }
-    // more commands go here
 }

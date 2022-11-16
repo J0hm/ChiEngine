@@ -2,11 +2,11 @@
 #include "Engine.cpp"
 
 int main() {
-    ChessEngine* engine;
+    Engine* engine;
 
-    engine = new ChessEngine();
+    engine = new Engine();
     engine->run();
-    delete engine;
+    //delete engine;
 
     return 0;
 }
