@@ -27,7 +27,7 @@ A chess engine written in C++?
 ### TODO:
 
   - [ ] Board representation (data structures, methods, etc)
-    - Hybrid solution, possibly using python-chess builtin?
+    - Hybrid solution
   - [ ] Interface and communication with a GUI using UCI
   	- SCID over UCI
   - [ ] Evaluation algorithm
