@@ -31,5 +31,10 @@ A chess engine written in C++?
   - [ ] Interface and communication with a GUI using UCI
   	- SCID over UCI
   - [ ] Evaluation algorithm
+  	- Neural network trained on "pairs" of positions
+  	- Create database of:
+  		- Winning positions for black
+  		- Winning positions for white
+  	- Use pairs of these positions to train the algorithm, where winning positions are prefered over losing
   - [ ] Search algorithm
-  - [ ] Rewrite python-chess in C++
+  - [ ] Create database of winning positions for black and white
