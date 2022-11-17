@@ -28,10 +28,9 @@ bool Engine::inputHandler(std::string input) {
     std::string command;
 
     // convert command to a vector
-    std::stringstream ss(input);
-    std::istream_iterator<std::string> begin(ss);
-    std::istream_iterator<std::string> end;
-    std::vector<std::string> v(begin, end);
+    std::vector<std::string> v;
+    Algorithms::split(v, input, " ");
+
 
     command = v[0]; // the 1st word is the command id
     if (command == "quit") {
