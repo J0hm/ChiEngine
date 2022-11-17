@@ -6,11 +6,16 @@
 #include <iterator>
 #include <sstream>
 #include "InputThread.cpp"
+#include "Board.h"
 
 // the main ChessEngine class which "runs" the engine, communicates with the GUI via UCI, and houses all other
 // functins of the engine (evaluation, search, etc)
 class Engine {
 public:
+    // constructor and destructor
+    Engine();
+    ~Engine();
+
     // run the engine
     void run();
 
@@ -22,6 +27,8 @@ private:
     // processes messages from the UCI GUI
     bool processGuiMessages(int wait);
     InputThread inputThread;
+
+    Board board;
 };
 
 
