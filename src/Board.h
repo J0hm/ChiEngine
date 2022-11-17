@@ -1,31 +1,40 @@
 #ifndef CHIENGINE_BOARD_H
 #define CHIENGINE_BOARD_H
 
-#include "Types.h";
+#include <string>
+#include <vector>
+#include "Types.h"
+#include "Algorithms.h"
 
 // Holds the piece location status of the board in BitBoards per Piece
 // This is a hybrid approach
-struct BoardBB
-{
+struct BoardBB {
     // Holds the piece information per square
-    EPiece squares[H8+2];
+    EPiece squares[H8 + 2];
     // BitBoards for Pieces
-    EBitBoard pcs[B_KING+2];
+    EBitBoard pcs[B_KING + 2];
     // Utility BitBoards
     EBitBoard emptySquares;
     EBitBoard occupiedSquares;
-    EBitBoard pcsOfColor[BLACK+1];
+    EBitBoard pcsOfColor[BLACK + 1];
 };
 
-struct BoardState
-{
+struct BoardState {
     int64 hash;
-    int lastTriggerEvent; // ply whith pawn move or capture
-    int castlingRights;
+    int lastTriggerEvent; // ply with pawn move or capture
+    int castlingRights; // 4 bits: KQkq = 1111, Kk = 1010, Kq = 1001, etc
     ESquare enPassantSquare;
-    EMove move;
+    //EMove move; TODO make move class
     bool inCheck;
     int repetitions;
+};
+
+class BoardStateHistory {
+public:
+    void initialize(unsigned int c, ESquare sq);
+
+private:
+    std::vector<BoardState> stateList;
 };
 
 class Board {
@@ -35,12 +44,15 @@ public:
     int currentPly;
 
     Board();
+
     ~Board();
 
+    // set the board to the position specified by the given FEN
     int setFEN(std::string fen);
-private:
-    BoardStateHistory *boardHistory; // pointer to list of BoardState objects
-}
 
+private:
+    BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
+    void initializeBitBoards();
+};
 
 #endif //CHIENGINE_BOARD_H
