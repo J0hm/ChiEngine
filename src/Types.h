@@ -2,8 +2,8 @@
 #define CHIENGINE_TYPES_H
 
 // BitBoard definitions
-typedef long long EBitBoard;
-typedef long long int64;
+typedef unsigned long long EBitBoard;
+typedef unsigned long long int64;
 
 // Square identifiers
 enum ESquare {A1,B1,C1,D1,E1,F1,G1,H1,

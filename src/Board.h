@@ -35,6 +35,7 @@ public:
 
 private:
     std::vector<BoardState> stateList;
+    int64 bbSquares(ESquare sq);
 };
 
 class Board {

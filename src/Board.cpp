@@ -109,13 +109,13 @@ int Board::setFEN(std::string FEN) {
     // initialize all castle possibilities
     if (strList.size() >= 3) {
         if (strList[2].find('K') != std::string::npos)
-            castle = castle | 0b1000;
+            castle |= 0b1000;
         if (strList[2].find('Q') != std::string::npos)
-            castle = castle | 0b0100;
+            castle |= 0b0100;
         if (strList[2].find('k') != std::string::npos)
-            castle = castle | 0b0010;
+            castle |= 0b0010;
         if (strList[2].find('q') != std::string::npos)
-            castle = castle | 0b0001;
+            castle |= 0b0001;
     }
 
     // read en passant and save it into "sq" Default := None (ER)
@@ -151,6 +151,22 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     stateList.push_back(state);
 }
 
-void Board::initializeBitBoards() {
-    // TODO fill this in
+int64 bbSquares(ESquare sq){
+    return (int64)1 << (8*(sq / 8) - (sq % 8) + 7);
 }
+
+void Board::initializeBitBoards() {
+    ESquare sq;
+    memset(&bb.pcs,0,sizeof(bb.pcs));
+    // initialize the piece bit boards...
+    for (sq=A1;sq<=H8;sq++)
+        bb.pcs[bb.squares[sq]] |= bbSquares(sq);
+    // calculate the utility bitboards...
+    bb.pcsOfColor[WHITE] = bb.pcs[W_PAWN] | bb.pcs[W_KNIGHT] | bb.pcs[W_BISHOP] |
+                           bb.pcs[W_ROOK] | bb.pcs[W_QUEEN] | bb.pcs[W_KING];
+    bb.pcsOfColor[BLACK] = bb.pcs[B_PAWN] | bb.pcs[B_KNIGHT] | bb.pcs[B_BISHOP] |
+                           bb.pcs[B_ROOK] | bb.pcs[B_QUEEN] | bb.pcs[B_KING];
+    bb.occupiedSquares = bb.pcsOfColor[WHITE] | bb.pcsOfColor[BLACK];
+    bb.emptySquares = ~bb.occupiedSquares;
+}
+
