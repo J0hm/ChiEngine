@@ -1,5 +1,6 @@
-//
-// Created by johnk on 11/16/2022.
-//
-
 #include "Board.h"
+
+int Board::setFEN(int fen) {
+    // TODO: implement me!
+    return 0;
+}
