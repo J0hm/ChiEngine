@@ -6,6 +6,7 @@
 #include <iterator>
 #include <sstream>
 #include <regex>
+#include "Types.h"
 
 class Algorithms {
 public:
@@ -17,6 +18,23 @@ public:
                 last;
         list = {first, last};
     };
+
+    static void printBitBoard(int64 bb) {
+        printf("\n");
+        std::stringstream ss;
+        std::bitset<64>b(bb);
+        std::string tmp = b.to_string();
+        int count =0;
+        for (int i =0; i < 8; i ++)
+        {
+            printf("\n");
+            for (int j=0;j <8;j++)
+            {
+                printf("%c ",tmp[count]);
+                count ++;
+            }
+        }
+    }
 };
 
 #endif //CHIENGINE_ALGORITHMS_H
