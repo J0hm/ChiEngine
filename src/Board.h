@@ -1,7 +1,3 @@
-//
-// Created by johnk on 11/16/2022.
-//
-
 #ifndef CHIENGINE_BOARD_H
 #define CHIENGINE_BOARD_H
 
@@ -40,6 +36,8 @@ public:
 
     Board();
     ~Board();
+
+    int setFEN(std::string fen);
 private:
     BoardStateHistory *boardHistory; // pointer to list of BoardState objects
 }

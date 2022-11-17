@@ -1,7 +1,3 @@
-//
-// Created by johnk on 11/16/2022.
-//
-
 #ifndef CHIENGINE_INPUTTHREAD_H
 #define CHIENGINE_INPUTTHREAD_H
 
