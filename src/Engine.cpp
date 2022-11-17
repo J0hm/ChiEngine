@@ -1,5 +1,13 @@
 #include "Engine.h"
 
+Engine::Engine() {
+    board = new Board();
+}
+
+Engine::~Engine() {
+    delete board;
+}
+
 void Engine::run() {
     while (true) {
         if (!processGuiMessages(500)) break;
@@ -32,7 +40,7 @@ bool Engine::inputHandler(std::string input) {
         //sendUCIResponse();
         return true;
     } else {
-        std::cout << "info unrecognized command:";
+        std::cout << "info unrecognized command";
         for (std::vector<std::string>::iterator i = v.begin() ; i != v.end(); ++i)
             std::cout << ' ' << *i;
         std::cout << std::endl;
