@@ -5,3 +5,5 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(ChiEngine
         src/main.cpp)
+
+add_subdirectory(Google_tests)
