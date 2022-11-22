@@ -14,6 +14,7 @@ void Engine::run() {
     }
 }
 
+// process messages from the GUI, if a new input is available
 bool Engine::processGuiMessages(int wait) {
     if (inputThread.isNewInputAvailable()) {
         std::string input = inputThread.getNewInput();
@@ -24,6 +25,7 @@ bool Engine::processGuiMessages(int wait) {
     return true;
 }
 
+// handles commands from the GUI
 bool Engine::inputHandler(std::string input) {
     std::string command;
 
