@@ -140,7 +140,6 @@ int Board::setFEN(std::string FEN) {
         if (sideToMove == BLACK) currentPly++;
     }
 
-    // TODO:
     // initialize the board state history stack
     boardHistory->initialize(castle, sq);
     // set up the piece related bit boards with this board content
@@ -155,16 +154,12 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     stateList.push_back(state);
 }
 
-int64 bbSquares(ESquare sq){
-    return 1ULL << (8*(sq / 8) - (sq % 8) + 7);
-}
-
 void Board::initializeBitBoards() {
     ESquare sq;
     memset(&bb.pcs,0,sizeof(bb.pcs));
     // initialize the piece bit boards...
     for (sq=A1;sq<=H8;sq++)
-        bb.pcs[bb.squares[sq]] |= bbSquares(sq);
+        bb.pcs[bb.squares[sq]] |= BB_SQUARES[sq];
     // calculate the utility bitboards...
     bb.pcsOfColor[WHITE] = bb.pcs[W_PAWN] | bb.pcs[W_KNIGHT] | bb.pcs[W_BISHOP] |
                            bb.pcs[W_ROOK] | bb.pcs[W_QUEEN] | bb.pcs[W_KING];

@@ -36,9 +36,6 @@ public:
 
 private:
     std::vector<BoardState> stateList;
-
-    // TODO remove bbsquares for a map
-    int64 bbSquares(ESquare sq);
 };
 
 class Board {
