@@ -2,7 +2,7 @@
 #include "Board.h"
 
 Board::Board() {
-    boardHistory = new BoardStateHistory();
+    boardHistory = new BoardStateHistory(); // initialize pointer to BoardStateHistory
 }
 
 Board::~Board() {
@@ -100,11 +100,12 @@ int Board::setFEN(std::string FEN) {
         j++;
     }
 
-    // set the turn; default = White
+    // set the turn; default = WHITE
     sideToMove = WHITE;
     if (strList.size() >= 2) {
         if (strList[1] == "w") sideToMove = WHITE;
-        else if (strList[1] == "b") sideToMove = BLACK; else return -1;
+        else if (strList[1] == "b") sideToMove = BLACK;
+        else return -1;
     }
 
     // set castle possibilities to initial 0
@@ -147,6 +148,7 @@ int Board::setFEN(std::string FEN) {
     return 0;
 }
 
+// initialize the BoardStateHistory with the given castling rights and en passant square
 void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     BoardState state;
     state.enPassantSquare = sq;
@@ -154,6 +156,7 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     stateList.push_back(state);
 }
 
+// initalize the utility BitBoards after setting the squares
 void Board::initializeBitBoards() {
     ESquare sq;
     memset(&bb.pcs,0,sizeof(bb.pcs));

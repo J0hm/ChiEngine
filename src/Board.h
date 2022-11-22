@@ -19,27 +19,34 @@ struct BoardBB {
     EBitBoard pcsOfColor[BLACK + 1];
 };
 
+// Represents the state of the board after the given move
 struct BoardState {
-    int64 hash;
+    int64 hash; // hash for the board, used to find already-evaluated positions
     int lastTriggerEvent; // ply with pawn move or capture
     int castlingRights; // 4 bits: KQkq = 1111, Kk = 1010, Kq = 1001, etc
-    ESquare enPassantSquare;
+    ESquare enPassantSquare; // square which can be moved to in order to capture via en passant
     //EMove move; TODO make move class
-    bool inCheck;
-    int repetitions;
+    bool inCheck; // is a player in check?
+    int repetitions; // number of times the same position was visited
 };
 
+// Represents the history of the board state
 class BoardStateHistory {
 public:
+    // Initialize the board state with the given castling rights and en passant square
     void initialize(unsigned int c, ESquare sq);
+
+    // Get the last state of the board
     inline BoardState getLastState() {return stateList.back();}
 
 private:
     std::vector<BoardState> stateList;
 };
 
+// Represents the actual game board
 class Board {
 public:
+    // BitBoard for this board
     BoardBB bb;
     EColor sideToMove;
     int currentPly;
@@ -48,9 +55,10 @@ public:
 
     ~Board();
 
-    // set the board to the position specified by the given FEN
+    // Set the board to the position specified by the given FEN
     int setFEN(std::string fen);
 
+    // Get the last state of the board
     inline BoardState getLastState() { return boardHistory->getLastState();};
 
 
