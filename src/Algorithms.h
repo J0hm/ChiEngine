@@ -19,21 +19,23 @@ public:
         list = {first, last};
     };
 
-    static void printBitBoard(int64 bb) {
-        printf("\n");
+    static std::string bitBoardToString(int64 bb) {
+        std::string res = "";
         std::stringstream ss;
         std::bitset<64>b(bb);
         std::string tmp = b.to_string();
         int count =0;
         for (int i =0; i < 8; i ++)
         {
-            printf("\n");
+            res += "\n";
             for (int j=0;j <8;j++)
             {
-                printf("%c ",tmp[count]);
+                res += tmp[count];
                 count ++;
             }
         }
+
+        return res;
     }
 };
 

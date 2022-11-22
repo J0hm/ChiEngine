@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Board.h"
 
 Board::Board() {
@@ -16,6 +17,8 @@ int Board::setFEN(std::string FEN) {
     int aRank, aFile;
     std::vector<std::string> strList;
     Algorithms::split(strList, FEN, " ");
+
+    std::cout << "Setting fen to " << FEN << std::endl;
 
     // empty the board squares
     for (sq = A1; sq <= H8; sq++) bb.squares[sq] = EMPTY;
@@ -137,8 +140,9 @@ int Board::setFEN(std::string FEN) {
         if (sideToMove == BLACK) currentPly++;
     }
 
+    // TODO:
     // initialize the board state history stack
-    boardHistory->initialize(castle, sq);
+    //boardHistory->initialize(castle, sq);
     // set up the piece related bit boards with this board content
     initializeBitBoards();
     return 0;

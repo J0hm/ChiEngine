@@ -2,6 +2,8 @@
 #define CHIENGINE_INPUTTHREAD_H
 
 #include <thread>
+#include <string>
+#include <iostream>
 
 // an InputThread class to check and get new lines from stdin
 class InputThread {
