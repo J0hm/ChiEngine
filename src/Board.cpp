@@ -2,7 +2,7 @@
 #include "Board.h"
 
 Board::Board() {
-
+    boardHistory = new BoardStateHistory();
 }
 
 Board::~Board() {
@@ -142,7 +142,7 @@ int Board::setFEN(std::string FEN) {
 
     // TODO:
     // initialize the board state history stack
-    //boardHistory->initialize(castle, sq);
+    boardHistory->initialize(castle, sq);
     // set up the piece related bit boards with this board content
     initializeBitBoards();
     return 0;
@@ -156,7 +156,7 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
 }
 
 int64 bbSquares(ESquare sq){
-    return (int64)1 << (8*(sq / 8) - (sq % 8) + 7);
+    return 1ULL << (8*(sq / 8) - (sq % 8) + 7);
 }
 
 void Board::initializeBitBoards() {

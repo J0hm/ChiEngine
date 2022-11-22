@@ -32,9 +32,12 @@ struct BoardState {
 class BoardStateHistory {
 public:
     void initialize(unsigned int c, ESquare sq);
+    inline BoardState getLastState() {return stateList.back();}
 
 private:
     std::vector<BoardState> stateList;
+
+    // TODO remove bbsquares for a map
     int64 bbSquares(ESquare sq);
 };
 
@@ -50,6 +53,9 @@ public:
 
     // set the board to the position specified by the given FEN
     int setFEN(std::string fen);
+
+    inline BoardState getLastState() { return boardHistory->getLastState();};
+
 
 private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
