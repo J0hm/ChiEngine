@@ -176,28 +176,28 @@ Move Board::parseMove(std::string lan) {
     bool castling = false;
 
     /// check for castling
-    if(lan == "e1g1") { // white castles on kingside
+    if (lan == "e1g1") { // white castles on kingside
         // set origin and dest
         move |= (E1 << 6);
         move |= G1;
         // set flags
         flags |= 0b0010;
         castling = true;
-    } else if(lan == "e1c1") { // white castles on queenside
+    } else if (lan == "e1c1") { // white castles on queenside
         // set origin and dest
         move |= (E1 << 6);
         move |= C1;
         // set flags
         flags |= 0b0011;
         castling = true;
-    } else if(lan == "e8g8") { // black castles on kingside
+    } else if (lan == "e8g8") { // black castles on kingside
         // set origin and dest
         move |= (E8 << 6);
         move |= G8;
         // set flags
         flags |= 0b0010;
         castling = true;
-    } else if(lan == "e8c8") { // black castles queenside
+    } else if (lan == "e8c8") { // black castles queenside
         // set origin and dest
         move |= (E8 << 6);
         move |= C8;
@@ -206,7 +206,7 @@ Move Board::parseMove(std::string lan) {
         castling = true;
     }
 
-    if(castling) {
+    if (castling) {
         // set castling rights
         move |= (getLastState().castlingRights << 22);
         // set captured piece (none)
@@ -246,23 +246,23 @@ Move Board::parseMove(std::string lan) {
     }
 
     /// set the origin square
-    char originFile = lan[index];
-    char originRank = lan[index+1];
+    char originFile = Algorithms::asciiCharToLower(lan[index]);
+    char originRank = Algorithms::asciiCharToLower(lan[index + 1]);
     ESquare originSquare = getSquare(originFile, originRank);
     move |= (originSquare << 6);
 
     index += 2;
 
     /// check for capture and set capture flag (0b111 = no cap)
-    if(Algorithms::asciiCharToLower(lan[index] == 'x')) {
+    if (Algorithms::asciiCharToLower(lan[index]) == 'x') {
         flags |= 0b0100; // set capture flag to true
         capture = true;
         ++index;
     }
 
     /// set the destination square
-    char destFile = lan[index];
-    char destRank = lan[index+1];
+    char destFile = Algorithms::asciiCharToLower(lan[index]);
+    char destRank = Algorithms::asciiCharToLower(lan[index + 1]);
     ESquare destSquare = getSquare(destFile, destRank);
     move |= destSquare;
 
@@ -270,23 +270,22 @@ Move Board::parseMove(std::string lan) {
 
     /// set the captured piece field
     // if a piece was captured, find its type from the board state
-    if(capture && !pawnMove) { // no possibility of en passant
+    if (capture && !pawnMove) { // no possibility of en passant
         PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
         move |= (capturedPieceType << 19);
     } else if (capture && pawnMove) { // possibility of en passant
-        if(destSquare == getLastState().enPassantSquare) { // en passant capture
+        if (destSquare == getLastState().enPassantSquare) { // en passant capture
             flags |= 0b0101; // set EP capture flag
         } else { // normal pawn capture
             PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
             move |= (capturedPieceType << 19);
         }
-    }
-    else { // set to 0b111 for no piece captured
-        move |= (0b111 << 19);
+    } else { // set to 0b110 for no piece captured
+        move |= (0b110 << 19);
     }
 
     /// check for promotion and set flags
-    if(lan.length() > index) {
+    if (lan.length() > index) {
         unsigned int promotedTo;
         switch (Algorithms::asciiCharToLower(lan[index])) {
             case 'q':
@@ -303,14 +302,14 @@ Move Board::parseMove(std::string lan) {
                 break;
         }
 
-        if(capture) { // capture promo
+        if (capture) { // capture promo
             flags |= (0b0100);
         }
     }
 
     /// double pawn push
-    if(pawnMove && (abs(destSquare - originSquare) == 16)) {
-        flags |= 0b001;
+    if (pawnMove && (abs(destSquare - originSquare) == 16)) {
+        flags |= 0b0001;
     }
 
     /// set the flags
@@ -334,7 +333,10 @@ void Board::unmakeMove() {
 
 // TODO: write this
 ESquare Board::getSquare(char file, char rank) {
-    return A1;
+    std::string files = "abcdefgh";
+    std::string ranks = "12345678";
+
+    return (ESquare) (8 * ranks.find(rank) + files.find(file));
 }
 
 // initialize the BoardStateHistory with the given castling rights and en passant square
