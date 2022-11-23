@@ -24,7 +24,7 @@ inline ESquare operator++ (ESquare& square, int)
 enum EPiece {EMPTY,W_PAWN,W_KNIGHT,W_BISHOP,W_ROOK,W_QUEEN,W_KING,
     B_PAWN,B_KNIGHT,B_BISHOP,B_ROOK,B_QUEEN,B_KING,INVALID};
 
-enum PieceType {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NONE};
+enum PieceType {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE};
 
 // EPiece operators
 inline EPiece operator++ (EPiece& piece) { return (EPiece)(piece+1); }
