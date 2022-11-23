@@ -14,7 +14,7 @@ int Board::setFEN(std::string FEN) {
     unsigned int i, j, castle;
     ESquare sq;
     char letter;
-    int aRank, aFile;
+    unsigned int aRank, aFile;
     std::vector<std::string> strList;
     Algorithms::split(strList, FEN, " ");
 
@@ -171,63 +171,170 @@ Move Board::parseMove(std::string lan) {
     unsigned int move = 0;
     unsigned int flags = 0;
     unsigned int index = 1;
+    bool capture = false;
+    bool pawnMove = false;
+    bool castling = false;
+
+    /// check for castling
+    if(lan == "e1g1") { // white castles on kingside
+        // set origin and dest
+        move |= (E1 << 6);
+        move |= G1;
+        // set flags
+        flags |= 0b0010;
+        castling = true;
+    } else if(lan == "e1c1") { // white castles on queenside
+        // set origin and dest
+        move |= (E1 << 6);
+        move |= C1;
+        // set flags
+        flags |= 0b0011;
+        castling = true;
+    } else if(lan == "e8g8") { // black castles on kingside
+        // set origin and dest
+        move |= (E8 << 6);
+        move |= G8;
+        // set flags
+        flags |= 0b0010;
+        castling = true;
+    } else if(lan == "e8c8") { // black castles queenside
+        // set origin and dest
+        move |= (E8 << 6);
+        move |= C8;
+        // set flags
+        flags |= 0b0011;
+        castling = true;
+    }
+
+    if(castling) {
+        // set castling rights
+        move |= (getLastState().castlingRights << 22);
+        // set captured piece (none)
+        move |= (NO_PIECE << 19);
+        // set moved piece
+        move |= (KING << 16);
+        // set flags in move
+        move |= (flags << 12);
+
+        return Move(move);
+    }
+
 
     char piece = Algorithms::asciiCharToLower(lan[0]); // piece moved, if not pawn
 
-    // set the moved piece type
+    /// set the moved piece type
     switch (piece) {
         case 'n' :
-            move |= (0b001) << 16;
+            move |= (KNIGHT) << 16;
             break;
         case 'b' :
-            move |= (0b010) << 16;
+            move |= (BISHOP) << 16;
             break;
         case 'r' :
-            move |= (0b011) << 16;
+            move |= (ROOK) << 16;
             break;
         case 'q' :
-            move |= (0b100) << 16;
+            move |= (QUEEN) << 16;
             break;
         case 'k' :
-            move |= (0b110) << 16;
+            move |= (KING) << 16;
             break;
         default: // pawn, bits already set to 0 so do nothing
             --index;
+            pawnMove = true;
             break;
     }
 
-    // set the origin square
+    /// set the origin square
     char originFile = lan[index];
     char originRank = lan[index+1];
-    move |= (getSquare(originFile, originRank) << 6);
+    ESquare originSquare = getSquare(originFile, originRank);
+    move |= (originSquare << 6);
 
     index += 2;
 
-    // check for capture and set capture flag (0b111 = no cap)
+    /// check for capture and set capture flag (0b111 = no cap)
     if(Algorithms::asciiCharToLower(lan[index] == 'x')) {
         flags |= 0b0100; // set capture flag to true
-        // TODO set capture piece
+        capture = true;
         ++index;
     }
 
-    // set the destination square
+    /// set the destination square
     char destFile = lan[index];
     char destRank = lan[index+1];
-    move |= getSquare(destFile, destRank);
+    ESquare destSquare = getSquare(destFile, destRank);
+    move |= destSquare;
 
-    // set the flags
-    // TODO: more flag stuff, like promotions, promo capture, castling, en passant, double pawn push
+    index += 2;
+
+    /// set the captured piece field
+    // if a piece was captured, find its type from the board state
+    if(capture && !pawnMove) { // no possibility of en passant
+        PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
+        move |= (capturedPieceType << 19);
+    } else if (capture && pawnMove) { // possibility of en passant
+        if(destSquare == getLastState().enPassantSquare) { // en passant capture
+            flags |= 0b0101; // set EP capture flag
+        } else { // normal pawn capture
+            PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
+            move |= (capturedPieceType << 19);
+        }
+    }
+    else { // set to 0b111 for no piece captured
+        move |= (0b111 << 19);
+    }
+
+    /// check for promotion and set flags
+    if(lan.length() > index) {
+        unsigned int promotedTo;
+        switch (Algorithms::asciiCharToLower(lan[index])) {
+            case 'q':
+                flags |= (0b1011);
+                break;
+            case 'r':
+                flags |= (0b1010);
+                break;
+            case 'b':
+                flags |= (0b1001);
+                break;
+            case 'n':
+                flags |= (0b1000);
+                break;
+        }
+
+        if(capture) { // capture promo
+            flags |= (0b0100);
+        }
+    }
+
+    /// double pawn push
+    if(pawnMove && (abs(destSquare - originSquare) == 16)) {
+        flags |= 0b001;
+    }
+
+    /// set the flags
     move |= (flags << 12);
 
-    // set castling rights
+    /// set castling rights
     move |= (getLastState().castlingRights << 22);
 
     return Move(move);
 }
 
+// make a move
+void Board::makeMove(Move move) {
+
+}
+
+// unmake a move
+void Board::unmakeMove() {
+
+}
+
 // TODO: write this
-unsigned int Board::getSquare(char file, char rank) {
-    return 0;
+ESquare Board::getSquare(char file, char rank) {
+    return A1;
 }
 
 // initialize the BoardStateHistory with the given castling rights and en passant square

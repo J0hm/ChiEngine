@@ -31,6 +31,11 @@ inline EPiece operator++ (EPiece& piece) { return (EPiece)(piece+1); }
 inline EPiece operator++ (EPiece& piece, int)
 { EPiece old = piece; piece = (EPiece) (piece + 1); return old; };
 
+// get PieceType from EPiece
+inline PieceType getPieceType(EPiece piece) {
+    return (PieceType) ((piece > 6) ? piece - 7 : piece - 1);
+}
+
 // Opponent colors
 enum EColor {WHITE,BLACK,NONE};
 

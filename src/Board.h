@@ -62,6 +62,13 @@ public:
     // Parse a move in long algebraic notation using the current board state
     Move parseMove(std::string lan);
 
+    // Make a move
+    void makeMove(Move move);
+    inline void makeMove(std::string lan) {makeMove(parseMove(lan));}
+
+    // Unmake a move
+    void unmakeMove();
+
     // Get the last state of the board
     inline BoardState getLastState() { return boardHistory->getLastState();};
 
@@ -70,8 +77,8 @@ private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
     void initializeBitBoards();
 
-    // get the integer representation of a square from file and rank characters
-    unsigned int getSquare(char file, char rank);
+    // gets a square from file and rank characters
+    ESquare getSquare(char file, char rank);
 };
 
 #endif //CHIENGINE_BOARD_H
