@@ -37,6 +37,12 @@ public:
 
         return res;
     }
+
+    static char asciiCharToLower(char in) {
+        if (in <= 'Z' && in >= 'A')
+            return in - ('Z' - 'z');
+        return in;
+    }
 };
 
 #endif //CHIENGINE_ALGORITHMS_H
