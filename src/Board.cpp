@@ -148,20 +148,12 @@ int Board::setFEN(std::string FEN) {
     return 0;
 }
 
-// initialize the BoardStateHistory with the given castling rights and en passant square
-void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
-    BoardState state;
-    state.enPassantSquare = sq;
-    state.castlingRights = c;
-    stateList.push_back(state);
-}
-
-// initalize the utility BitBoards after setting the squares
+// initialize the utility BitBoards after setting the squares
 void Board::initializeBitBoards() {
     ESquare sq;
-    memset(&bb.pcs,0,sizeof(bb.pcs));
+    memset(&bb.pcs, 0, sizeof(bb.pcs));
     // initialize the piece bit boards...
-    for (sq=A1;sq<=H8;sq++)
+    for (sq = A1; sq <= H8; sq++)
         bb.pcs[bb.squares[sq]] |= BB_SQUARES[sq];
     // calculate the utility bitboards...
     bb.pcsOfColor[WHITE] = bb.pcs[W_PAWN] | bb.pcs[W_KNIGHT] | bb.pcs[W_BISHOP] |
@@ -170,5 +162,79 @@ void Board::initializeBitBoards() {
                            bb.pcs[B_ROOK] | bb.pcs[B_QUEEN] | bb.pcs[B_KING];
     bb.occupiedSquares = bb.pcsOfColor[WHITE] | bb.pcsOfColor[BLACK];
     bb.emptySquares = ~bb.occupiedSquares;
+}
+
+// parse a move according to the CURRENT board state
+Move Board::parseMove(std::string lan) {
+    std::array<std::string, 8> ranks = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    std::stringstream ss;
+    unsigned int move = 0;
+    unsigned int flags = 0;
+    unsigned int index = 1;
+
+    char piece = Algorithms::asciiCharToLower(lan[0]); // piece moved, if not pawn
+
+    // set the moved piece type
+    switch (piece) {
+        case 'n' :
+            move |= (0b001) << 16;
+            break;
+        case 'b' :
+            move |= (0b010) << 16;
+            break;
+        case 'r' :
+            move |= (0b011) << 16;
+            break;
+        case 'q' :
+            move |= (0b100) << 16;
+            break;
+        case 'k' :
+            move |= (0b110) << 16;
+            break;
+        default: // pawn, bits already set to 0 so do nothing
+            --index;
+            break;
+    }
+
+    // set the origin square
+    char originFile = lan[index];
+    char originRank = lan[index+1];
+    move |= (getSquare(originFile, originRank) << 6);
+
+    index += 2;
+
+    // check for capture and set capture flag (0b111 = no cap)
+    if(Algorithms::asciiCharToLower(lan[index] == 'x')) {
+        flags |= 0b0100; // set capture flag to true
+        // TODO set capture piece
+        ++index;
+    }
+
+    // set the destination square
+    char destFile = lan[index];
+    char destRank = lan[index+1];
+    move |= getSquare(destFile, destRank);
+
+    // set the flags
+    // TODO: more flag stuff, like promotions, promo capture, castling, en passant, double pawn push
+    move |= (flags << 12);
+
+    // set castling rights
+    move |= (getLastState().castlingRights << 22);
+
+    return Move(move);
+}
+
+// TODO: write this
+unsigned int Board::getSquare(char file, char rank) {
+    return 0;
+}
+
+// initialize the BoardStateHistory with the given castling rights and en passant square
+void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
+    BoardState state;
+    state.enPassantSquare = sq;
+    state.castlingRights = c;
+    stateList.push_back(state);
 }
 

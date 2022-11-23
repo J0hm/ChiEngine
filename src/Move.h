@@ -23,10 +23,6 @@ public:
 
     inline Move(int move) : bitMove(move), rating(0) {}
 
-    inline Move(std::string lan) {
-        parseLAN(lan);
-    }
-
     // getters
     inline ESquare getDest() {
         return (ESquare) (bitMove & 0x3f);
@@ -91,7 +87,7 @@ public:
         bitMove |= ((state & 0xf) << 22);
     }
 
-    inline void setMoveRating(const unsigned int moveRating) {
+    inline void setMoveRating(unsigned int moveRating) {
         rating = moveRating;
     }
 
@@ -120,14 +116,8 @@ public:
 
     inline bool isNullMove() { return bitMove == NULL_MOVE; }
 
-    // returns this move in SAN
-    std::string toSAN();
-
     // returns this move in LAN
     std::string toLAN();
-
-    // sets this move to the given long algebraic notation
-    void parseLAN(std::string lan);
 
     // Equality to check if two moves are identical for killer moves
     inline bool operator==(Move &otherMove) {
@@ -154,7 +144,7 @@ public:
 
         unsigned int moveOrderingScore = move.getMoveRating();
 
-        os << move.toSAN() << " "
+        os << move.toLAN() << " "
              << "Origin: [" << xOrigin << ", " << yOrigin << "] Dest: ["
              << xDestination << ", " << yDestination << "] Flags: " << flags
              << " MO score : " << moveOrderingScore

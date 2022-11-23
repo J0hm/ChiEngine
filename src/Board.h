@@ -5,6 +5,7 @@
 #include <vector>
 #include "Types.h"
 #include "Algorithms.h"
+#include "Move.h"
 
 // Holds the piece location status of the board in BitBoards per Piece
 // This is a hybrid approach
@@ -58,6 +59,9 @@ public:
     // Set the board to the position specified by the given FEN
     int setFEN(std::string fen);
 
+    // Parse a move in long algebraic notation using the current board state
+    Move parseMove(std::string lan);
+
     // Get the last state of the board
     inline BoardState getLastState() { return boardHistory->getLastState();};
 
@@ -65,6 +69,9 @@ public:
 private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
     void initializeBitBoards();
+
+    // get the integer representation of a square from file and rank characters
+    unsigned int getSquare(char file, char rank);
 };
 
 #endif //CHIENGINE_BOARD_H
