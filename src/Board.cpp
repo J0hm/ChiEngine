@@ -290,7 +290,6 @@ Move Board::parseMove(std::string lan) {
 
     /// check for promotion and set flags
     if (lan.length() > index) {
-        unsigned int promotedTo;
         switch (Algorithms::asciiCharToLower(lan[index])) {
             case 'q':
                 flags |= (0b1011);

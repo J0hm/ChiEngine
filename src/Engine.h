@@ -6,7 +6,7 @@
 
 
 // the main ChessEngine class which "runs" the engine, communicates with the GUI via UCI, and houses all other
-// functins of the engine (evaluation, search, etc)
+// functions of the engine (evaluation, search, etc)
 class Engine {
 public:
     // constructor and destructor
