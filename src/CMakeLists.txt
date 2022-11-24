@@ -15,7 +15,7 @@ set(SOURCE_FILES
         Board.cpp
         InputThread.cpp
         Move.cpp
-        Algorithms.cpp)
+        )
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
