@@ -1,20 +1,13 @@
 # ChiEngine
-A chess engine written in C++?
+A UCI chess engine written in C++ using deep neural networks for evaluation.
 
 ### Dataset: Cassiabase
-
 	- Figure out how to extract and use games from this dataset
 	- How will games be represented?
 	- How will the board be represented?
 	- How will moves be represented?
-  
-### Libraries:
-
-	- i probably need to make these oops
-	- rewrite python-chess in c++
 
 ### GUI:
-
 	- Communication with common chess GUIs
 
 ### Important links:
@@ -25,16 +18,9 @@ A chess engine written in C++?
 - [UCI Protocol](http://wbec-ridderkerk.nl/html/UCIProtocol.html)
   
 ### TODO:
-
-  - [ ] Board representation (data structures, methods, etc)
-    - Hybrid solution
-  - [ ] Interface and communication with a GUI using UCI
-  	- SCID over UCI
-  - [ ] Evaluation algorithm
-  	- Neural network trained on "pairs" of positions
-  	- Create database of:
-  		- Winning positions for black
-  		- Winning positions for white
-  	- Use pairs of these positions to train the algorithm, where winning positions are prefered over losing
-  - [ ] Search algorithm
-  - [ ] Create database of winning positions for black and white
+  - [ ] Finish testing parseMove. Only certain captures/edge cases left.
+  - [ ] Implement and test make and unmake move.
+  - [ ] Implement movegen and test using perft
+  - [ ] Find a solution for storing positions to be evauluated by the neural network
+  - [ ] Create a database of winning and losing positions for black/white (from Cassiabase set)
+  - [ ] Train an evaluation neural network using these positions
