@@ -18,3 +18,6 @@ set(SOURCE_FILES
         Algorithms.cpp)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
+
+add_executable(ChiEngine_run main.cpp)
+target_link_libraries(ChiEngine_run src)
