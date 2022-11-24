@@ -12,10 +12,17 @@ public:
     InputThread();
 
     // checks if new input is available (i.e. a new command was sent)
-    inline bool isNewInputAvailable();
+    inline bool isNewInputAvailable() { return newInputAvailable;}
 
     // gets the new input and returns it as a string
-    inline std::string getNewInput();
+    inline std::string getNewInput() {
+        if (newInputAvailable) {
+            newInputAvailable = false;
+            return input;
+        } else {
+            return "";
+        }
+    }
 
 
 private:

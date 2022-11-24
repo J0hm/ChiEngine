@@ -1,5 +1,9 @@
 #include <iostream>
+#include <array>
+#include <sstream>
+#include <cstring>
 #include "Board.h"
+#include "Algorithms.h"
 
 Board::Board() {
     boardHistory = new BoardStateHistory(); // initialize pointer to BoardStateHistory
@@ -346,4 +350,6 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     state.castlingRights = c;
     stateList.push_back(state);
 }
+
+
 

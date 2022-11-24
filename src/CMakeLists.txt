@@ -1,17 +1,20 @@
 project(ChiEngine)
 
 set(HEADER_FILES
+        Types.h
         Algorithms.h
         Board.h
-        Engine.h
         InputThread.h
-        Types.h
+        Move.h
+        Engine.h
         )
 
 set(SOURCE_FILES
-        Board.cpp
+        Main.cpp
         Engine.cpp
+        Board.cpp
         InputThread.cpp
-        Move.cpp Move.h)
+        Move.cpp
+        Algorithms.cpp)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})

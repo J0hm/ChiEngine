@@ -1,4 +1,9 @@
+#include <Windows.h>
+#include <vector>
+#include <iterator>
+#include <sstream>
 #include "Engine.h"
+#include "Algorithms.h"
 
 Engine::Engine() {
     board = new Board();

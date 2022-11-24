@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Engine.cpp"
+#include "Engine.h"
 #include "Algorithms.h"
 
 int main() {
@@ -9,7 +9,7 @@ int main() {
 
     engine = new Engine();
     engine->run();
-    delete engine;
+    //delete engine;
 
     return 0;
 }

@@ -6,19 +6,6 @@ InputThread::InputThread() {
     t.detach();
 }
 
-inline bool InputThread::isNewInputAvailable() {
-    return newInputAvailable;
-}
-
-std::string InputThread::getNewInput() {
-    if (newInputAvailable) {
-        newInputAvailable = false;
-        return input;
-    } else {
-        return "";
-    }
-}
-
 void InputThread::inputLoop() {
     while (true) {
         std::string response;

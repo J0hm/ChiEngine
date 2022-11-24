@@ -1,13 +1,8 @@
 #ifndef CHIENGINE_ENGINE_H
 #define CHIENGINE_ENGINE_H
 
-#include <Windows.h>
-#include <vector>
-#include <iterator>
-#include <sstream>
-#include "Algorithms.h"
-#include "InputThread.cpp"
-#include "Board.cpp"
+#include "InputThread.h"
+#include "Board.h"
 
 
 // the main ChessEngine class which "runs" the engine, communicates with the GUI via UCI, and houses all other

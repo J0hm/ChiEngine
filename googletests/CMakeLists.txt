@@ -1,5 +1,5 @@
-# 'test' is the subproject name
-project(test)
+# 'Google_test' is the subproject name
+project(googletests)
 
 # 'lib' is the folder with Google Test sources
 add_subdirectory(lib)
@@ -10,3 +10,4 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 add_executable(Google_Tests_run BoardTest.cpp)
 target_link_libraries(Google_Tests_run src)
 target_link_libraries(Google_Tests_run gtest gtest_main)
+
