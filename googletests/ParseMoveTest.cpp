@@ -3,7 +3,7 @@
 
 TEST(BoardTestSuite, DefaultFENParseMoveE4) { // checks if parsing the move E2E4 produces the proper result
     Board board;
-    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), 0);
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
     Move m = board.parseMove("e2e4");
     Move m2 = board.parseMove("e2E4");
     Move m3 = board.parseMove("E2e4");
@@ -27,7 +27,7 @@ TEST(BoardTestSuite, DefaultFENParseMoveE4) { // checks if parsing the move E2E4
 
 TEST(BoardTestSuite, DefaultFENParseMoveE3) { // checks if parsing the move E2E3 produces the proper result
     Board board;
-    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"), 0);
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
     Move m = board.parseMove("e2e3");
 
     ASSERT_FALSE(m.isCapture());
@@ -147,3 +147,43 @@ TEST(BoardTestSuite, ParseMoveBlackCastleQueenside) { // checks parsing black ca
     ASSERT_EQ(m.getCapturedPieceType(), NO_PIECE);
     ASSERT_EQ(m.getPreviousCastlingRights(), 0b1111);
 }
+
+TEST(BoardTestSuite, ParseMoveTakeMiddlePawn) { // checks parsing taking middle pawn
+    Board board;
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"), 0);
+    ASSERT_EQ(board.getLastState().castlingRights, 0b1111);
+    Move m = board.parseMove("d4xe5");
+
+    ASSERT_TRUE(m.isCapture());
+    ASSERT_FALSE(m.isEnPassant());
+    ASSERT_FALSE(m.isPromotion());
+    ASSERT_FALSE(m.isQueenSideCastling());
+    ASSERT_FALSE(m.isKingSideCastling());
+    ASSERT_FALSE(m.isDoublePawnPush());
+    ASSERT_EQ(m.getDest(), E5);
+    ASSERT_EQ(m.getOrigin(), D4);
+    ASSERT_EQ(m.getPieceType(), PAWN);
+    ASSERT_EQ(m.getCapturedPieceType(), PAWN);
+    ASSERT_EQ(m.getPreviousCastlingRights(), 0b1111);
+}
+
+TEST(BoardTestSuite, ParseMoveTakeQueenWithBishop) { // checks parsing taking middle pawn
+    Board board;
+    ASSERT_EQ(board.setFEN("rn1qkbnr/ppp1pppp/3p4/8/5Pb1/3PP3/PPP3PP/RNBQKBNR b KQkq - 0 3"), 0);
+    ASSERT_EQ(board.getLastState().castlingRights, 0b1111);
+    Move m = board.parseMove("g4xd1");
+
+    ASSERT_TRUE(m.isCapture());
+    ASSERT_FALSE(m.isEnPassant());
+    ASSERT_FALSE(m.isPromotion());
+    ASSERT_FALSE(m.isQueenSideCastling());
+    ASSERT_FALSE(m.isKingSideCastling());
+    ASSERT_FALSE(m.isDoublePawnPush());
+    ASSERT_EQ(m.getDest(), D1);
+    ASSERT_EQ(m.getOrigin(), G4);
+    ASSERT_EQ(m.getPieceType(), BISHOP);
+    ASSERT_EQ(m.getCapturedPieceType(), QUEEN);
+    ASSERT_EQ(m.getPreviousCastlingRights(), 0b1111);
+}
+
+// TODO: promotion tests

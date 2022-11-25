@@ -5,6 +5,10 @@
 #include <vector>
 #include "Move.h"
 
+#define set_bit(b, i) ((b) |= (1ULL << i))
+#define get_bit(b, i) ((b) & (1Ull << i))
+#define clear_bit(b, i) ((b) &= ~(1Ull << i))
+
 // Holds the piece location status of the board in BitBoards per Piece
 // This is a hybrid approach
 struct BoardBB {
@@ -24,7 +28,7 @@ struct BoardState {
     int lastTriggerEvent; // ply with pawn move or capture
     int castlingRights; // 4 bits: KQkq = 1111, Kk = 1010, Kq = 1001, etc
     ESquare enPassantSquare; // square which can be moved to in order to capture via en passant
-    //EMove move; TODO make move class
+    Move move;
     bool inCheck; // is a player in check?
     int repetitions; // number of times the same position was visited
 };
@@ -37,6 +41,18 @@ public:
 
     // Get the last state of the board
     inline BoardState getLastState() {return stateList.back();}
+
+    // Pop the last state from the list
+    inline BoardState popLastState() {
+        BoardState back = stateList.back();
+        stateList.pop_back();
+        return back;
+    }
+
+    // add a state to the board state
+    inline void addState(BoardState s) {stateList.push_back(s);};
+
+    int getStateCount() {return stateList.size();};
 
 private:
     std::vector<BoardState> stateList;
@@ -69,6 +85,12 @@ public:
 
     // Get the last state of the board
     inline BoardState getLastState() { return boardHistory->getLastState();};
+
+    // Pop the last boardstate off of the list
+    inline BoardState popBoardState() {return boardHistory->popLastState();};
+
+    // get the number of stored board states
+    inline int getStateCount() {return boardHistory->getStateCount();};
 
 
 private:

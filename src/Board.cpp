@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
-#include <sstream>
 #include <cstring>
+#include <functional>
 #include "Board.h"
 #include "Algorithms.h"
 
@@ -11,6 +11,23 @@ Board::Board() {
 
 Board::~Board() {
 
+}
+
+// initialize the utility BitBoards after setting the squares
+void Board::initializeBitBoards() {
+    ESquare sq;
+    memset(&bb.pcs, 0, sizeof(bb.pcs));
+    // initialize the piece bit boards...
+    for (sq = A1; sq <= H8; sq++)
+        bb.pcs[bb.squares[sq]] |= BB_SQUARES[sq];
+
+    // calculate the utility bitboards...
+    bb.pcsOfColor[WHITE] = bb.pcs[W_PAWN] | bb.pcs[W_KNIGHT] | bb.pcs[W_BISHOP] |
+                           bb.pcs[W_ROOK] | bb.pcs[W_QUEEN] | bb.pcs[W_KING];
+    bb.pcsOfColor[BLACK] = bb.pcs[B_PAWN] | bb.pcs[B_KNIGHT] | bb.pcs[B_BISHOP] |
+                           bb.pcs[B_ROOK] | bb.pcs[B_QUEEN] | bb.pcs[B_KING];
+    bb.occupiedSquares = bb.pcsOfColor[WHITE] | bb.pcsOfColor[BLACK];
+    bb.emptySquares = ~bb.occupiedSquares;
 }
 
 // set the board to the position specified by the given FEN
@@ -124,6 +141,8 @@ int Board::setFEN(std::string FEN) {
             castle |= 0b0010;
         if (strList[2].find('q') != std::string::npos)
             castle |= 0b0001;
+    } else {
+        castle = 0b1111;
     }
 
     // read en passant and save it into "sq" Default := None (ER)
@@ -152,34 +171,15 @@ int Board::setFEN(std::string FEN) {
     return 0;
 }
 
-// initialize the utility BitBoards after setting the squares
-void Board::initializeBitBoards() {
-    ESquare sq;
-    memset(&bb.pcs, 0, sizeof(bb.pcs));
-    // initialize the piece bit boards...
-    for (sq = A1; sq <= H8; sq++)
-        bb.pcs[bb.squares[sq]] |= BB_SQUARES[sq];
-    // calculate the utility bitboards...
-    bb.pcsOfColor[WHITE] = bb.pcs[W_PAWN] | bb.pcs[W_KNIGHT] | bb.pcs[W_BISHOP] |
-                           bb.pcs[W_ROOK] | bb.pcs[W_QUEEN] | bb.pcs[W_KING];
-    bb.pcsOfColor[BLACK] = bb.pcs[B_PAWN] | bb.pcs[B_KNIGHT] | bb.pcs[B_BISHOP] |
-                           bb.pcs[B_ROOK] | bb.pcs[B_QUEEN] | bb.pcs[B_KING];
-    bb.occupiedSquares = bb.pcsOfColor[WHITE] | bb.pcsOfColor[BLACK];
-    bb.emptySquares = ~bb.occupiedSquares;
-}
-
 // parse a move according to the CURRENT board state
 Move Board::parseMove(std::string lan) {
-    std::array<std::string, 8> ranks = {"a", "b", "c", "d", "e", "f", "g", "h"};
-    std::stringstream ss;
     unsigned int move = 0;
     unsigned int flags = 0;
-    unsigned int index = 1;
-    bool capture = false;
-    bool pawnMove = false;
-    bool castling = false;
+    int index = 0;
+
 
     /// check for castling
+    bool castling = false;
     if (lan == "e1g1") { // white castles on kingside
         // set origin and dest
         move |= (E1 << 6);
@@ -223,41 +223,15 @@ Move Board::parseMove(std::string lan) {
         return Move(move);
     }
 
-
-    char piece = Algorithms::asciiCharToLower(lan[0]); // piece moved, if not pawn
-
-    /// set the moved piece type
-    switch (piece) {
-        case 'n' :
-            move |= (KNIGHT) << 16;
-            break;
-        case 'b' :
-            move |= (BISHOP) << 16;
-            break;
-        case 'r' :
-            move |= (ROOK) << 16;
-            break;
-        case 'q' :
-            move |= (QUEEN) << 16;
-            break;
-        case 'k' :
-            move |= (KING) << 16;
-            break;
-        default: // pawn, bits already set to 0 so do nothing
-            --index;
-            pawnMove = true;
-            break;
-    }
-
     /// set the origin square
     char originFile = Algorithms::asciiCharToLower(lan[index]);
     char originRank = Algorithms::asciiCharToLower(lan[index + 1]);
     ESquare originSquare = getSquare(originFile, originRank);
     move |= (originSquare << 6);
-
     index += 2;
 
-    /// check for capture and set capture flag (0b111 = no cap)
+    /// check for capture and set capture flag
+    bool capture = false;
     if (Algorithms::asciiCharToLower(lan[index]) == 'x') {
         flags |= 0b0100; // set capture flag to true
         capture = true;
@@ -272,8 +246,16 @@ Move Board::parseMove(std::string lan) {
 
     index += 2;
 
+    /// set the moved piece field
+    PieceType pieceMoved = getPieceType(bb.squares[originSquare]); // piece moved
+    move |= (pieceMoved) << 16;
+
+    bool pawnMove = false;
+    if (pieceMoved == PAWN) {
+        pawnMove = true;
+    }
+
     /// set the captured piece field
-    // if a piece was captured, find its type from the board state
     if (capture && !pawnMove) { // no possibility of en passant
         PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
         move |= (capturedPieceType << 19);
@@ -324,17 +306,138 @@ Move Board::parseMove(std::string lan) {
     return Move(move);
 }
 
-// make a move
+// make a move, assumes the move is valid
+// TODO: state inCheck, repetitions, hash, etc
 void Board::makeMove(Move move) {
+    ESquare from = move.getOrigin();
+    ESquare to = move.getDest();
+    BoardState oldState = getLastState();
+    BoardState newState;
 
+    // move the piece on the board
+    EPiece movedPiece = bb.squares[from];
+    bb.squares[from] = EMPTY;
+    bb.squares[to] = movedPiece;
+
+    // update utility bitboards
+    clear_bit(bb.pcs[movedPiece], from);
+    set_bit(bb.pcs[movedPiece], to);
+
+    clear_bit(bb.emptySquares, to);
+    set_bit(bb.emptySquares, from);
+
+    clear_bit(bb.occupiedSquares, from);
+    set_bit(bb.occupiedSquares, to);
+
+    clear_bit(bb.pcsOfColor[sideToMove], from);
+    set_bit(bb.pcsOfColor[sideToMove], to);
+
+    // TODO castling
+    if(move.isQueenSideCastling()) {
+        if(sideToMove == WHITE) {
+            // white queen side castles
+        } else {
+            // black queen side castles
+        }
+    }else if(move.isKingSideCastling()) {
+        if(sideToMove == WHITE) {
+            // white king side castles
+        } else {
+            // black king side castles
+        }
+    }
+
+    // if the move is a promotion, promote it...
+    if(move.isPromotion()) {
+        EPiece promotionPiece = (EPiece)((sideToMove == WHITE) ?
+                (move.getPromotedPieceType() + 1) : (move.getPromotedPieceType() + 7));
+        bb.squares[to] = promotionPiece;
+        clear_bit(bb.pcs[movedPiece], to);
+        set_bit(bb.pcs[promotionPiece], to);
+    }
+
+    // if the move is en passant capture...
+    if(move.isEnPassant()) {
+        if(sideToMove = WHITE) {
+            bb.squares[to - 8] = EMPTY;
+            clear_bit(bb.pcs[B_PAWN], (to - 8));
+        } else {
+            bb.squares[to + 8] = EMPTY;
+            clear_bit(bb.pcs[B_PAWN], (to + 8));
+        }
+    }
+
+    // if the move is a double pawn push, set the en passant square
+    if(move.isDoublePawnPush()) {
+        if(sideToMove = WHITE) {
+            newState.enPassantSquare = (ESquare)(to - 8);
+        } else {
+            newState.enPassantSquare = (ESquare)(to + 8);
+        }
+    } else {
+        newState.enPassantSquare = ER;
+    }
+
+    // update board
+    sideToMove = (sideToMove == BLACK) ? WHITE : BLACK;
+    ++currentPly;
+
+    // get new castling rights
+    unsigned int castle = move.getPreviousCastlingRights();
+    if (move.isCastling()) {
+        if (sideToMove == WHITE) {
+            castle &= 0b0011;
+        } else {
+            castle &= 0b1100;
+        }
+    }
+
+    newState.hash = 0; // TODO hashing function
+    newState.lastTriggerEvent = ((move.getPieceType() == PAWN) || move.isCapture())
+                                ? currentPly : oldState.lastTriggerEvent;
+    newState.castlingRights = castle;
+    newState.move = move;
+    newState.inCheck = false; // TODO how do i check for this
+    // answer: probably something with move generation and attack tables and stuff, definitely a later problem
+    // ideally this would be very fast
+    newState.repetitions = oldState.repetitions; // also a todo but low priority
+
+    boardHistory->addState(newState);
 }
 
 // unmake a move
 void Board::unmakeMove() {
+    if (getStateCount() < 2) return; // there is no state to go back to
 
+    BoardState lastState = popBoardState();
+
+    // reverse to and from
+    ESquare to = lastState.move.getOrigin();
+    ESquare from = lastState.move.getDest();
+
+    // move the piece on the board
+    EPiece movedPiece = bb.squares[from];
+    bb.squares[from] = EMPTY;
+    bb.squares[to] = movedPiece;
+
+    // update utility bitboards
+    clear_bit(bb.pcs[movedPiece], from);
+    set_bit(bb.pcs[movedPiece], to);
+
+    clear_bit(bb.emptySquares, to);
+    set_bit(bb.emptySquares, from);
+
+    clear_bit(bb.occupiedSquares, from);
+    set_bit(bb.occupiedSquares, to);
+
+    clear_bit(bb.pcsOfColor[sideToMove], from);
+    set_bit(bb.pcsOfColor[sideToMove], to);
+
+    // update the board
+    sideToMove = (sideToMove == BLACK) ? WHITE : BLACK;
+    --currentPly;
 }
 
-// TODO: write this
 ESquare Board::getSquare(char file, char rank) {
     std::string files = "abcdefgh";
     std::string ranks = "12345678";
