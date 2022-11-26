@@ -358,7 +358,7 @@ void Board::makeMove(Move move) {
 
     // if the move is en passant capture...
     if(move.isEnPassant()) {
-        if(sideToMove = WHITE) {
+        if(sideToMove == WHITE) {
             bb.squares[to - 8] = EMPTY;
             clear_bit(bb.pcs[B_PAWN], (to - 8));
         } else {
@@ -369,7 +369,7 @@ void Board::makeMove(Move move) {
 
     // if the move is a double pawn push, set the en passant square
     if(move.isDoublePawnPush()) {
-        if(sideToMove = WHITE) {
+        if(sideToMove == WHITE) {
             newState.enPassantSquare = (ESquare)(to - 8);
         } else {
             newState.enPassantSquare = (ESquare)(to + 8);

@@ -26,7 +26,7 @@ struct BoardBB {
 struct BoardState {
     int64 hash; // hash for the board, used to find already-evaluated positions
     int lastTriggerEvent; // ply with pawn move or capture
-    int castlingRights; // 4 bits: KQkq = 1111, Kk = 1010, Kq = 1001, etc
+    unsigned int castlingRights; // 4 bits: KQkq = 1111, Kk = 1010, Kq = 1001, etc
     ESquare enPassantSquare; // square which can be moved to in order to capture via en passant
     Move move;
     bool inCheck; // is a player in check?
