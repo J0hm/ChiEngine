@@ -7,7 +7,7 @@ set(HEADER_FILES
         InputThread.h
         Move.h
         Engine.h
-        )
+        MoveGen.h)
 
 set(SOURCE_FILES
         Main.cpp
@@ -15,7 +15,7 @@ set(SOURCE_FILES
         Board.cpp
         InputThread.cpp
         Move.cpp
-        )
+        MoveGen.cpp)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
