@@ -36,15 +36,17 @@ private:
     EBitBoard bishopAttackBitBoard[2];
     EBitBoard rookAttackBitBoard[2];
     EBitBoard queenAttackBitBoard[2];
+    EBitBoard kingAttackBitboard[2];
     EBitBoard allAttackBitBoard[2];
 
     void initKnightAttackTable();
 
     // calculate and update bitboards for piece attacks for the given side
-    void calcPawnAttackBitboard(EColor side); // does not have all pawn moves, only capture threats
+    void calcPawnAttackBitboard(EColor side); // does not have all pawn moves, only capture threats not incl. en passant
     void calcBishopAttackBitboard(EColor side);
     void calcRookAttackBitboard(EColor side);
     void calcQueenAttackBitboard(EColor side);
+    void calcKingAttackBitboard(EColor side); // does not include castling
     void calcAllAttackBitboard(EColor side);
 
     // get all pseudo-legal moves of the given piece type, based on turn of board
