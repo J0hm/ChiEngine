@@ -5,9 +5,6 @@
 #include <vector>
 #include "Move.h"
 
-#define set_bit(b, i) ((b) |= (1ULL << i))
-#define get_bit(b, i) ((b) & (1Ull << i))
-#define clear_bit(b, i) ((b) &= ~(1Ull << i))
 
 // Holds the piece location status of the board in BitBoards per Piece
 // This is a hybrid approach
