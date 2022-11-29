@@ -1,4 +1,3 @@
-#include <cmath>
 #include "MagicMoves.h"
 
 int64 initOCCMagicMoves(const int *squares, const int numSquares, const int64 linocc) {
@@ -114,7 +113,6 @@ void MagicMoves::initMagics() {
         }
         for (bMask = 0; bMask < (((int64) (1)) << numSquares); bMask++) {
             int64 occ = initOCCMagicMoves(squares, numSquares, bMask);
-            //BmagicNOMASK(i, occ) = initBishopMagicsMoves(8 * (i / 8) + (std::abs(i % 8 - 7) % 8), occ);
             BmagicNOMASK(i, occ) = initBishopMagicsMoves(i, occ);
         }
     }
@@ -130,7 +128,6 @@ void MagicMoves::initMagics() {
         }
         for (rMask = 0; rMask < (((int64) (1)) << numSquares); rMask++) {
             int64 occ = initOCCMagicMoves(squares, numSquares, rMask);
-            //RmagicNOMASK(i, occ) = initRookMagicMoves(8*(i/8) + (std::abs(i%8 - 7) % 8), occ);
             RmagicNOMASK(i, occ) = initRookMagicMoves(i, occ);
         }
     }
