@@ -114,8 +114,8 @@ void MagicMoves::initMagics() {
         }
         for (bMask = 0; bMask < (((int64) (1)) << numSquares); bMask++) {
             int64 occ = initOCCMagicMoves(squares, numSquares, bMask);
-            BmagicNOMASK(i, occ) = initBishopMagicsMoves(8 * (i / 8) + (std::abs(i % 8 - 7) % 8), occ);
-            //BmagicNOMASK(i, occ) = initBishopMagicsMoves(i, occ);
+            //BmagicNOMASK(i, occ) = initBishopMagicsMoves(8 * (i / 8) + (std::abs(i % 8 - 7) % 8), occ);
+            BmagicNOMASK(i, occ) = initBishopMagicsMoves(i, occ);
         }
     }
 

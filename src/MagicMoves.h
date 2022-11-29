@@ -9,7 +9,7 @@ class MagicMoves {
 #define Rmagic(square, occupancy) rookDB[square][(((occupancy)&rookMasks[square])*rookMagics[square])>>rookShifts[square]]
 #define BmagicNOMASK(square, occupancy) bishopDB[square][((occupancy)*bishopMagics[square])>>bishopShifts[square]]
 #define RmagicNOMASK(square, occupancy) rookDB[square][((occupancy)*rookMagics[square])>>rookShifts[square]]
-#define Qmagic(square, occupancy) (Bmagic(square,occupancy)|Rmagic(square,occupancy))
+#define Qmagic(square, occupancy) (Bmagic(SHIFTED_SQUARE[square],occupancy)|Rmagic(SHIFTED_SQUARE[square],occupancy))
 #define QmagicNOMASK(square, occupancy) (BmagicNOMASK(square,occupancy)|RmagicNOMASK(square,occupancy))
 
 public:
@@ -17,8 +17,8 @@ public:
 
     void initMagics();
 
-    inline EBitBoard getBishopAttacks(ESquare square, EBitBoard occupancy) {return Bmagic(square, occupancy);};
-    inline EBitBoard getRookAttacks(ESquare square, EBitBoard occupancy) {return Rmagic(square, occupancy);};
+    inline EBitBoard getBishopAttacks(ESquare square, EBitBoard occupancy) {return Bmagic(SHIFTED_SQUARE[square], occupancy);};
+    inline EBitBoard getRookAttacks(ESquare square, EBitBoard occupancy) {return Rmagic(SHIFTED_SQUARE[square], occupancy);};
     inline EBitBoard getQueenAttacks(ESquare square, EBitBoard occupancy) {return Qmagic(square, occupancy);};
 
 private:

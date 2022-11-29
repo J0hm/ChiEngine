@@ -330,4 +330,3 @@ TEST(BoardTestSuite, E4FENState) {
     ASSERT_EQ(state.castlingRights, 0b1111);
     ASSERT_EQ(state.enPassantSquare, E3);
 }
-

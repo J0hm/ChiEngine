@@ -39,8 +39,6 @@ int Board::setFEN(std::string FEN) {
     std::vector<std::string> strList;
     Algorithms::split(strList, FEN, " ");
 
-    std::cout << "Setting fen to " << FEN << std::endl;
-
     // empty the board squares
     for (sq = A1; sq <= H8; sq++) bb.squares[sq] = EMPTY;
     // read the board - translate each loop index into a square
