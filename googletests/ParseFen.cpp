@@ -28,8 +28,6 @@ TEST(BoardTestSuite, DefaultFEN) {
     std::string blackBishop = Algorithms::bitBoardToString(board.bb.pcs[B_BISHOP]);
     std::string blackRook = Algorithms::bitBoardToString(board.bb.pcs[B_ROOK]);
 
-    std::cout << emptySquares << std::endl;
-
     ASSERT_EQ("\n00000000"
               "\n00000000"
               "\n11111111"
@@ -331,14 +329,4 @@ TEST(BoardTestSuite, E4FENState) {
     BoardState state = board.getLastState();
     ASSERT_EQ(state.castlingRights, 0b1111);
     ASSERT_EQ(state.enPassantSquare, E3);
-}
-
-TEST(BoardTestSuite, MirrorTest) {
-    Board board;
-    ASSERT_EQ(board.setFEN("8/3p4/8/8/8/8/8/8 w"), 0);
-
-    std::cout << "occupied: " << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
-    std::cout << "empty: " << Algorithms::bitBoardToString(board.bb.emptySquares) << std::endl;
-    std::cout << "b pawns: " << Algorithms::bitBoardToString(board.bb.pcs[B_PAWN]) << std::endl;
-    std::cout << "D7: " << board.bb.squares[D7] << std::endl;
 }

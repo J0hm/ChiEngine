@@ -7,6 +7,4 @@ TEST(PlaygroundSuite, TestGenKngihts) {
 
 //    std::cout << Algorithms::bitBoardToString(pos);
 //    std::cout << A
-
-    std::cout << (NORTH(pos) & notOcc);
 }
