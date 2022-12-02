@@ -163,12 +163,14 @@ int Board::setFEN(std::string FEN) {
         if (sideToMove == BLACK) currentPly++;
     }
 
+    // set up the piece related bit boards with this board content
+    initializeBitBoards();
+
+    // hash the position
     int64 hash = hasher.hashBitBoard(bb, sideToMove, castle, sq);
 
     // initialize the board state history stack
     boardHistory->initialize(castle, sq, hash);
-    // set up the piece related bit boards with this board content
-    initializeBitBoards();
     return 0;
 }
 
@@ -308,7 +310,7 @@ Move Board::parseMove(std::string lan) {
 }
 
 // make a move, assumes the move is valid
-// TODO: state inCheck, repetitions, hash, etc
+// TODO: repetitions
 void Board::makeMove(Move move) {
     EColor otherSide = (sideToMove == WHITE) ? BLACK : WHITE;
     ESquare from = move.getOrigin();
@@ -418,8 +420,8 @@ void Board::unmakeMove() {
     bb.squares[to] = movedPiece;
 
     // update bitboard
-    clearSquare(from, movedPiece, sideToMove);
-    setSquare(to, movedPiece, sideToMove);
+    clearSquare(from, movedPiece, otherSide);
+    setSquare(to, movedPiece, otherSide);
 
     if (lastState.move.isCapture()) {
         if (lastState.move.isEnPassant()) {
@@ -484,6 +486,7 @@ void Board::clearSquare(int64 sq, EPiece piece, EColor side) {
     clear_bit(bb.pcsOfColor[side], sq);
     clear_bit(bb.occupiedSquares, sq);
     set_bit(bb.emptySquares, sq);
+    bb.squares[sq] = EMPTY;
 }
 
 void Board::setSquare(int64 sq, EPiece piece, EColor side) {
@@ -491,6 +494,7 @@ void Board::setSquare(int64 sq, EPiece piece, EColor side) {
     set_bit(bb.pcsOfColor[side], sq);
     set_bit(bb.occupiedSquares, sq);
     clear_bit(bb.emptySquares, sq);
+    bb.squares[sq] = piece;
 }
 
 
