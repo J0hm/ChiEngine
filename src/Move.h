@@ -23,6 +23,8 @@ public:
 
     inline Move(int move) : bitMove(move), rating(0) {}
 
+    Move(unsigned int to, unsigned int from, unsigned int moved, unsigned int captured, unsigned int flags, unsigned int castlingRights);
+
     // getters
     inline ESquare getDest() {
         return (ESquare) (bitMove & 0x3f);
@@ -187,7 +189,7 @@ private:
     unsigned int bitMove;
 
     // stores the rating for this move
-    int rating;
+    int rating{};
 };
 
 

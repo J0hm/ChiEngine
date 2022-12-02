@@ -1,5 +1,8 @@
 #include "MoveGen.h"
 
+#define FORWARD(sq) ((board->sideToMove == WHITE) ? NORTH(sq) : SOUTH(sq))
+#define BACKWARD(sq) ((board->sideToMove == WHITE) ? SOUTH(sq) : NORTH(sq))
+
 void MoveGen::calcBishopAttackBitboard(EColor side) {
     int64 bb = 0;
     EBitBoard bishopOcc = board->bb.pcs[3 + 6 * side];
@@ -134,19 +137,92 @@ std::vector<Move> MoveGen::getPawnMoves() {
     // 1 forward, 2 forward, capture, en passant, promotion
     std::vector<Move> moves;
     EBitBoard pawnOcc = board->bb.pcs[1 + 6 * board->sideToMove];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
 
-    while(pawnOcc) {
+    while (pawnOcc) {
         int square = pop_LSB(pawnOcc); // [0, 63]
         int64 bbSquare = BB_SQUARES[square]; // bitboard representation of the square
 
         // empty square in front of pawn
-        if(((board->sideToMove == WHITE) ? NORTH(bbSquare) : SOUTH(bbSquare)) & ~board->bb.occupiedSquares) {
-
+        if (FORWARD(bbSquare) & ~board->bb.occupiedSquares) {
+            int toSquare = (otherSide == BLACK) ? square + 8 : square - 8;
+            moves.emplace_back(toSquare, square, 0b000, 0b110, 0, castle);
         }
 
         // pawn on starting rank
-        if(bbSquare & ((board->sideToMove == WHITE) ? NORTH(bbSquare) : SOUTH(bbSquare))) {
+        if ((bbSquare & 0xFF00) && (board->sideToMove == WHITE)) {
+            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare << 16)))
+                moves.emplace_back(square - 16, square, 0b000, 0b110, 0b0001, castle);
+        } else if ((bbSquare & 0xFF00000000000) && (board->sideToMove == BLACK)) {
+            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare >> 16)))
+                moves.emplace_back(square + 16, square, 0b000, 0b110, 0b0001, castle);
+        }
 
+        // pawn on rank 2/7 (can promote)
+        if ((bbSquare & 0xFF000000000000) && (board->sideToMove == WHITE)) {
+            if(NORTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
+                moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1000, castle);
+                moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1001, castle);
+                moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1010, castle);
+                moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1011, castle);
+            }
+
+            if(NORTHEAST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+                int captured = getPieceType(board->bb.squares[square + 7]);
+                moves.emplace_back(square + 7, square, 0b000, captured, 0b1100, castle);
+                moves.emplace_back(square + 7, square, 0b000, captured, 0b1101, castle);
+                moves.emplace_back(square + 7, square, 0b000, captured, 0b1110, castle);
+                moves.emplace_back(square + 7, square, 0b000, captured, 0b1111, castle);
+            }
+
+            if(NORTHWEST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+                int captured = getPieceType(board->bb.squares[square + 9]);
+                moves.emplace_back(square + 9, square, 0b000, captured, 0b1100, castle);
+                moves.emplace_back(square + 9, square, 0b000, captured, 0b1101, castle);
+                moves.emplace_back(square + 9, square, 0b000, captured, 0b1110, castle);
+                moves.emplace_back(square + 9, square, 0b000, captured, 0b1111, castle);
+            }
+        } else if ((bbSquare & 0xFF00) && (board->sideToMove == BLACK)) {
+            if(SOUTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
+                moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1000, castle);
+                moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1001, castle);
+                moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1010, castle);
+                moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1011, castle);
+            }
+
+            if(SOUTHEAST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+                int captured = getPieceType(board->bb.squares[square - 9]);
+                moves.emplace_back(square - 9, square, 0b000, captured, 0b1100, castle);
+                moves.emplace_back(square - 9, square, 0b000, captured, 0b1101, castle);
+                moves.emplace_back(square - 9, square, 0b000, captured, 0b1110, castle);
+                moves.emplace_back(square - 9, square, 0b000, captured, 0b1111, castle);
+            }
+
+            if(SOUTHWEST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+                int captured = getPieceType(board->bb.squares[square - 7]);
+                moves.emplace_back(square - 7, square, 0b000, captured, 0b1100, castle);
+                moves.emplace_back(square - 7, square, 0b000, captured, 0b1101, castle);
+                moves.emplace_back(square - 7, square, 0b000, captured, 0b1110, castle);
+                moves.emplace_back(square - 7, square, 0b000, captured, 0b1111, castle);
+            }
+        }
+
+        // en passant
+        if(board->sideToMove == WHITE) {
+            unsigned int epSquare = board->getLastState().enPassantSquare;
+            if((square + 7 == epSquare) && ((bbSquare << 7) & board->bb.emptySquares)) {
+                moves.emplace_back(square + 7, square, 0b000, 0b000, 0b0101, castle);
+            } else if((square + 9 == epSquare) && ((bbSquare << 9) & board->bb.emptySquares)) {
+                moves.emplace_back(square + 9, square, 0b000, 0b000, 0b0101, castle);
+            }
+        } else {
+            unsigned int epSquare = board->getLastState().enPassantSquare;
+            if((square - 7 == epSquare) && ((bbSquare >> 7) & board->bb.emptySquares)) {
+                moves.emplace_back(square - 7, square, 0b000, 0b000, 0b0101, castle);
+            } else if((square - 9 == epSquare) && ((bbSquare >> 9) & board->bb.emptySquares)) {
+                moves.emplace_back(square - 9, square, 0b000, 0b000, 0b0101, castle);
+            }
         }
     }
 

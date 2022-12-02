@@ -3,6 +3,21 @@
 #include "Move.h"
 #include "Algorithms.h"
 
+Move::Move(unsigned int to, unsigned int from, unsigned int movedPiece, unsigned int captured, unsigned int flags,
+           unsigned int castlingRights) {
+    unsigned int move = 0;
+
+    move |= to;
+    move |= (from << 6);
+    move |= (flags << 12);
+    move |= (movedPiece << 16);
+    move |= (captured << 19);
+    move |= (castlingRights << 21);
+
+    rating = 0;
+    bitMove = move;
+}
+
 // return this move in long algebraic notation
 std::string Move::toLAN() {
     std::array<std::string, 8> letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
@@ -37,3 +52,4 @@ std::string Move::toLAN() {
 
     return ss.str();
 }
+
