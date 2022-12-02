@@ -326,14 +326,13 @@ void Board::makeMove(Move move) {
     if(move.isCapture()) {
         if (move.isEnPassant()) {
             if (sideToMove == WHITE) {
-                bb.squares[to - 8] = EMPTY;
-                clear_bit(bb.pcs[B_PAWN], (to - 8));
+                clearSquare(to-8, B_PAWN, BLACK);
             } else {
-                bb.squares[to + 8] = EMPTY;
-                clear_bit(bb.pcs[B_PAWN], (to + 8));
+                clearSquare(to+8, W_PAWN, WHITE);
             }
         } else {
             clearSquare(to, getPiece(move.getCapturedPieceType(), otherSide), otherSide);
+            setSquare(to, movedPiece, sideToMove);
         }
     }
 
@@ -416,8 +415,6 @@ void Board::unmakeMove() {
 
     // move the piece on the board
     EPiece movedPiece = bb.squares[from];
-    bb.squares[from] = EMPTY;
-    bb.squares[to] = movedPiece;
 
     // update bitboard
     clearSquare(from, movedPiece, otherSide);
@@ -425,12 +422,12 @@ void Board::unmakeMove() {
 
     if (lastState.move.isCapture()) {
         if (lastState.move.isEnPassant()) {
-            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), otherSide); // should always be pawn
-            int64 sq = (otherSide == WHITE) ? to << 8 : to >> 8;
-            setSquare(sq, captured, otherSide);
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove); // should always be pawn
+            int sq = (otherSide == WHITE) ? to + 8 : to - 8;
+            setSquare(sq, captured, sideToMove);
         } else {
-            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), otherSide);
-            setSquare(from, captured, otherSide);
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove);
+            setSquare(from, captured, sideToMove);
         }
     }
 
@@ -481,19 +478,21 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq, int64 hash) {
     stateList.push_back(state);
 }
 
-void Board::clearSquare(int64 sq, EPiece piece, EColor side) {
-    clear_bit(bb.pcs[piece], sq);
-    clear_bit(bb.pcsOfColor[side], sq);
-    clear_bit(bb.occupiedSquares, sq);
-    set_bit(bb.emptySquares, sq);
+void Board::clearSquare(int sq, EPiece piece, EColor side) {
+    int shifted = SHIFTED_SQUARE[sq];
+    clear_bit(bb.pcs[piece], shifted);
+    clear_bit(bb.pcsOfColor[side], shifted);
+    clear_bit(bb.occupiedSquares, shifted);
+    set_bit(bb.emptySquares, shifted);
     bb.squares[sq] = EMPTY;
 }
 
-void Board::setSquare(int64 sq, EPiece piece, EColor side) {
-    set_bit(bb.pcs[piece], sq);
-    set_bit(bb.pcsOfColor[side], sq);
-    set_bit(bb.occupiedSquares, sq);
-    clear_bit(bb.emptySquares, sq);
+void Board::setSquare(int sq, EPiece piece, EColor side) {
+    int shifted = SHIFTED_SQUARE[sq];
+    set_bit(bb.pcs[piece], shifted);
+    set_bit(bb.pcsOfColor[side], shifted);
+    set_bit(bb.occupiedSquares, shifted);
+    clear_bit(bb.emptySquares, shifted);
     bb.squares[sq] = piece;
 }
 

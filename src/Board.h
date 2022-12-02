@@ -92,9 +92,9 @@ private:
     ESquare getSquare(char file, char rank);
 
     // clears the piece at a given square
-    void clearSquare(int64 sq, EPiece piece, EColor side);
+    void clearSquare(int sq, EPiece piece, EColor side);
 
-    void setSquare(int64 sq, EPiece piece, EColor side);
+    void setSquare(int sq, EPiece piece, EColor side);
 };
 
 #endif //CHIENGINE_BOARD_H

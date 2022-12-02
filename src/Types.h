@@ -65,6 +65,7 @@ struct BoardBB {
 
 // get PieceType from EPiece
 inline PieceType getPieceType(EPiece piece) {
+    if(piece == EMPTY) return NO_PIECE;
     return (PieceType) ((piece > 6) ? piece - 7 : piece - 1);
 }
 

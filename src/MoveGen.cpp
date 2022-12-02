@@ -224,3 +224,29 @@ std::vector<Move> MoveGen::getPawnMoves() {
 
     return moves;
 }
+
+std::vector<Move> MoveGen::getKnightMoves() {
+    std::vector<Move> moves;
+    EBitBoard knightOcc = board->bb.pcs[2 + 6 * board->sideToMove];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
+
+    while (knightOcc) {
+        unsigned int from = SHIFTED_SQUARE[pop_LSB(knightOcc)]; // [0, 63]
+        int64 attacks = knightAttackTable[from];
+
+        while(attacks) {
+            unsigned int to = SHIFTED_SQUARE[pop_LSB(attacks)];
+            int64 toBBSquare = BB_SQUARES[to];
+
+            if(toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+                PieceType captured = getPieceType(board->bb.squares[to]);
+                moves.emplace_back(to, from, 0b001, captured, 0b0100, castle);
+            } else if (toBBSquare & board->bb.emptySquares) {
+                moves.emplace_back(to, from, 0b001, 0b110, 0b000, castle);
+            }
+        }
+    }
+
+    return moves;
+}

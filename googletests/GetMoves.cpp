@@ -31,3 +31,18 @@ TEST(MoveGenTestSuite, GetPawnMoves) {
     pawnMoves = m.getPawnMoves();
     EXPECT_EQ(pawnMoves.size(), 8);
 }
+
+TEST(MoveGenTestSuite, GetKnightMoves) {
+    Board board;
+    MoveGen m = MoveGen(&board);
+    std::vector<Move> knightMoves;
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+    knightMoves = m.getKnightMoves(); // should get the 16 initial pawn moves
+    ASSERT_EQ(knightMoves.size(), 4);
+
+    ASSERT_EQ(board.setFEN("N7/2q5/4N3/8/8/8/8/7N"), 0);
+    knightMoves = m.getKnightMoves(); // should get the 16 initial pawn moves
+    ASSERT_EQ(knightMoves.size(), 12);
+}
+
