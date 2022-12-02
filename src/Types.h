@@ -36,6 +36,11 @@ enum PieceType {
     PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE
 };
 
+// Opponent colors
+enum EColor {
+    WHITE, BLACK, NONE
+};
+
 // EPiece operators
 inline EPiece operator++(EPiece &piece) { return (EPiece) (piece + 1); }
 
@@ -50,21 +55,29 @@ inline PieceType getPieceType(EPiece piece) {
     return (PieceType) ((piece > 6) ? piece - 7 : piece - 1);
 }
 
+inline EPiece getPiece(PieceType p, EColor color) {
+    return (EPiece) ((color == WHITE) ? p + 1 : p + 7);
+}
+
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1Ull << i))
 #define clear_bit(b, i) ((b) &= ~(1Ull << i))
 #define get_LSB(b) (__builtin_ctzll(b))
+
+#define NORTH(square) (square << 8)
+#define SOUTH(square) (square >> 8)
+#define EAST(square) (square >> 1)
+#define WEST(square) (square << 1)
+#define NORTHEAST(square) (EAST(NORTH(square)))
+#define NORTHWEST(square) (WEST(NORTH(square)))
+#define SOUTHEAST(square) (EAST(SOUTH(square)))
+#define SOUTHWEST(square) (WEST(SOUTH(square)))
 
 inline int pop_LSB(int64 &b) {
     int i = get_LSB(b);
     b &= b - 1;
     return i;
 }
-
-// Opponent colors
-enum EColor {
-    WHITE, BLACK, NONE
-};
 
 static const int64 BB_SQUARES[64] = {0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1,
                                      0x8000, 0x4000, 0x2000, 0x1000,

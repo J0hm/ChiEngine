@@ -1,5 +1,4 @@
 #include <iostream>
-#include <array>
 #include <cstring>
 #include <functional>
 #include "Board.h"
@@ -307,6 +306,7 @@ Move Board::parseMove(std::string lan) {
 // make a move, assumes the move is valid
 // TODO: state inCheck, repetitions, hash, etc
 void Board::makeMove(Move move) {
+    EColor otherSide = (sideToMove == WHITE) ? BLACK : WHITE;
     ESquare from = move.getOrigin();
     ESquare to = move.getDest();
     BoardState oldState = getLastState();
@@ -314,70 +314,64 @@ void Board::makeMove(Move move) {
 
     // move the piece on the board
     EPiece movedPiece = bb.squares[from];
-    bb.squares[from] = EMPTY;
-    bb.squares[to] = movedPiece;
+    clearSquare(from, movedPiece, sideToMove);
+    setSquare(to, movedPiece, sideToMove);
 
-    // update utility bitboards
-    clear_bit(bb.pcs[movedPiece], from);
-    set_bit(bb.pcs[movedPiece], to);
-
-    clear_bit(bb.emptySquares, to);
-    set_bit(bb.emptySquares, from);
-
-    clear_bit(bb.occupiedSquares, from);
-    set_bit(bb.occupiedSquares, to);
-
-    clear_bit(bb.pcsOfColor[sideToMove], from);
-    set_bit(bb.pcsOfColor[sideToMove], to);
-
-    // TODO castling
-    if(move.isQueenSideCastling()) {
-        if(sideToMove == WHITE) {
-            // white queen side castles
+    if(move.isCapture()) {
+        if (move.isEnPassant()) {
+            if (sideToMove == WHITE) {
+                bb.squares[to - 8] = EMPTY;
+                clear_bit(bb.pcs[B_PAWN], (to - 8));
+            } else {
+                bb.squares[to + 8] = EMPTY;
+                clear_bit(bb.pcs[B_PAWN], (to + 8));
+            }
         } else {
-            // black queen side castles
+            clearSquare(to, getPiece(move.getCapturedPieceType(), otherSide), otherSide);
         }
-    }else if(move.isKingSideCastling()) {
-        if(sideToMove == WHITE) {
-            // white king side castles
+    }
+
+    // castling logic, only need to do rook b/c king handled above
+    if (move.isQueenSideCastling()) {
+        if (sideToMove == WHITE) {
+            clearSquare(A1, W_ROOK, WHITE);
+            setSquare(D1, W_ROOK, WHITE);
         } else {
-            // black king side castles
+            clearSquare(A8, B_ROOK, BLACK);
+            setSquare(D8, B_ROOK, BLACK);
+        }
+    } else if (move.isKingSideCastling()) {
+        if (sideToMove == WHITE) {
+            clearSquare(H1, W_ROOK, WHITE);
+            setSquare(F1, W_ROOK, WHITE);
+        } else {
+            clearSquare(H1, B_ROOK, BLACK);
+            setSquare(F1, B_ROOK, BLACK);
         }
     }
 
     // if the move is a promotion, promote it...
-    if(move.isPromotion()) {
-        EPiece promotionPiece = (EPiece)((sideToMove == WHITE) ?
-                (move.getPromotedPieceType() + 1) : (move.getPromotedPieceType() + 7));
+    if (move.isPromotion()) {
+        EPiece promotionPiece = (EPiece) ((sideToMove == WHITE) ?
+                                          (move.getPromotedPieceType() + 1) : (move.getPromotedPieceType() + 7));
         bb.squares[to] = promotionPiece;
-        clear_bit(bb.pcs[movedPiece], to);
-        set_bit(bb.pcs[promotionPiece], to);
-    }
-
-    // if the move is en passant capture...
-    if(move.isEnPassant()) {
-        if(sideToMove == WHITE) {
-            bb.squares[to - 8] = EMPTY;
-            clear_bit(bb.pcs[B_PAWN], (to - 8));
-        } else {
-            bb.squares[to + 8] = EMPTY;
-            clear_bit(bb.pcs[B_PAWN], (to + 8));
-        }
+        clearSquare(to, movedPiece, sideToMove);
+        setSquare(to, promotionPiece, sideToMove);
     }
 
     // if the move is a double pawn push, set the en passant square
-    if(move.isDoublePawnPush()) {
-        if(sideToMove == WHITE) {
-            newState.enPassantSquare = (ESquare)(to - 8);
+    if (move.isDoublePawnPush()) {
+        if (sideToMove == WHITE) {
+            newState.enPassantSquare = (ESquare) (to - 8);
         } else {
-            newState.enPassantSquare = (ESquare)(to + 8);
+            newState.enPassantSquare = (ESquare) (to + 8);
         }
     } else {
         newState.enPassantSquare = ER;
     }
 
     // update board
-    sideToMove = (sideToMove == BLACK) ? WHITE : BLACK;
+    sideToMove = otherSide;
     ++currentPly;
 
     // get new castling rights
@@ -408,6 +402,7 @@ void Board::unmakeMove() {
     if (getStateCount() < 2) return; // there is no state to go back to
 
     BoardState lastState = popBoardState();
+    EColor otherSide = (sideToMove == BLACK) ? WHITE : BLACK;
 
     // reverse to and from
     ESquare to = lastState.move.getOrigin();
@@ -418,21 +413,49 @@ void Board::unmakeMove() {
     bb.squares[from] = EMPTY;
     bb.squares[to] = movedPiece;
 
-    // update utility bitboards
-    clear_bit(bb.pcs[movedPiece], from);
-    set_bit(bb.pcs[movedPiece], to);
+    // update bitboard
+    clearSquare(from, movedPiece, sideToMove);
+    setSquare(to, movedPiece, sideToMove);
 
-    clear_bit(bb.emptySquares, to);
-    set_bit(bb.emptySquares, from);
+    if (lastState.move.isCapture()) {
+        if (lastState.move.isEnPassant()) {
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), otherSide); // should always be pawn
+            int64 sq = (otherSide == WHITE) ? to << 8 : to >> 8;
+            setSquare(sq, captured, otherSide);
+        } else {
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), otherSide);
+            setSquare(from, captured, otherSide);
+        }
+    }
 
-    clear_bit(bb.occupiedSquares, from);
-    set_bit(bb.occupiedSquares, to);
 
-    clear_bit(bb.pcsOfColor[sideToMove], from);
-    set_bit(bb.pcsOfColor[sideToMove], to);
+    // king is already set, so we just need to update rook + castling state
+    if(lastState.move.isQueenSideCastling()) {
+        if(otherSide == WHITE) { // white king side castle
+            setSquare(A1, W_ROOK, WHITE);
+            clearSquare(D1, W_ROOK, WHITE);
+        } else {
+            setSquare(A8, B_ROOK, BLACK);
+            clearSquare(D8, B_ROOK, BLACK);
+        }
+    } else if (lastState.move.isKingSideCastling()) {
+        if(otherSide == WHITE) { // white queen side castle
+            setSquare(H1, W_ROOK, WHITE);
+            clearSquare(F1, W_ROOK, WHITE);
+        } else {
+            setSquare(H1, B_ROOK, BLACK);
+            clearSquare(F1, B_ROOK, BLACK);
+        }
+    }
+
+    // if promoted
+    if(lastState.move.isPromotion()) {
+        clearSquare(to, movedPiece, sideToMove);
+        setSquare(to, (sideToMove == WHITE) ? W_PAWN : B_PAWN, sideToMove);
+    }
 
     // update the board
-    sideToMove = (sideToMove == BLACK) ? WHITE : BLACK;
+    sideToMove = otherSide;
     --currentPly;
 }
 
@@ -451,5 +474,18 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
     stateList.push_back(state);
 }
 
+void Board::clearSquare(int64 sq, EPiece piece, EColor side) {
+    clear_bit(bb.pcs[piece], sq);
+    clear_bit(bb.pcsOfColor[side], sq);
+    clear_bit(bb.occupiedSquares, sq);
+    set_bit(bb.emptySquares, sq);
+}
+
+void Board::setSquare(int64 sq, EPiece piece, EColor side) {
+    set_bit(bb.pcs[piece], sq);
+    set_bit(bb.pcsOfColor[side], sq);
+    set_bit(bb.occupiedSquares, sq);
+    clear_bit(bb.emptySquares, sq);
+}
 
 

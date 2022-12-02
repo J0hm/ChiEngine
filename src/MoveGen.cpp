@@ -128,3 +128,27 @@ bool MoveGen::resolvesCheck(Move m) {
 
     return resolves;
 }
+
+std::vector<Move> MoveGen::getPawnMoves() {
+    // TODO
+    // 1 forward, 2 forward, capture, en passant, promotion
+    std::vector<Move> moves;
+    EBitBoard pawnOcc = board->bb.pcs[1 + 6 * board->sideToMove];
+
+    while(pawnOcc) {
+        int square = pop_LSB(pawnOcc); // [0, 63]
+        int64 bbSquare = BB_SQUARES[square]; // bitboard representation of the square
+
+        // empty square in front of pawn
+        if(((board->sideToMove == WHITE) ? NORTH(bbSquare) : SOUTH(bbSquare)) & ~board->bb.occupiedSquares) {
+
+        }
+
+        // pawn on starting rank
+        if(bbSquare & ((board->sideToMove == WHITE) ? NORTH(bbSquare) : SOUTH(bbSquare))) {
+
+        }
+    }
+
+    return moves;
+}
