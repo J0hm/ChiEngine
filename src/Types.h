@@ -50,6 +50,19 @@ inline EPiece operator++(EPiece &piece, int) {
     return old;
 };
 
+// Holds the piece location status of the board in BitBoards per Piece
+// This is a hybrid approach
+struct BoardBB {
+    // Holds the piece information per square
+    EPiece squares[H8 + 2];
+    // BitBoards for Pieces
+    EBitBoard pcs[B_KING + 2];
+    // Utility BitBoards
+    EBitBoard emptySquares;
+    EBitBoard occupiedSquares;
+    EBitBoard pcsOfColor[BLACK + 1];
+};
+
 // get PieceType from EPiece
 inline PieceType getPieceType(EPiece piece) {
     return (PieceType) ((piece > 6) ? piece - 7 : piece - 1);

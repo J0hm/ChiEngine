@@ -5,21 +5,9 @@
 #include <vector>
 #include "Move.h"
 #include "MoveGen.h"
+#include "ZobristHasher.h"
 
 class MoveGen;
-
-// Holds the piece location status of the board in BitBoards per Piece
-// This is a hybrid approach
-struct BoardBB {
-    // Holds the piece information per square
-    EPiece squares[H8 + 2];
-    // BitBoards for Pieces
-    EBitBoard pcs[B_KING + 2];
-    // Utility BitBoards
-    EBitBoard emptySquares;
-    EBitBoard occupiedSquares;
-    EBitBoard pcsOfColor[BLACK + 1];
-};
 
 // Represents the state of the board after the given move
 struct BoardState {
@@ -36,7 +24,7 @@ struct BoardState {
 class BoardStateHistory {
 public:
     // Initialize the board state with the given castling rights and en passant square
-    void initialize(unsigned int c, ESquare sq);
+    void initialize(unsigned int c, ESquare sq, int64 hash);
 
     // Get the last state of the board
     inline BoardState getLastState() {return stateList.back();}
@@ -95,6 +83,9 @@ public:
 
 private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
+
+    ZobristHasher hasher;
+
     void initializeBitBoards();
 
     // gets a square from file and rank characters

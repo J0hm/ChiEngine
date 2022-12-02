@@ -8,7 +8,8 @@ set(HEADER_FILES
         Move.h
         Engine.h
         MoveGen.h
-        MagicMoves.h)
+        MagicMoves.h
+        ZobristHasher.h)
 
 set(SOURCE_FILES
         Main.cpp
@@ -17,7 +18,8 @@ set(SOURCE_FILES
         InputThread.cpp
         Move.cpp
         MoveGen.cpp
-        MagicMoves.cpp)
+        MagicMoves.cpp
+        ZobristHasher.cpp)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
 

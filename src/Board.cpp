@@ -163,8 +163,10 @@ int Board::setFEN(std::string FEN) {
         if (sideToMove == BLACK) currentPly++;
     }
 
+    int64 hash = hasher.hashBitBoard(bb, sideToMove, castle, sq);
+
     // initialize the board state history stack
-    boardHistory->initialize(castle, sq);
+    boardHistory->initialize(castle, sq, hash);
     // set up the piece related bit boards with this board content
     initializeBitBoards();
     return 0;
@@ -386,7 +388,7 @@ void Board::makeMove(Move move) {
     sideToMove = otherSide;
     ++currentPly;
 
-    newState.hash = 0; // TODO hashing function
+    newState.hash = hasher.hashBitBoard(bb, sideToMove, castle, newState.enPassantSquare);
     newState.lastTriggerEvent = ((move.getPieceType() == PAWN) || move.isCapture())
                                 ? currentPly : oldState.lastTriggerEvent;
     newState.castlingRights = castle;
@@ -469,10 +471,11 @@ ESquare Board::getSquare(char file, char rank) {
 }
 
 // initialize the BoardStateHistory with the given castling rights and en passant square
-void BoardStateHistory::initialize(unsigned int c, ESquare sq) {
+void BoardStateHistory::initialize(unsigned int c, ESquare sq, int64 hash) {
     BoardState state;
     state.enPassantSquare = sq;
     state.castlingRights = c;
+    state.hash = hash;
     stateList.push_back(state);
 }
 
