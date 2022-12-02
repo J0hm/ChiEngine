@@ -4,6 +4,8 @@
 #define FORWARD(sq) ((board->sideToMove == WHITE) ? NORTH(sq) : SOUTH(sq))
 #define BACKWARD(sq) ((board->sideToMove == WHITE) ? SOUTH(sq) : NORTH(sq))
 
+#define RESERVE_SIZE 196
+
 void MoveGen::calcBishopAttackBitboard(EColor side) {
     int64 bb = 0;
     EBitBoard bishopOcc = board->bb.pcs[3 + 6 * side];
@@ -247,6 +249,29 @@ std::vector<Move> MoveGen::getKnightMoves() {
             }
         }
     }
+
+    return moves;
+}
+
+// TODO reserve vector size
+std::vector<Move> MoveGen::getLegalMoves() {
+    std::vector<Move> moves;
+    moves.reserve(RESERVE_SIZE);
+
+    std::vector<Move> pawn = getPawnMoves();
+    std::vector<Move> knight = getKnightMoves();
+    std::vector<Move> bishop = getBishopMoves();
+    std::vector<Move> rook = getRookMoves();
+    std::vector<Move> queen = getQueenMoves();
+    std::vector<Move> king = getKingMoves();
+
+    // only copy moves if they are legal
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(pawn), [this](Move m){return isLegal(m);} );
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(knight), [this](Move m){return isLegal(m);} );
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(bishop), [this](Move m){return isLegal(m);} );
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(rook), [this](Move m){return isLegal(m);} );
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(queen), [this](Move m){return isLegal(m);} );
+    std::copy_if (moves.begin(), moves.end(), std::back_inserter(king), [this](Move m){return isLegal(m);} );
 
     return moves;
 }

@@ -27,6 +27,7 @@ public:
     bool isLegal(Move m);
 
     // get all pseudo-legal moves of the given piece type, based on turn of board
+    // TODO move to private or add call to calcAttackBitboard to function
     std::vector<Move> getPawnMoves();
     std::vector<Move> getKnightMoves();
     std::vector<Move> getRookMoves();
