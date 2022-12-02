@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 #include "Move.h"
+#include "MoveGen.h"
 
+class MoveGen;
 
 // Holds the piece location status of the board in BitBoards per Piece
 // This is a hybrid approach
@@ -60,6 +62,7 @@ class Board {
 public:
     // BitBoard for this board
     BoardBB bb;
+    MoveGen* movegen;
     EColor sideToMove;
     int currentPly;
 

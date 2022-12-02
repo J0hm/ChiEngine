@@ -5,6 +5,7 @@
 #include "Board.h"
 #include "MagicMoves.h"
 
+class Board;
 // pre-initialize attacks for knights
 // magic bitboards for bishop/rook, NEED: int64 mask, int64 magic number for each square for rook/bishop
 // probably want to add popLSB/getLSB, also might want to move the others from board.h to types.h

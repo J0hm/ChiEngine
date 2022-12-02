@@ -6,6 +6,7 @@
 
 Board::Board() {
     boardHistory = new BoardStateHistory(); // initialize pointer to BoardStateHistory
+    movegen = new MoveGen(this);
 }
 
 Board::~Board() {
@@ -371,10 +372,6 @@ void Board::makeMove(Move move) {
         newState.enPassantSquare = ER;
     }
 
-    // update board
-    sideToMove = otherSide;
-    ++currentPly;
-
     // get new castling rights
     unsigned int castle = move.getPreviousCastlingRights();
     if (move.isCastling()) {
@@ -385,12 +382,16 @@ void Board::makeMove(Move move) {
         }
     }
 
+    // update board
+    sideToMove = otherSide;
+    ++currentPly;
+
     newState.hash = 0; // TODO hashing function
     newState.lastTriggerEvent = ((move.getPieceType() == PAWN) || move.isCapture())
                                 ? currentPly : oldState.lastTriggerEvent;
     newState.castlingRights = castle;
     newState.move = move;
-    newState.inCheck = false; // TODO how do i check for this
+    newState.inCheck = movegen->inCheck(sideToMove);
     // answer: probably something with move generation and attack tables and stuff, definitely a later problem
     // ideally this would be very fast
     newState.repetitions = oldState.repetitions; // also a todo but low priority
