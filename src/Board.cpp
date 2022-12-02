@@ -34,21 +34,21 @@ int Board::setFEN(std::string FEN) {
     unsigned int i, j, castle;
     ESquare sq;
     char letter;
-    unsigned int aRank, aFile;
+    unsigned int file, rank;
     std::vector<std::string> strList;
     Algorithms::split(strList, FEN, " ");
 
     // empty the board squares
     for (sq = A1; sq <= H8; sq++) bb.squares[sq] = EMPTY;
     // read the board - translate each loop index into a square
-    j = 1; // go through board in dir of fen
     i = 0; // curr pos in fen string
-    while ((j <= 64) && (i <= strList[0].length())) {
+    file = 0;
+    rank = 7;
+    while (i < strList[0].length()) {
         letter = strList[0].at(i);
         i++;
-        aFile = 1 + ((j - 1) % 8);
-        aRank = 8 - ((j - 1) / 8);
-        sq = (ESquare) (((aRank - 1) * 8) + (aFile - 1));
+
+        sq = (ESquare) (rank*8 + file);
         switch (letter) {
             case 'p' :
                 bb.squares[sq] = B_PAWN;
@@ -87,35 +87,36 @@ int Board::setFEN(std::string FEN) {
                 bb.squares[sq] = W_KING;
                 break;
             case '/' :
-                j--;
+                rank--;
+                file = -1;
                 break;
             case '1' :
                 break;
             case '2' :
-                j++;
+                file++;
                 break;
             case '3' :
-                j += 2;
+                file+=2;
                 break;
             case '4' :
-                j += 3;
+                file+= 3;
                 break;
             case '5' :
-                j += 4;
+                file+= 4;
                 break;
             case '6' :
-                j += 5;
+                file+= 5;
                 break;
             case '7' :
-                j += 6;
+                file+= 6;
                 break;
             case '8' :
-                j += 7;
+                file+= 7;
                 break;
             default:
                 return -1;
         }
-        j++;
+        file++;
     }
 
     // set the turn; default = WHITE
@@ -147,9 +148,9 @@ int Board::setFEN(std::string FEN) {
     if ((strList.size() >= 4) && (strList[3].length() >= 2)) {
         if ((strList[3].at(0) >= 'a') && (strList[3].at(0) <= 'h') &&
             ((strList[3].at(1) == '3') || (strList[3].at(1) == '6'))) {
-            aFile = strList[3].at(0) - 96; // ASCII 'a' = 97
-            aRank = strList[3].at(1) - 48; // ASCII '1' = 49
-            sq = (ESquare) ((aRank - 1) * 8 + aFile - 1);
+            file = strList[3].at(0) - 96; // ASCII 'a' = 97
+            rank = strList[3].at(1) - 48; // ASCII '1' = 49
+            sq = (ESquare) ((rank - 1) * 8 + file - 1);
         } else return -1;
     }
 
