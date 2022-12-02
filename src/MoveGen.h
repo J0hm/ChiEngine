@@ -25,6 +25,29 @@ public:
     // is the given move a legal move for the board state?
     bool isLegal(Move m);
 
+    // get all pseudo-legal moves of the given piece type, based on turn of board
+    std::vector<Move> getPawnMoves();
+    std::vector<Move> getKnightMoves();
+    std::vector<Move> getRookMoves();
+    std::vector<Move> getBishopMoves();
+    std::vector<Move> getQueenMoves();
+    std::vector<Move> getKingMoves();
+
+    // get all the legal moves
+    std::vector<Move> getLegalMoves();
+
+    // get all moves which will resolve the check
+    std::vector<Move> getEvasions();
+
+    // determines if the board is in check
+    bool inCheck(EColor side);
+
+    // does this move cause a check to a certain color?
+    bool doesCheck(Move m, EColor toColor);
+
+    // does this move resolve a check?
+    bool resolvesCheck(Move m);
+
 
 private:
     int64 knightAttackTable[64]; // attack table for all possible knight positions, precalculated
@@ -48,29 +71,6 @@ private:
     void calcQueenAttackBitboard(EColor side);
     void calcKingAttackBitboard(EColor side); // does not include castling
     void calcAllAttackBitboard(EColor side);
-
-    // get all pseudo-legal moves of the given piece type, based on turn of board
-    std::vector<Move> getPawnMoves();
-    std::vector<Move> getKnightMoves();
-    std::vector<Move> getRookMoves();
-    std::vector<Move> getBishopMoves();
-    std::vector<Move> getQueenMoves();
-    std::vector<Move> getKingMoves();
-
-    // get all the legal moves
-    std::vector<Move> getLegalMoves();
-
-    // get all moves which will resolve the check
-    std::vector<Move> getEvasions();
-
-    // determines if the board is in check
-    bool inCheck(EColor side);
-
-    // does this move cause a check to a certain color?
-    bool doesCheck(Move m, EColor toColor);
-
-    // does this move resolve a check?
-    bool resolvesCheck(Move m);
 };
 
 

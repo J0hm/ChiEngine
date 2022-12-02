@@ -1,4 +1,5 @@
 #include "MoveGen.h"
+#include "Algorithms.h"
 
 #define FORWARD(sq) ((board->sideToMove == WHITE) ? NORTH(sq) : SOUTH(sq))
 #define BACKWARD(sq) ((board->sideToMove == WHITE) ? SOUTH(sq) : NORTH(sq))
@@ -139,25 +140,28 @@ std::vector<Move> MoveGen::getPawnMoves() {
     EBitBoard pawnOcc = board->bb.pcs[1 + 6 * board->sideToMove];
     EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
     unsigned int castle = board->getLastState().castlingRights;
+    std::cout << "pawnocc: " << Algorithms::bitBoardToString(pawnOcc) << std::endl;
 
     while (pawnOcc) {
         int square = pop_LSB(pawnOcc); // [0, 63]
         int64 bbSquare = BB_SQUARES[square]; // bitboard representation of the square
 
+        std::cout << "pawnocc: " << Algorithms::bitBoardToString(pawnOcc) << std::endl;
+
         // empty square in front of pawn
-        if (FORWARD(bbSquare) & ~board->bb.occupiedSquares) {
+        if (FORWARD(bbSquare) & board->bb.emptySquares) {
             int toSquare = (otherSide == BLACK) ? square + 8 : square - 8;
             moves.emplace_back(toSquare, square, 0b000, 0b110, 0, castle);
         }
 
-        // pawn on starting rank
-        if ((bbSquare & 0xFF00) && (board->sideToMove == WHITE)) {
-            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare << 16)))
-                moves.emplace_back(square - 16, square, 0b000, 0b110, 0b0001, castle);
-        } else if ((bbSquare & 0xFF00000000000) && (board->sideToMove == BLACK)) {
-            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare >> 16)))
-                moves.emplace_back(square + 16, square, 0b000, 0b110, 0b0001, castle);
-        }
+//        // pawn on starting rank
+//        if ((bbSquare & 0xFF00) && (board->sideToMove == WHITE)) {
+//            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare << 16)))
+//                moves.emplace_back(square + 16, square, 0b000, 0b110, 0b0001, castle);
+//        } else if ((bbSquare & 0xFF00000000000) && (board->sideToMove == BLACK)) {
+//            if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare >> 16)))
+//                moves.emplace_back(square - 16, square, 0b000, 0b110, 0b0001, castle);
+//        }
 
         // pawn on rank 2/7 (can promote)
         if ((bbSquare & 0xFF000000000000) && (board->sideToMove == WHITE)) {

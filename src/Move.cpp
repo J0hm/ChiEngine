@@ -12,7 +12,7 @@ Move::Move(unsigned int to, unsigned int from, unsigned int movedPiece, unsigned
     move |= (flags << 12);
     move |= (movedPiece << 16);
     move |= (captured << 19);
-    move |= (castlingRights << 21);
+    move |= (castlingRights << 22);
 
     rating = 0;
     bitMove = move;

@@ -330,3 +330,13 @@ TEST(BoardTestSuite, E4FENState) {
     ASSERT_EQ(state.castlingRights, 0b1111);
     ASSERT_EQ(state.enPassantSquare, E3);
 }
+
+TEST(BoardTestSuite, MirrorTest) {
+    Board board;
+    ASSERT_EQ(board.setFEN("p7/8/8/8/8/8/8/8 w - - 0 1"), 0);
+
+    std::cout << "occupied: " << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+    std::cout << "empty: " << Algorithms::bitBoardToString(board.bb.emptySquares) << std::endl;
+    std::cout << "b pawns: " << Algorithms::bitBoardToString(board.bb.pcs[B_PAWN]) << std::endl;
+    std::cout << "A8: " << board.bb.squares[H8] << std::endl;
+}
