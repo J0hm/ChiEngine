@@ -30,6 +30,57 @@ TEST(MoveGenTestSuite, GetPawnMoves) {
     ASSERT_EQ(board.setFEN("8/8/8/8/8/8/3p4/4R3 b - - 0 1"), 0);
     pawnMoves = m.getPawnMoves();
     EXPECT_EQ(pawnMoves.size(), 8);
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"), 0);
+    pawnMoves = m.getPawnMoves();
+    EXPECT_EQ(pawnMoves.size(), 16);
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppp1p/8/6p1/7P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 1"), 0);
+    pawnMoves = m.getPawnMoves();
+    EXPECT_EQ(pawnMoves.size(), 16);
+
+    ASSERT_EQ(board.setFEN("rnbqk1nr/pppp1ppp/8/4p3/1b5P/1P6/P1PPPPP1/RNBQKBNR w KQkq - 0 1"), 0);
+    pawnMoves = m.getPawnMoves();
+
+    EXPECT_EQ(pawnMoves.size(), 13);
+}
+
+TEST(MoveGenTestSuite, GetPawnMovesEnPassant) { // literal "edge" case lol en passant on edge of board
+    Board board;
+    MoveGen m = MoveGen(&board);
+    std::vector<Move> pawnMoves;
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+    pawnMoves = m.getPawnMoves(); // should get the 16 initial pawn moves for white
+    ASSERT_EQ(pawnMoves.size(), 16);
+
+    board.makeMove("h2h4");
+    pawnMoves = m.getPawnMoves(); // should get the 16 initial pawn moves for black
+    ASSERT_EQ(pawnMoves.size(), 16);
+
+    board.makeMove("a7a5");
+    pawnMoves = m.getPawnMoves(); // moves for white after h2h4
+
+    ASSERT_EQ(pawnMoves.size(), 15);
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+    pawnMoves = m.getPawnMoves(); // should get the 16 initial pawn moves for white
+    ASSERT_EQ(pawnMoves.size(), 16);
+
+    board.makeMove("e2e3");
+    pawnMoves = m.getPawnMoves(); // should get the 16 initial pawn moves for black
+    ASSERT_EQ(pawnMoves.size(), 16);
+
+    board.makeMove("a7a5");
+    pawnMoves = m.getPawnMoves(); // moves for white after h2h4
+    ASSERT_EQ(pawnMoves.size(), 15);
+
+    board.makeMove("h2h4");
+    pawnMoves = m.getPawnMoves(); // moves for white after h2h4
+    for(Move m : pawnMoves) std::cout << m << std::endl;
+    ASSERT_EQ(pawnMoves.size(), 15);
+
+
 }
 
 TEST(MoveGenTestSuite, GetKnightMoves) {
@@ -46,3 +97,138 @@ TEST(MoveGenTestSuite, GetKnightMoves) {
     ASSERT_EQ(knightMoves.size(), 12);
 }
 
+TEST(MoveGenTestSuite, GetBishopMoves) {
+    Board board;
+    MoveGen m = MoveGen(&board);
+    std::vector<Move> bishopMoves;
+
+    ASSERT_EQ(board.setFEN("8/1r6/8/3B4/8/8/8/8 w - - 0 1"), 0);
+    bishopMoves = m.getBishopMoves(); // should get the 16 initial pawn moves
+    ASSERT_EQ(bishopMoves.size(), 12);
+}
+
+TEST(MoveGenTestSuite, GetAllLegalMoves) {
+    Board board;
+    MoveGen m = MoveGen(&board);
+    std::vector<Move> moves;
+
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 29);
+//
+//    ASSERT_EQ(board.setFEN("8/8/8/8/8/2b5/1B6/K7 w - - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 3);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNBQKBNR b KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/ppppp1pp/8/5p2/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 30);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/ppppppp1/8/7p/8/7P/PPPPPPP1/RNBQKBNR w KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 19);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//    board.makeMove("h2h3");
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//    board.makeMove("h7h5");
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 19);
+//    board.unmakeMove();
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//    board.unmakeMove();
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), 0);
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.makeMove("g2g4");
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.makeMove("g7g5");
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.makeMove("f1h3");
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.unmakeMove();
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.unmakeMove();
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+//
+//    board.unmakeMove();
+//    moves = m.getLegalMoves();
+//    ASSERT_EQ(moves.size(), 20);
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), 0);
+    moves = m.getLegalMoves();
+    //ASSERT_EQ(moves.size(), 20);
+
+    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+
+
+    board.makeMove("g2g4");
+    moves = m.getLegalMoves();
+    //ASSERT_EQ(moves.size(), 20);
+
+    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+
+    board.makeMove("h7h5");
+    moves = m.getLegalMoves();
+    //ASSERT_EQ(moves.size(), 21);
+
+    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+
+    board.makeMove("g4g5");
+    moves = m.getLegalMoves();
+    //ASSERT_EQ(moves.size(), 20);
+
+    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+
+    board.makeMove("f7f5");
+    // TODO this is a tomorrow problem but LOOK CALLING GETLEGALMOVES MUTATES THE BITBOARD FOR BLACK PCS
+    moves = m.getLegalMoves();
+    //for (Move m: moves) std::cout << m << std::endl;
+
+//    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+//    std::cout << Algorithms::bitBoardToString(board.bb.emptySquares) << std::endl;
+    std::cout << Algorithms::bitBoardToString(board.bb.pcsOfColor[BLACK]) << std::endl;
+//    std::cout << Algorithms::bitBoardToString(board.bb.pcs[B_PAWN]) << std::endl;
+
+
+    ASSERT_EQ(moves.size(), 21);
+
+//    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
+}

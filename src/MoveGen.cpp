@@ -11,8 +11,8 @@ void MoveGen::calcBishopAttackBitboard(EColor side) {
     EBitBoard bishopOcc = board->bb.pcs[3 + 6 * side];
 
     while (bishopOcc) {
-        bb |= magic->getBishopAttacks((ESquare) pop_LSB(bishopOcc),
-                                      board->bb.occupiedSquares & !board->bb.pcsOfColor[side]);
+        bb |= (magic->getBishopAttacks(pop_LSB(bishopOcc), board->bb.occupiedSquares)
+               & ~board->bb.pcsOfColor[side]);
     }
 
     bishopAttackBitBoard[side] = bb;
@@ -23,8 +23,9 @@ void MoveGen::calcRookAttackBitboard(EColor side) {
     EBitBoard rookOcc = board->bb.pcs[4 + 6 * side];
 
     while (rookOcc) {
-        bb |= magic->getRookAttacks((ESquare) pop_LSB(rookOcc),
-                                    board->bb.occupiedSquares & !board->bb.pcsOfColor[side]);
+        bb |= (magic->getRookAttacks(pop_LSB(rookOcc),
+                                     board->bb.occupiedSquares)
+               & ~board->bb.pcsOfColor[side]);
     }
 
     rookAttackBitBoard[side] = bb;
@@ -35,8 +36,9 @@ void MoveGen::calcQueenAttackBitboard(EColor side) {
     EBitBoard queenOcc = board->bb.pcs[5 + 6 * side];
 
     while (queenOcc) {
-        bb |= magic->getQueenAttacks((ESquare) pop_LSB(queenOcc),
-                                     board->bb.occupiedSquares & !board->bb.pcsOfColor[side]);
+        bb |= (magic->getQueenAttacks(pop_LSB(queenOcc),
+                                      board->bb.occupiedSquares)
+               & ~board->bb.pcsOfColor[side]);
     }
 
     rookAttackBitBoard[side] = bb;
@@ -44,7 +46,7 @@ void MoveGen::calcQueenAttackBitboard(EColor side) {
 
 void MoveGen::calcPawnAttackBitboard(EColor side) {
     int64 bb = 0;
-    EBitBoard pawnOcc = board->bb.pcs[1 + 6 * side];
+    int64 pawnOcc = board->bb.pcs[1 + 6 * side];
 
     while (pawnOcc) {
         int square = SHIFTED_SQUARE[pop_LSB(pawnOcc)];
@@ -103,7 +105,7 @@ void MoveGen::initKnightAttackTable() {
 
 bool MoveGen::inCheck(EColor side) {
     int64 king = board->bb.pcs[6 + 6 * side];
-    calcAllAttackBitboard(side);
+    calcAllAttackBitboard((side == WHITE) ? BLACK : WHITE);
     return king & allAttackBitBoard[(side == WHITE) ? BLACK : WHITE];
 }
 
@@ -115,11 +117,30 @@ bool MoveGen::isLegal(Move m) {
 }
 
 bool MoveGen::doesCheck(Move m, EColor toColor) {
-    bool doesCheck;
-
+    bool doesCheck = false;
+    // TODO THIS IS (ONE OF) THE BUGS
+    // MAKE UNMAKE MESSED UP BOARD STATE -> COLOR PCS BB MESSED UP
+    BoardBB start = board->copyBB(board->bb);
     board->makeMove(m);
     doesCheck = inCheck(toColor);
     board->unmakeMove();
+    BoardBB end = board->copyBB(board->bb);
+
+    if (!board->bbEqual(start, end)) {
+        std::cout << "bb not equal after checking doesCheck " << m << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.occupiedSquares) << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.emptySquares) << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.pcsOfColor[BLACK]) << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.pcsOfColor[WHITE]) << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.pcs[B_PAWN]) << std::endl;
+        std::cout << Algorithms::bitBoardToString(start.pcs[W_PAWN]) << std::endl;
+        std::cout << "line:\n";
+        while(board->getStateCount() > 1) {
+            BoardState s = board->popBoardState();
+            std::cout << s.move << std::endl;
+        }
+        throw std::runtime_error("bitboards not equal");
+    }
 
     return doesCheck;
 }
@@ -137,7 +158,7 @@ bool MoveGen::resolvesCheck(Move m) {
 
 std::vector<Move> MoveGen::getPawnMoves() {
     std::vector<Move> moves;
-    EBitBoard pawnOcc = board->bb.pcs[1 + 6 * board->sideToMove];
+    int64 pawnOcc = board->bb.pcs[1 + 6 * board->sideToMove];
     EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
     unsigned int castle = board->getLastState().castlingRights;
 
@@ -149,21 +170,21 @@ std::vector<Move> MoveGen::getPawnMoves() {
         if ((bbSquare & 0xFF00) && (board->sideToMove == WHITE)) {
             if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare << 16)))
                 moves.emplace_back(square + 16, square, 0b000, 0b110, 0b0001, castle);
-        } else if ((bbSquare & 0xFF00000000000) && (board->sideToMove == BLACK)) {
+        } else if ((bbSquare & 0xFF000000000000) && (board->sideToMove == BLACK)) {
             if ((board->bb.emptySquares & FORWARD(bbSquare)) && (board->bb.emptySquares & (bbSquare >> 16)))
                 moves.emplace_back(square - 16, square, 0b000, 0b110, 0b0001, castle);
         }
 
         // pawn on rank 2/7 (must promote)
         if ((bbSquare & 0xFF000000000000) && (board->sideToMove == WHITE)) {
-            if(NORTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
+            if (NORTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
                 moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1000, castle);
                 moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1001, castle);
                 moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1010, castle);
                 moves.emplace_back(square + 8, square, 0b000, 0b110, 0b1011, castle);
             }
 
-            if(NORTHWEST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+            if (NORTHWEST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
                 int captured = getPieceType(board->bb.squares[square + 7]);
                 moves.emplace_back(square + 7, square, 0b000, captured, 0b1100, castle);
                 moves.emplace_back(square + 7, square, 0b000, captured, 0b1101, castle);
@@ -171,7 +192,7 @@ std::vector<Move> MoveGen::getPawnMoves() {
                 moves.emplace_back(square + 7, square, 0b000, captured, 0b1111, castle);
             }
 
-            if(NORTHEAST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
+            if (NORTHEAST(bbSquare) & board->bb.pcsOfColor[BLACK]) {
                 int captured = getPieceType(board->bb.squares[square + 9]);
                 moves.emplace_back(square + 9, square, 0b000, captured, 0b1100, castle);
                 moves.emplace_back(square + 9, square, 0b000, captured, 0b1101, castle);
@@ -179,14 +200,14 @@ std::vector<Move> MoveGen::getPawnMoves() {
                 moves.emplace_back(square + 9, square, 0b000, captured, 0b1111, castle);
             }
         } else if ((bbSquare & 0xFF00) && (board->sideToMove == BLACK)) {
-            if(SOUTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
+            if (SOUTH(bbSquare) & ~board->bb.occupiedSquares) { // simple promotion case
                 moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1000, castle);
                 moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1001, castle);
                 moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1010, castle);
                 moves.emplace_back(square - 8, square, 0b000, 0b110, 0b1011, castle);
             }
 
-            if(SOUTHWEST(bbSquare) & board->bb.pcsOfColor[WHITE]) {
+            if (SOUTHWEST(bbSquare) & board->bb.pcsOfColor[WHITE]) {
                 int captured = getPieceType(board->bb.squares[square - 9]);
                 moves.emplace_back(square - 9, square, 0b000, captured, 0b1100, castle);
                 moves.emplace_back(square - 9, square, 0b000, captured, 0b1101, castle);
@@ -194,31 +215,50 @@ std::vector<Move> MoveGen::getPawnMoves() {
                 moves.emplace_back(square - 9, square, 0b000, captured, 0b1111, castle);
             }
 
-            if(SOUTHEAST(bbSquare) & board->bb.pcsOfColor[WHITE]) {
+            if (SOUTHEAST(bbSquare) & board->bb.pcsOfColor[WHITE]) {
                 int captured = getPieceType(board->bb.squares[square - 7]);
                 moves.emplace_back(square - 7, square, 0b000, captured, 0b1100, castle);
                 moves.emplace_back(square - 7, square, 0b000, captured, 0b1101, castle);
                 moves.emplace_back(square - 7, square, 0b000, captured, 0b1110, castle);
                 moves.emplace_back(square - 7, square, 0b000, captured, 0b1111, castle);
             }
-        } else if (FORWARD(bbSquare) & board->bb.emptySquares) {
-            int toSquare = (otherSide == BLACK) ? square + 8 : square - 8;
-            moves.emplace_back(toSquare, square, 0b000, 0b110, 0, castle);
+        } else {
+            // normal forward
+            if (FORWARD(bbSquare) & board->bb.emptySquares) {
+                int toSquare = (otherSide == BLACK) ? square + 8 : square - 8;
+                moves.emplace_back(toSquare, square, 0b000, 0b110, 0, castle);
+            }
+            // forward east and not on H file capture
+            if ((FORWARD(EAST(bbSquare)) & board->bb.pcsOfColor[otherSide]) &&
+                (bbSquare & ~0x0101010101010101)) {
+                int toSquare = SHIFTED_SQUARE[get_LSB(FORWARD(EAST(bbSquare)))];
+                PieceType captured = getPieceType(board->bb.squares[toSquare]);
+                moves.emplace_back(toSquare, square, 0b000, captured, 0b0100, castle);
+            }
+            // forward west and not on A file capture
+            if ((FORWARD(WEST(bbSquare)) & board->bb.pcsOfColor[otherSide]) &&
+                (bbSquare & ~0x8080808080808080)) {
+                int toSquare = SHIFTED_SQUARE[get_LSB(FORWARD(WEST(bbSquare)))];
+                PieceType captured = getPieceType(board->bb.squares[toSquare]);
+                moves.emplace_back(toSquare, square, 0b000, captured, 0b0100, castle);
+            }
         }
 
         // en passant
-        if(board->sideToMove == WHITE) {
+        if (board->sideToMove == WHITE) {
             unsigned int epSquare = board->getLastState().enPassantSquare;
-            if((square + 7 == epSquare) && ((bbSquare << 7) & board->bb.emptySquares)) {
+            if ((bbSquare & 0xFF00000000) && (square + 7 == epSquare) && ((bbSquare << 9) & board->bb.emptySquares)) {
                 moves.emplace_back(square + 7, square, 0b000, 0b000, 0b0101, castle);
-            } else if((square + 9 == epSquare) && ((bbSquare << 9) & board->bb.emptySquares)) {
+            } else if ((bbSquare & 0xFF00000000) && (square + 9 == epSquare) &&
+                       ((bbSquare << 7) & board->bb.emptySquares)) {
                 moves.emplace_back(square + 9, square, 0b000, 0b000, 0b0101, castle);
             }
         } else {
             unsigned int epSquare = board->getLastState().enPassantSquare;
-            if((square - 7 == epSquare) && ((bbSquare >> 7) & board->bb.emptySquares)) {
+            if ((bbSquare & 0xFF000000) && (square - 7 == epSquare) && ((bbSquare >> 9) & board->bb.emptySquares)) {
                 moves.emplace_back(square - 7, square, 0b000, 0b000, 0b0101, castle);
-            } else if((square - 9 == epSquare) && ((bbSquare >> 9) & board->bb.emptySquares)) {
+            } else if ((bbSquare & 0xFF000000) && (square - 9 == epSquare) &&
+                       ((bbSquare >> 7) & board->bb.emptySquares)) {
                 moves.emplace_back(square - 9, square, 0b000, 0b000, 0b0101, castle);
             }
         }
@@ -229,7 +269,7 @@ std::vector<Move> MoveGen::getPawnMoves() {
 
 std::vector<Move> MoveGen::getKnightMoves() {
     std::vector<Move> moves;
-    EBitBoard knightOcc = board->bb.pcs[2 + 6 * board->sideToMove];
+    int64 knightOcc = board->bb.pcs[2 + 6 * board->sideToMove];
     EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
     unsigned int castle = board->getLastState().castlingRights;
 
@@ -237,16 +277,143 @@ std::vector<Move> MoveGen::getKnightMoves() {
         unsigned int from = SHIFTED_SQUARE[pop_LSB(knightOcc)]; // [0, 63]
         int64 attacks = knightAttackTable[from];
 
-        while(attacks) {
+        while (attacks) {
             unsigned int to = SHIFTED_SQUARE[pop_LSB(attacks)];
             int64 toBBSquare = BB_SQUARES[to];
 
-            if(toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+            if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
                 PieceType captured = getPieceType(board->bb.squares[to]);
                 moves.emplace_back(to, from, 0b001, captured, 0b0100, castle);
             } else if (toBBSquare & board->bb.emptySquares) {
                 moves.emplace_back(to, from, 0b001, 0b110, 0b000, castle);
             }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Move> MoveGen::getBishopMoves() {
+    std::vector<Move> moves;
+    int64 bishopOcc = board->bb.pcs[3 + 6 * board->sideToMove];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
+
+    while (bishopOcc) {
+        int from = SHIFTED_SQUARE[get_LSB(bishopOcc)];
+        int64 attacks = (magic->getBishopAttacks(pop_LSB(bishopOcc), board->bb.occupiedSquares)
+                         & ~board->bb.pcsOfColor[board->sideToMove]);
+
+        while (attacks) {
+            int to = SHIFTED_SQUARE[pop_LSB(attacks)];
+            int64 toBBSquare = BB_SQUARES[to];
+
+            if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+                PieceType captured = getPieceType(board->bb.squares[to]);
+                moves.emplace_back(to, from, 0b010, captured, 0b0100, castle);
+            } else if (toBBSquare & board->bb.emptySquares) { // no capture
+                moves.emplace_back(to, from, 0b010, 0b110, 0b0000, castle);
+            }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Move> MoveGen::getRookMoves() {
+    std::vector<Move> moves;
+    int64 rookOcc = board->bb.pcs[4 + 6 * board->sideToMove];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
+
+    while (rookOcc) {
+        int from = SHIFTED_SQUARE[get_LSB(rookOcc)];
+        int64 attacks = (magic->getRookAttacks(pop_LSB(rookOcc), board->bb.occupiedSquares)
+                         & ~board->bb.pcsOfColor[board->sideToMove]);
+        while (attacks) {
+            int to = SHIFTED_SQUARE[pop_LSB(attacks)];
+            int64 toBBSquare = BB_SQUARES[to];
+
+            if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+                PieceType captured = getPieceType(board->bb.squares[to]);
+                moves.emplace_back(to, from, 0b011, captured, 0b0100, castle);
+            } else if (toBBSquare & board->bb.emptySquares) { // no capture
+                moves.emplace_back(to, from, 0b011, 0b110, 0b0000, castle);
+            }
+        }
+    }
+
+    return moves;
+}
+
+std::vector<Move> MoveGen::getQueenMoves() {
+    std::vector<Move> moves;
+    int64 queenOcc = board->bb.pcs[5 + 6 * board->sideToMove];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
+
+    while (queenOcc) {
+        int from = SHIFTED_SQUARE[get_LSB(queenOcc)];
+        int64 attacks = (magic->getQueenAttacks(pop_LSB(queenOcc), board->bb.occupiedSquares)
+                         & ~board->bb.pcsOfColor[board->sideToMove]);
+
+        while (attacks) {
+            int to = SHIFTED_SQUARE[pop_LSB(attacks)];
+            int64 toBBSquare = BB_SQUARES[to];
+
+            if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+                PieceType captured = getPieceType(board->bb.squares[to]);
+                moves.emplace_back(to, from, 0b100, captured, 0b0100, castle);
+            } else if (toBBSquare & board->bb.emptySquares) { // no capture
+                moves.emplace_back(to, from, 0b100, 0b110, 0b0000, castle);
+            }
+        }
+    }
+
+    return moves;
+}
+
+// TODO abstract this... while loop for most of these can be abstracted, maybe even entire method
+std::vector<Move> MoveGen::getKingMoves() {
+    std::vector<Move> moves;
+    int64 fromBBSquare = board->bb.pcs[6 + 6 * board->sideToMove];
+    int from = SHIFTED_SQUARE[get_LSB(fromBBSquare)];
+    EColor otherSide = (board->sideToMove == WHITE ? BLACK : WHITE);
+    unsigned int castle = board->getLastState().castlingRights;
+
+    calcKingAttackBitboard(board->sideToMove);
+    int64 attacks = kingAttackBitboard[board->sideToMove];
+
+    // normal attacks
+    while (attacks) {
+        int to = SHIFTED_SQUARE[pop_LSB(attacks)];
+        int64 toBBSquare = BB_SQUARES[to];
+
+        if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
+            PieceType captured = getPieceType(board->bb.squares[to]);
+            moves.emplace_back(to, from, 0b101, captured, 0b0100, castle);
+        } else if (toBBSquare & board->bb.emptySquares) { // no capture
+            moves.emplace_back(to, from, 101, 0b110, 0b0000, castle);
+        }
+    }
+
+    // castling
+    if (board->sideToMove == WHITE) {
+        if ((castle & 0b1000) &&
+            ((board->bb.occupiedSquares & 0x70) == 0)) { // white castles queen side, e1c1 if b1c1d1 empty
+            moves.emplace_back(C1, E1, 0b101, 0b110, 0b0011, castle);
+        } else if ((castle & 0b0100) &&
+                   ((board->bb.occupiedSquares & 0x6) == 0)) { // white castles king side, e1g1 if f1g1 empty
+            moves.emplace_back(G1, E1, 0b101, 0b110, 0b0010, castle);
+        }
+    } else {
+        if ((castle & 0b1000) &&
+            ((board->bb.occupiedSquares & 0x7000000000000000)) == 0) { // black castles queen side, e8c8 if b8c8d8 empty
+            moves.emplace_back(C8, E8, 0b101, 0b110, 0b0011, castle);
+        } else if ((castle & 0b0100) &&
+                   ((board->bb.occupiedSquares & 0x0600000000000000)) ==
+                   0) { // white castles king side, e8g8 if f8g8 empty
+            moves.emplace_back(G8, E8, 0b101, 0b110, 0b0010, castle);
         }
     }
 
@@ -266,12 +433,12 @@ std::vector<Move> MoveGen::getLegalMoves() {
     std::vector<Move> king = getKingMoves();
 
     // only copy moves if they are legal
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(pawn), [this](Move m){return isLegal(m);} );
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(knight), [this](Move m){return isLegal(m);} );
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(bishop), [this](Move m){return isLegal(m);} );
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(rook), [this](Move m){return isLegal(m);} );
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(queen), [this](Move m){return isLegal(m);} );
-    std::copy_if (moves.begin(), moves.end(), std::back_inserter(king), [this](Move m){return isLegal(m);} );
+    std::copy_if(pawn.begin(), pawn.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
+    std::copy_if(knight.begin(), knight.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
+    std::copy_if(bishop.begin(), bishop.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
+    std::copy_if(rook.begin(), rook.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
+    std::copy_if(queen.begin(), queen.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
+    std::copy_if(king.begin(), king.end(), std::back_inserter(moves), [this](Move m) { return isLegal(m); });
 
     return moves;
 }

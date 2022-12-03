@@ -138,19 +138,7 @@ public:
     friend std::ostream& operator<<(std::ostream &os, Move &move) {
         std::bitset<4> flags(move.getFlags());
 
-        unsigned int xOrigin = move.getOrigin() % 8;
-        unsigned int yOrigin = move.getOrigin() / 8;
-
-        unsigned int xDestination = move.getDest() % 8;
-        unsigned int yDestination = move.getDest() / 8;
-
-        unsigned int moveOrderingScore = move.getMoveRating();
-
-        os << move.toLAN() << " "
-             << "Origin: [" << xOrigin << ", " << yOrigin << "] Dest: ["
-             << xDestination << ", " << yDestination << "] Flags: " << flags
-             << " MO score : " << moveOrderingScore
-             << std::endl;
+        os << move.toLAN() << " Flags: " << flags << " : ";
 
         return os;
     }

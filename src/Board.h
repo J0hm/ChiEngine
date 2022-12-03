@@ -27,7 +27,7 @@ public:
     void initialize(unsigned int c, ESquare sq, int64 hash);
 
     // Get the last state of the board
-    inline BoardState getLastState() {return stateList.back();}
+    inline BoardState getLastState() { return stateList.back(); }
 
     // Pop the last state from the list
     inline BoardState popLastState() {
@@ -37,9 +37,9 @@ public:
     }
 
     // add a state to the board state
-    inline void addState(BoardState s) {stateList.push_back(s);};
+    inline void addState(BoardState s) { stateList.push_back(s); };
 
-    int getStateCount() {return stateList.size();};
+    int getStateCount() { return stateList.size(); };
 
 private:
     std::vector<BoardState> stateList;
@@ -50,7 +50,7 @@ class Board {
 public:
     // BitBoard for this board
     BoardBB bb;
-    MoveGen* movegen;
+    MoveGen *movegen;
     EColor sideToMove;
     int currentPly;
 
@@ -66,19 +66,27 @@ public:
 
     // Make a move
     void makeMove(Move move);
-    inline void makeMove(std::string lan) {makeMove(parseMove(lan));}
+
+    inline void makeMove(std::string lan) { makeMove(parseMove(lan)); }
 
     // Unmake a move
     void unmakeMove();
 
     // Get the last state of the board
-    inline BoardState getLastState() { return boardHistory->getLastState();};
+    inline BoardState getLastState() { return boardHistory->getLastState(); };
 
     // Pop the last boardstate off of the list
-    inline BoardState popBoardState() {return boardHistory->popLastState();};
+    inline BoardState popBoardState() { return boardHistory->popLastState(); };
 
     // get the number of stored board states
-    inline int getStateCount() {return boardHistory->getStateCount();};
+    inline int getStateCount() { return boardHistory->getStateCount(); };
+
+    // returns the total number of moves to the specified depth
+    int64 perft(int depth);
+
+    static BoardBB copyBB(BoardBB bb);
+
+    static bool bbEqual(BoardBB bb1, BoardBB bb2);
 
 
 private:

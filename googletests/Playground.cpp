@@ -3,5 +3,5 @@
 #include "ZobristHasher.h"
 
 TEST(PlaygroundSuite, Testing) {
-    ZobristHasher h;
+    for(int64 n : BB_SQUARES) std::cout << Algorithms::bitBoardToString(n) << std::endl;
 }

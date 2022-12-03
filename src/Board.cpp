@@ -49,7 +49,7 @@ int Board::setFEN(std::string FEN) {
         letter = strList[0].at(i);
         i++;
 
-        sq = (ESquare) (rank*8 + file);
+        sq = (ESquare) (rank * 8 + file);
         switch (letter) {
             case 'p' :
                 bb.squares[sq] = B_PAWN;
@@ -97,22 +97,22 @@ int Board::setFEN(std::string FEN) {
                 file++;
                 break;
             case '3' :
-                file+=2;
+                file += 2;
                 break;
             case '4' :
-                file+= 3;
+                file += 3;
                 break;
             case '5' :
-                file+= 4;
+                file += 4;
                 break;
             case '6' :
-                file+= 5;
+                file += 5;
                 break;
             case '7' :
-                file+= 6;
+                file += 6;
                 break;
             case '8' :
-                file+= 7;
+                file += 7;
                 break;
             default:
                 return -1;
@@ -323,12 +323,12 @@ void Board::makeMove(Move move) {
     clearSquare(from, movedPiece, sideToMove);
     setSquare(to, movedPiece, sideToMove);
 
-    if(move.isCapture()) {
+    if (move.isCapture()) {
         if (move.isEnPassant()) {
             if (sideToMove == WHITE) {
-                clearSquare(to-8, B_PAWN, BLACK);
+                clearSquare(to - 8, B_PAWN, BLACK);
             } else {
-                clearSquare(to+8, W_PAWN, WHITE);
+                clearSquare(to + 8, W_PAWN, WHITE);
             }
         } else {
             clearSquare(to, getPiece(move.getCapturedPieceType(), otherSide), otherSide);
@@ -395,8 +395,6 @@ void Board::makeMove(Move move) {
     newState.castlingRights = castle;
     newState.move = move;
     newState.inCheck = movegen->inCheck(sideToMove);
-    // answer: probably something with move generation and attack tables and stuff, definitely a later problem
-    // ideally this would be very fast
     newState.repetitions = oldState.repetitions; // also a todo but low priority
 
     boardHistory->addState(newState);
@@ -404,7 +402,11 @@ void Board::makeMove(Move move) {
 
 // unmake a move
 void Board::unmakeMove() {
-    if (getStateCount() < 2) return; // there is no state to go back to
+
+    if (getStateCount() < 2) {
+        std::cout << "low state count\n";
+        return; // there is no state to go back to
+    }
 
     BoardState lastState = popBoardState();
     EColor otherSide = (sideToMove == BLACK) ? WHITE : BLACK;
@@ -423,7 +425,7 @@ void Board::unmakeMove() {
     if (lastState.move.isCapture()) {
         if (lastState.move.isEnPassant()) {
             EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove); // should always be pawn
-            int sq = (otherSide == WHITE) ? to + 8 : to - 8;
+            int sq = (otherSide == BLACK) ? from + 8 : from - 8;
             setSquare(sq, captured, sideToMove);
         } else {
             EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove);
@@ -431,10 +433,9 @@ void Board::unmakeMove() {
         }
     }
 
-
     // king is already set, so we just need to update rook + castling state
-    if(lastState.move.isQueenSideCastling()) {
-        if(otherSide == WHITE) { // white king side castle
+    if (lastState.move.isQueenSideCastling()) {
+        if (otherSide == WHITE) { // white king side castle
             setSquare(A1, W_ROOK, WHITE);
             clearSquare(D1, W_ROOK, WHITE);
         } else {
@@ -442,7 +443,7 @@ void Board::unmakeMove() {
             clearSquare(D8, B_ROOK, BLACK);
         }
     } else if (lastState.move.isKingSideCastling()) {
-        if(otherSide == WHITE) { // white queen side castle
+        if (otherSide == WHITE) { // white queen side castle
             setSquare(H1, W_ROOK, WHITE);
             clearSquare(F1, W_ROOK, WHITE);
         } else {
@@ -452,7 +453,7 @@ void Board::unmakeMove() {
     }
 
     // if promoted
-    if(lastState.move.isPromotion()) {
+    if (lastState.move.isPromotion()) {
         clearSquare(to, movedPiece, sideToMove);
         setSquare(to, (sideToMove == WHITE) ? W_PAWN : B_PAWN, sideToMove);
     }
@@ -494,6 +495,77 @@ void Board::setSquare(int sq, EPiece piece, EColor side) {
     set_bit(bb.occupiedSquares, shifted);
     clear_bit(bb.emptySquares, shifted);
     bb.squares[sq] = piece;
+}
+
+int64 Board::perft(int depth) {
+    int64 nodes = 0;
+    std::vector<Move> legalMoves = movegen->getLegalMoves();
+
+    if (depth == 0) {
+        return 1ULL;
+    }
+
+    for (Move m: legalMoves) {
+        BoardBB before = copyBB(bb);
+        makeMove(m);
+        int64 newNodes = perft(depth - 1);
+        nodes += newNodes;
+        unmakeMove();
+        BoardBB after = copyBB(bb);
+
+//        if (!bbEqual(before, after)) {
+//            std::cout << m << std::endl;
+//        }
+        if(depth == 4) {
+            std::cout << m << " at depth " << (depth - 1) << ": " << newNodes << " new nodes" << std::endl;
+        }
+    }
+
+    return nodes;
+}
+
+// TODO remove just here for debugging
+BoardBB Board::copyBB(BoardBB bb) {
+    BoardBB res{};
+
+    std::copy(std::begin(bb.squares), std::end(bb.squares), std::begin(res.squares));
+    std::copy(std::begin(bb.pcs), std::end(bb.pcs), std::begin(res.pcs));
+    std::copy(std::begin(bb.pcsOfColor), std::end(bb.pcsOfColor), std::begin(res.pcsOfColor));
+    res.occupiedSquares = bb.occupiedSquares;
+    res.emptySquares = bb.emptySquares;
+
+    return res;
+}
+
+bool Board::bbEqual(BoardBB bb1, BoardBB bb2) {
+    bool res = true;
+    if (!std::equal(std::begin(bb1.squares), std::end(bb1.squares), std::begin(bb2.squares))) {
+        //std::cout << "squares not equal" << std::endl;
+        res = false;
+    }
+
+    if (!std::equal(std::begin(bb1.pcs), std::end(bb1.pcs), std::begin(bb2.pcs))) {
+        //std::cout << "pcs not equal" << std::endl;
+        res = false;
+    }
+
+    if (!std::equal(std::begin(bb1.pcsOfColor), std::end(bb1.pcsOfColor), std::begin(bb2.pcsOfColor))) {
+        //std::cout << "pcsofcolor not equal" << std::endl;
+        res = false;
+    }
+
+
+    if (bb1.occupiedSquares != bb2.occupiedSquares) {
+        //std::cout << "occsquares not equal" << std::endl;
+        res = false;
+    }
+
+    if (bb1.emptySquares != bb2.emptySquares) {
+        //std::cout << "empty squares not equal" << std::endl;
+        res = false;
+    }
+
+    return res;
 }
 
 
