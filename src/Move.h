@@ -23,7 +23,7 @@ public:
 
     inline Move(unsigned int move) : bitMove(move), rating(0) {}
 
-    Move(unsigned int to, unsigned int from, unsigned int moved, unsigned int captured, unsigned int flags, unsigned int castlingRights);
+    Move(unsigned int to, unsigned int from, unsigned int moved, unsigned int captured, unsigned int flags, unsigned int castlingRights, int moveRating);
 
     // getters
     inline ESquare getDest() const {
@@ -138,7 +138,7 @@ public:
     friend std::ostream& operator<<(std::ostream &os, Move &move) {
         std::bitset<4> flags(move.getFlags());
 
-        os << move.toLAN() << " Flags: " << flags << " : ";
+        os << move.toLAN() << " Flags: " << flags << " : " << " Score: " << move.getMoveRating();
 
         return os;
     }
@@ -177,7 +177,7 @@ private:
     unsigned int bitMove;
 
     // stores the rating for this move
-    int rating{};
+    int rating;
 };
 
 

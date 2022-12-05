@@ -542,16 +542,11 @@ int64 Board::perft(int depth, int depthToShow) {
     }
 
     for (Move m: legalMoves) {
-        BoardBB before = copyBB(bb);
         makeMove(m);
         int64 newNodes = perft(depth - 1, depthToShow);
         nodes += newNodes;
         unmakeMove();
-        BoardBB after = copyBB(bb);
 
-        if (!bbEqual(before, after)) {
-            std::cout << m << std::endl;
-        }
         if(depth == depthToShow) {
             std::cout << m << " at depth " << (depth - 1) << ": " << newNodes << " new nodes" << std::endl;
         }
@@ -602,5 +597,3 @@ bool Board::bbEqual(BoardBB bb1, BoardBB bb2) {
 
     return res;
 }
-
-

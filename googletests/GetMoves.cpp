@@ -225,6 +225,8 @@ TEST(MoveGenTestSuite, GetAllLegalMovesFrom) {
     board.makeMove("b5b4");
     legalMoves = board.movegen->getLegalMoves();
     ASSERT_EQ(legalMoves.size(), 21);
+
+    for(Move m : legalMoves) std::cout << m << std::endl;
 }
 
 TEST(MoveGenTestSuite, GetKingCastleMoves) {

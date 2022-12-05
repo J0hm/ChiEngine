@@ -1,6 +1,10 @@
 #include "gtest/gtest.h"
 #include "Board.h"
 
+/* For default position depth 5:
+ * 6.723s before removing validity checking
+ * 4.152s after
+ */
 TEST(MoveGenTestSuite, PerftDefaultFEN) {
     Board board;
     ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
