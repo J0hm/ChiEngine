@@ -34,3 +34,6 @@
 # CLion
 \cmake-build-debug
 \.idea
+
+
+/data/raw/
