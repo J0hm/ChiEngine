@@ -82,7 +82,7 @@ public:
     inline int getStateCount() { return boardHistory->getStateCount(); };
 
     // returns the total number of moves to the specified depth
-    int64 perft(int depth);
+    int64 perft(int depth, int depthToShow);
 
     static BoardBB copyBB(BoardBB bb);
 

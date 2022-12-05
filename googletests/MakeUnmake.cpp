@@ -1014,3 +1014,19 @@ TEST(BoardTestSuite, MakeUnmakeEnPassant) {
     pawnMoves = m.getPawnMoves();
     ASSERT_EQ(pawnMoves.size(), 16);
 }
+
+TEST(BoardTestSuite, MakeUnmakeCastle) {
+    Board board;
+    std::vector<Move> kingMoves;
+
+    ASSERT_EQ(board.setFEN("8/8/8/8/8/8/8/R3K2R w KQkq - 0 1"), 0);
+    kingMoves = board.movegen->getKingMoves();
+    ASSERT_EQ(kingMoves.size(), 7);
+
+    BoardBB oldBoard = board.copyBB(board.bb);
+    board.makeMove("e1g1");
+    board.unmakeMove();
+    BoardBB newBoard = board.copyBB(board.bb);
+
+    ASSERT_TRUE(board.bbEqual(oldBoard, newBoard));
+}

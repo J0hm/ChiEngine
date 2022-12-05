@@ -34,9 +34,9 @@ void MoveGen::calcRookAttackBitboard(EColor side) {
     EBitBoard rookOcc = board->bb.pcs[4 + 6 * side];
 
     while (rookOcc) {
-        bb |= (magic->getRookAttacks(pop_LSB(rookOcc),
+        bb |= ((magic->getRookAttacks(pop_LSB(rookOcc),
                                      board->bb.occupiedSquares)
-               & ~board->bb.pcsOfColor[side]);
+               & ~board->bb.pcsOfColor[side]));
     }
 
     rookAttackBitBoard[side] = bb;
@@ -52,7 +52,7 @@ void MoveGen::calcQueenAttackBitboard(EColor side) {
                & ~board->bb.pcsOfColor[side]);
     }
 
-    rookAttackBitBoard[side] = bb;
+    queenAttackBitBoard[side] = bb;
 }
 
 // TODO this needs to be based off of actual movegen?
@@ -62,7 +62,7 @@ void MoveGen::calcPawnAttackBitboard(EColor side) {
 
     while (pawnOcc) {
         int64 bbSquare = (1ULL << pop_LSB(pawnOcc));
-        if(side == WHITE) {
+        if (side == WHITE) {
             if ((NORTH(EAST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
                 (bbSquare & ~0x0101010101010101)) {
                 bb |= NORTH(EAST(bbSquare));
@@ -74,11 +74,11 @@ void MoveGen::calcPawnAttackBitboard(EColor side) {
         } else {
             if ((SOUTH(EAST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
                 (bbSquare & ~0x0101010101010101)) {
-                bb |= NORTH(EAST(bbSquare));
+                bb |= SOUTH(EAST(bbSquare));
             }
             if ((SOUTH(WEST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
                 (bbSquare & ~0x8080808080808080)) {
-                bb |= NORTH(WEST(bbSquare));
+                bb |= SOUTH(WEST(bbSquare));
             }
         }
     }
@@ -430,20 +430,29 @@ std::vector<Move> MoveGen::getKingMoves() {
 
     // castling
     if (board->sideToMove == WHITE) {
+        calcAllAttackBitboard(BLACK);
         if ((castle & 0b1000) &&
-            ((board->bb.occupiedSquares & 0x70) == 0)) { // white castles queen side, e1c1 if b1c1d1 empty
+            ((board->bb.occupiedSquares & 0x70) == 0) &&
+            !(allAttackBitBoard[BLACK] & 0xF8)) {
+            // white castles queen side, e1c1 if b1c1d1 empty, not under attack by white
             moves.emplace_back(C1, E1, 0b101, 0b110, 0b0011, castle);
-        } else if ((castle & 0b0100) &&
-                   ((board->bb.occupiedSquares & 0x6) == 0)) { // white castles king side, e1g1 if f1g1 empty
+        }
+        if ((castle & 0b0100) &&
+                   ((board->bb.occupiedSquares & 0x6) == 0) &&
+                   !(allAttackBitBoard[BLACK] & 0xF)) { // white castles king side, e1g1 if f1g1 empty
             moves.emplace_back(G1, E1, 0b101, 0b110, 0b0010, castle);
         }
     } else {
+        calcAllAttackBitboard(WHITE);
         if ((castle & 0b1000) &&
-            ((board->bb.occupiedSquares & 0x7000000000000000)) == 0) { // black castles queen side, e8c8 if b8c8d8 empty
+            ((board->bb.occupiedSquares & 0x7000000000000000) == 0) &&
+            !(allAttackBitBoard[WHITE] & 0xF800000000000000)) { // black castles queen side, e8c8 if b8c8d8 empty
             moves.emplace_back(C8, E8, 0b101, 0b110, 0b0011, castle);
-        } else if ((castle & 0b0100) &&
-                   ((board->bb.occupiedSquares & 0x0600000000000000)) ==
-                   0) { // white castles king side, e8g8 if f8g8 empty
+        }
+        if ((castle & 0b0100) &&
+                   ((board->bb.occupiedSquares & 0x0600000000000000) ==
+                    0) &&
+                   !(allAttackBitBoard[BLACK] & 0x0F00000000000000)) { // white castles king side, e8g8 if f8g8 empty
             moves.emplace_back(G8, E8, 0b101, 0b110, 0b0010, castle);
         }
     }

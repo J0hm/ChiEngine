@@ -7,6 +7,6 @@ TEST(MoveGenTestSuire, CalcAttackBitboard) {
 
     ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
 
-    board.movegen->calcAllAttackBitboard(WHITE);
-    //std::cout << Algorithms::bitBoardToString(board.movegen->allAttackBitBoard[WHITE]) << std::endl;
+    board.movegen->calcAllAttackBitboard(BLACK);
+    std::cout << Algorithms::bitBoardToString(board.movegen->allAttackBitBoard[BLACK]) << std::endl;
 }

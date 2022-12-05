@@ -351,8 +351,8 @@ void Board::makeMove(Move move) {
             clearSquare(H1, W_ROOK, WHITE);
             setSquare(F1, W_ROOK, WHITE);
         } else {
-            clearSquare(H1, B_ROOK, BLACK);
-            setSquare(F1, B_ROOK, BLACK);
+            clearSquare(H8, B_ROOK, BLACK);
+            setSquare(F8, B_ROOK, BLACK);
         }
     }
 
@@ -448,8 +448,8 @@ void Board::unmakeMove() {
             setSquare(H1, W_ROOK, WHITE);
             clearSquare(F1, W_ROOK, WHITE);
         } else {
-            setSquare(H1, B_ROOK, BLACK);
-            clearSquare(F1, B_ROOK, BLACK);
+            setSquare(H8, B_ROOK, BLACK);
+            clearSquare(F8, B_ROOK, BLACK);
         }
     }
 
@@ -498,7 +498,7 @@ void Board::setSquare(int sq, EPiece piece, EColor side) {
     bb.squares[sq] = piece;
 }
 
-int64 Board::perft(int depth) {
+int64 Board::perft(int depth, int depthToShow) {
     int64 nodes = 0;
     std::vector<Move> legalMoves = movegen->getLegalMoves();
 
@@ -509,7 +509,7 @@ int64 Board::perft(int depth) {
     for (Move m: legalMoves) {
         BoardBB before = copyBB(bb);
         makeMove(m);
-        int64 newNodes = perft(depth - 1);
+        int64 newNodes = perft(depth - 1, depthToShow);
         nodes += newNodes;
         unmakeMove();
         BoardBB after = copyBB(bb);
@@ -517,7 +517,7 @@ int64 Board::perft(int depth) {
         if (!bbEqual(before, after)) {
             std::cout << m << std::endl;
         }
-        if(depth == 5) {
+        if(depth == depthToShow) {
             std::cout << m << " at depth " << (depth - 1) << ": " << newNodes << " new nodes" << std::endl;
         }
     }
