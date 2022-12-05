@@ -233,11 +233,11 @@ TEST(MoveGenTestSuite, GetKingCastleMoves) {
 
     ASSERT_EQ(board.setFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"), 0);
     kingMoves = board.movegen->getKingMoves();
-    ASSERT_EQ(kingMoves.size(), 5);
+    ASSERT_EQ(kingMoves.size(), 7);
 
     ASSERT_EQ(board.setFEN("r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"), 0);
     kingMoves = board.movegen->getKingMoves();
-    ASSERT_EQ(kingMoves.size(), 5);
+    ASSERT_EQ(kingMoves.size(), 7);
 
     ASSERT_EQ(board.setFEN("8/8/8/8/8/8/8/R3K2R w KQkq - 0 1"), 0);
     kingMoves = board.movegen->getKingMoves();
@@ -245,25 +245,16 @@ TEST(MoveGenTestSuite, GetKingCastleMoves) {
 
     ASSERT_EQ(board.setFEN("r3k2r/8/8/8/8/8/8/8 b KQkq - 0 1"), 0);
     kingMoves = board.movegen->getKingMoves();
-    for (Move m: kingMoves) std::cout << m << std::endl;
     ASSERT_EQ(kingMoves.size(), 7);
 }
 
-TEST(MoveGenTestSuite, GetRookMovesEdgeCase) {
+
+TEST(MoveGenTestSuite, UnknownEdgeCase) {
     Board board;
     std::vector<Move> moves;
 
-    /* unmake not inverse at e1g1
-     *
-     * line:
-     * b4b3 Flags: 0000 :
-     * e1d1 Flags: 0000 :
-     * a1a1 Flags: 0000 :
-     */
-
-    ASSERT_EQ(board.setFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - "), 0);
-    //board.makeMove("a2a3");
+    ASSERT_EQ(board.setFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"), 0);
     moves = board.movegen->getLegalMoves();
-    for (Move m: moves) std::cout << m << std::endl;
+    ASSERT_EQ(moves.size(), 44);
 }
 

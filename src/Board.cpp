@@ -318,6 +318,7 @@ void Board::makeMove(Move move) {
     ESquare to = move.getDest();
     BoardState oldState = getLastState();
     BoardState newState;
+    unsigned int castle = move.getPreviousCastlingRights();
 
     // move the piece on the board
     EPiece movedPiece = bb.squares[from];
@@ -334,6 +335,20 @@ void Board::makeMove(Move move) {
         } else {
             clearSquare(to, getPiece(move.getCapturedPieceType(), otherSide), otherSide);
             setSquare(to, movedPiece, sideToMove);
+
+            if(getPiece(move.getCapturedPieceType(), otherSide) == W_ROOK) {
+                if(to == 0) {
+                    castle &= 0b0111;
+                } else if(to == 7) {
+                    castle &= 0b1011;
+                }
+            } else if(getPiece(move.getCapturedPieceType(), otherSide) == B_ROOK) {
+                if(to == 56) {
+                    castle &= 1101;
+                } else if(to == 63) {
+                    castle &= 0b1110;
+                }
+            }
         }
     }
 
@@ -360,7 +375,6 @@ void Board::makeMove(Move move) {
     if (move.isPromotion()) {
         EPiece promotionPiece = (EPiece) ((sideToMove == WHITE) ?
                                           (move.getPromotedPieceType() + 1) : (move.getPromotedPieceType() + 7));
-        bb.squares[to] = promotionPiece;
         clearSquare(to, movedPiece, sideToMove);
         setSquare(to, promotionPiece, sideToMove);
     }
@@ -377,13 +391,32 @@ void Board::makeMove(Move move) {
     }
 
     // get new castling rights
-    unsigned int castle = move.getPreviousCastlingRights();
+    if(movedPiece == W_ROOK) {
+        if(from == 0) {
+            castle &= 0b0111;
+        } else if(from == 7) {
+            castle &= 0b1011;
+        }
+    } else if(movedPiece == B_ROOK) {
+        if(from == 56) {
+            castle &= 1101;
+        } else if(from == 63) {
+            castle &= 0b1110;
+        }
+    }
+
     if (move.isCastling()) {
         if (sideToMove == WHITE) {
             castle &= 0b0011;
         } else {
             castle &= 0b1100;
         }
+    }
+
+    if(movedPiece == W_KING) {
+        castle &= 0b0011;
+    } else if(movedPiece == B_KING) {
+        castle &= 0b1100;
     }
 
     // update board
@@ -410,7 +443,7 @@ void Board::unmakeMove() {
     }
 
     BoardState lastState = popBoardState();
-    EColor otherSide = (sideToMove == BLACK) ? WHITE : BLACK;
+    EColor movedSide = (sideToMove == BLACK) ? WHITE : BLACK;
 
     // reverse to and from
     ESquare to = lastState.move.getOrigin();
@@ -420,23 +453,12 @@ void Board::unmakeMove() {
     EPiece movedPiece = bb.squares[from];
 
     // update bitboard
-    clearSquare(from, movedPiece, otherSide);
-    setSquare(to, movedPiece, otherSide);
-
-    if (lastState.move.isCapture()) {
-        if (lastState.move.isEnPassant()) {
-            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove); // should always be pawn
-            int sq = (otherSide == BLACK) ? from + 8 : from - 8;
-            setSquare(sq, captured, sideToMove);
-        } else {
-            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove);
-            setSquare(from, captured, sideToMove);
-        }
-    }
+    clearSquare(from, movedPiece, movedSide);
+    setSquare(to, movedPiece, movedSide);
 
     // king is already set, so we just need to update rook + castling state
     if (lastState.move.isQueenSideCastling()) {
-        if (otherSide == WHITE) { // white king side castle
+        if (movedSide == WHITE) { // white king side castle
             setSquare(A1, W_ROOK, WHITE);
             clearSquare(D1, W_ROOK, WHITE);
         } else {
@@ -444,7 +466,7 @@ void Board::unmakeMove() {
             clearSquare(D8, B_ROOK, BLACK);
         }
     } else if (lastState.move.isKingSideCastling()) {
-        if (otherSide == WHITE) { // white queen side castle
+        if (movedSide == WHITE) { // white queen side castle
             setSquare(H1, W_ROOK, WHITE);
             clearSquare(F1, W_ROOK, WHITE);
         } else {
@@ -455,12 +477,28 @@ void Board::unmakeMove() {
 
     // if promoted
     if (lastState.move.isPromotion()) {
-        clearSquare(to, movedPiece, sideToMove);
-        setSquare(to, (sideToMove == WHITE) ? W_PAWN : B_PAWN, sideToMove);
+        clearSquare(from, movedPiece, movedSide);
+        clearSquare(to, movedPiece, movedSide);
+        setSquare(to, (movedSide == WHITE) ? W_PAWN : B_PAWN, movedSide);
+    }
+
+    if (lastState.move.isCapture()) {
+        if (lastState.move.isEnPassant()) {
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove); // should always be pawn
+            int sq = (movedSide == BLACK) ? from + 8 : from - 8;
+            setSquare(sq, captured, sideToMove);
+        } else {
+            EPiece captured = getPiece(lastState.move.getCapturedPieceType(), sideToMove);
+            setSquare(from, captured, sideToMove);
+        }
+    }
+
+    if(lastState.move.isNullMove()) {
+        std::cout << "null move in unmake\n";
     }
 
     // update the board
-    sideToMove = otherSide;
+    sideToMove = movedSide;
     --currentPly;
 }
 

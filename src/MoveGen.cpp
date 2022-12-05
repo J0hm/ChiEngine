@@ -144,8 +144,6 @@ bool MoveGen::isLegal(Move m) {
     } else {
         return !doesCheck(m, board->sideToMove);
     }
-    EColor color = (board->sideToMove == WHITE) ? WHITE : BLACK;
-    return !doesCheck(m, color);
 }
 
 bool MoveGen::doesCheck(Move m, EColor toColor) {
@@ -165,10 +163,10 @@ bool MoveGen::doesCheck(Move m, EColor toColor) {
         std::cout << Algorithms::bitBoardToString(start.pcsOfColor[WHITE]) << std::endl;
         std::cout << Algorithms::bitBoardToString(start.pcs[B_PAWN]) << std::endl;
         std::cout << Algorithms::bitBoardToString(start.pcs[W_PAWN]) << std::endl;
-        std::cout << "line:\n";
+        std::cout << "line: " << board->getStateCount() << " moves\n";
         while (board->getStateCount() > 1) {
             BoardState s = board->popBoardState();
-            std::cout << s.move << std::endl;
+            std::cout << s.move << " null? " << s.move.isNullMove() << std::endl;
         }
         throw std::runtime_error("bitboards not equal");
     }
@@ -433,26 +431,26 @@ std::vector<Move> MoveGen::getKingMoves() {
         calcAllAttackBitboard(BLACK);
         if ((castle & 0b1000) &&
             ((board->bb.occupiedSquares & 0x70) == 0) &&
-            !(allAttackBitBoard[BLACK] & 0xF8)) {
+            !(allAttackBitBoard[BLACK] & 0x38)) {
             // white castles queen side, e1c1 if b1c1d1 empty, not under attack by white
             moves.emplace_back(C1, E1, 0b101, 0b110, 0b0011, castle);
         }
         if ((castle & 0b0100) &&
                    ((board->bb.occupiedSquares & 0x6) == 0) &&
-                   !(allAttackBitBoard[BLACK] & 0xF)) { // white castles king side, e1g1 if f1g1 empty
+                   !(allAttackBitBoard[BLACK] & 0xE)) { // white castles king side, e1g1 if f1g1 empty
             moves.emplace_back(G1, E1, 0b101, 0b110, 0b0010, castle);
         }
     } else {
         calcAllAttackBitboard(WHITE);
-        if ((castle & 0b1000) &&
+        if ((castle & 0b0010) &&
             ((board->bb.occupiedSquares & 0x7000000000000000) == 0) &&
-            !(allAttackBitBoard[WHITE] & 0xF800000000000000)) { // black castles queen side, e8c8 if b8c8d8 empty
+            !(allAttackBitBoard[WHITE] & 0x3800000000000000)) { // black castles queen side, e8c8 if b8c8d8 empty
             moves.emplace_back(C8, E8, 0b101, 0b110, 0b0011, castle);
         }
-        if ((castle & 0b0100) &&
+        if ((castle & 0b0001) &&
                    ((board->bb.occupiedSquares & 0x0600000000000000) ==
                     0) &&
-                   !(allAttackBitBoard[BLACK] & 0x0F00000000000000)) { // white castles king side, e8g8 if f8g8 empty
+                   !(allAttackBitBoard[WHITE] & 0x0E00000000000000)) { // white castles king side, e8g8 if f8g8 empty
             moves.emplace_back(G8, E8, 0b101, 0b110, 0b0010, castle);
         }
     }

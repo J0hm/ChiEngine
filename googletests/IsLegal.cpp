@@ -14,7 +14,6 @@ TEST(MoveGenTestSuite, KingCantCheckItself) {
     ASSERT_EQ(b.setFEN("rnbqkbnr/p1pppppp/8/8/1p6/3P4/PPPKPPPP/RNBQ1BNR w HAkq - 0 1"), 0);
 
     b.movegen->calcAllAttackBitboard(BLACK);
-    std::cout << Algorithms::bitBoardToString(b.movegen->allAttackBitBoard[BLACK]) << std::endl;
 
     m = b.parseMove("d2c3");
     ASSERT_FALSE(b.movegen->isLegal(m));

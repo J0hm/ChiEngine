@@ -257,8 +257,6 @@ TEST(BoardTestSuite, MakeUnmakeAllLegalMovesSameHash) {
         std::string blackBishop = Algorithms::bitBoardToString(board.bb.pcs[B_BISHOP]);
         std::string blackRook = Algorithms::bitBoardToString(board.bb.pcs[B_ROOK]);
 
-        std::cout << emptySquares << std::endl;
-
         ASSERT_EQ("\n01000010"
                   "\n00001000"
                   "\n11011011"
@@ -1017,16 +1015,168 @@ TEST(BoardTestSuite, MakeUnmakeEnPassant) {
 
 TEST(BoardTestSuite, MakeUnmakeCastle) {
     Board board;
+    BoardBB oldBoard{}, newBoard{};
     std::vector<Move> kingMoves;
 
     ASSERT_EQ(board.setFEN("8/8/8/8/8/8/8/R3K2R w KQkq - 0 1"), 0);
     kingMoves = board.movegen->getKingMoves();
     ASSERT_EQ(kingMoves.size(), 7);
 
-    BoardBB oldBoard = board.copyBB(board.bb);
+    oldBoard = Board::copyBB(board.bb);
     board.makeMove("e1g1");
     board.unmakeMove();
-    BoardBB newBoard = board.copyBB(board.bb);
-
+    newBoard = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(oldBoard, newBoard));
+
+    oldBoard = Board::copyBB(board.bb);
+    board.makeMove("e1c1");
+    board.unmakeMove();
+    newBoard = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(oldBoard, newBoard));
+
+    ASSERT_EQ(board.setFEN("r3k2r/8/8/8/8/8/8/8 b kq - 0 1"), 0);
+    kingMoves = board.movegen->getKingMoves();
+    ASSERT_EQ(kingMoves.size(), 7);
+
+    oldBoard = Board::copyBB(board.bb);
+    board.makeMove("e8g8");
+    board.unmakeMove();
+    newBoard = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(oldBoard, newBoard));
+
+    oldBoard = Board::copyBB(board.bb);
+    board.makeMove("e8c8");
+    board.unmakeMove();
+    newBoard = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(oldBoard, newBoard));
+}
+
+TEST(BoardTestSuite, MakeUnmakePromotions) {
+    Board board;
+    BoardBB before{}, after{};
+    std::vector<Move> pawnMoves;
+
+    ASSERT_EQ(board.setFEN("4n3/3P4/8/8/8/8/3p4/2R5 b - - 0 1"), 0);
+    pawnMoves = board.movegen->getPawnMoves();
+    ASSERT_EQ(pawnMoves.size(), 8);
+
+    ASSERT_EQ(board.setFEN("4n3/3P4/8/8/8/8/3p4/2R5 w - - 0 1"), 0);
+    pawnMoves = board.movegen->getPawnMoves();
+    ASSERT_EQ(pawnMoves.size(), 8);
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d7d8n");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d7d8q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d7d8b");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d7d8r");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d7xe8q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    ASSERT_EQ(board.setFEN("4n3/3P4/8/8/8/8/3p4/2R5 b - - 0 1"), 0);
+    pawnMoves = board.movegen->getPawnMoves();
+    ASSERT_EQ(pawnMoves.size(), 8);
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d2d1n");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d2d1q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d2d1b");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d2d1r");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("d2xc1q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    ASSERT_EQ(board.setFEN("4n3/3P4/8/8/8/8/6p1/7R b - - 0 1"), 0);
+    pawnMoves = board.movegen->getPawnMoves();
+    ASSERT_EQ(pawnMoves.size(), 8);
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2g1n");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2g1b");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2g1r");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2g1q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2xh1n");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2xh1b");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2xh1r");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
+
+    before = Board::copyBB(board.bb);
+    board.makeMove("g2xh1q");
+    board.unmakeMove();
+    after = Board::copyBB(board.bb);
+    ASSERT_TRUE(board.bbEqual(before, after));
 }
