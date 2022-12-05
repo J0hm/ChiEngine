@@ -5,7 +5,7 @@ A UCI chess engine written in C++ using deep neural networks for evaluation.
 	- Figure out how to extract and use games from this dataset
 
 ### GUI:
-	- Communication with common chess GUIs
+	- Communication with common chess GUIs via the UCI protocol
 
 ### Important links:
 - [Cassiabase Dataset](http://caissabase.co.uk/)
@@ -18,3 +18,4 @@ A UCI chess engine written in C++ using deep neural networks for evaluation.
   - [ ] Bitify/fenify poisitions
   - [ ] Process Cassiabase dataset
   - [ ] Create a database of winning and losing positions for black/white
+  - [ ] Implement more UCI functions into Engine.cpp
