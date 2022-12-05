@@ -2,6 +2,7 @@
 #define CHIENGINE_BOARD_H
 
 #include <string>
+#include <utility>
 #include <vector>
 #include "Move.h"
 #include "MoveGen.h"
@@ -49,10 +50,10 @@ private:
 class Board {
 public:
     // BitBoard for this board
-    BoardBB bb;
+    BoardBB bb{};
     MoveGen *movegen;
     EColor sideToMove;
-    int currentPly;
+    int currentPly{};
 
     Board();
 
@@ -67,7 +68,7 @@ public:
     // Make a move
     void makeMove(Move move);
 
-    inline void makeMove(std::string lan) { makeMove(parseMove(lan)); }
+    inline void makeMove(std::string lan) { makeMove(parseMove(std::move(lan))); }
 
     // Unmake a move
     void unmakeMove();
@@ -97,7 +98,7 @@ private:
     void initializeBitBoards();
 
     // gets a square from file and rank characters
-    ESquare getSquare(char file, char rank);
+    static ESquare getSquare(char file, char rank);
 
     // clears the piece at a given square
     void clearSquare(int sq, EPiece piece, EColor side);

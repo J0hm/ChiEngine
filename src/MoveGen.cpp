@@ -55,7 +55,6 @@ void MoveGen::calcQueenAttackBitboard(EColor side) {
     queenAttackBitBoard[side] = bb;
 }
 
-// TODO this needs to be based off of actual movegen?
 void MoveGen::calcPawnAttackBitboard(EColor side) {
     int64 bb = 0;
     int64 pawnOcc = board->bb.pcs[1 + 6 * side];
@@ -140,7 +139,7 @@ bool MoveGen::inCheck(EColor side) {
 
 bool MoveGen::isLegal(Move m) {
     if (board->getLastState().inCheck) { // if we are in check, only moves that resolve check are legal
-        return resolvesCheck(m) && !doesCheck(m, board->sideToMove);;
+        return resolvesCheck(m) && !doesCheck(m, board->sideToMove);
     } else {
         return !doesCheck(m, board->sideToMove);
     }
@@ -149,13 +148,13 @@ bool MoveGen::isLegal(Move m) {
 bool MoveGen::doesCheck(Move m, EColor toColor) {
     bool doesCheck;
 
-    BoardBB start = board->copyBB(board->bb);
+    BoardBB start = Board::copyBB(board->bb);
     board->makeMove(m);
     doesCheck = inCheck(toColor);
     board->unmakeMove();
-    BoardBB end = board->copyBB(board->bb);
+    BoardBB end = Board::copyBB(board->bb);
 
-    if (!board->bbEqual(start, end)) {
+    if (!Board::bbEqual(start, end)) {
         std::cout << "bb not equal after checking doesCheck " << m << std::endl;
         std::cout << Algorithms::bitBoardToString(start.occupiedSquares) << std::endl;
         std::cout << Algorithms::bitBoardToString(start.emptySquares) << std::endl;

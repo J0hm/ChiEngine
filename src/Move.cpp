@@ -19,7 +19,7 @@ Move::Move(unsigned int to, unsigned int from, unsigned int movedPiece, unsigned
 }
 
 // return this move in long algebraic notation
-std::string Move::toLAN() {
+std::string Move::toLAN() const {
     std::array<std::string, 8> letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
 
     unsigned int xOrigin = getOrigin() % 8;
@@ -28,7 +28,7 @@ std::string Move::toLAN() {
     unsigned int xDestination = getDest() % 8;
     unsigned int yDestination = (getDest() / 8) + 1;
 
-    std::string promotionLetter = "";
+    std::string promotionLetter;
     if (isPromotion()) {
         unsigned int promotedType = getFlags() - Move::PROMOTION_FLAG + 1;
 

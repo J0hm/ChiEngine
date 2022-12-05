@@ -49,10 +49,10 @@ TEST(BoardTestSuite, ParseMoveEnPassantCapture) { // checks if parsing the move 
     ASSERT_EQ(board.getLastState().castlingRights, 0b1111);
     ASSERT_EQ(board.currentPly, 5);
 
-    Move m = board.parseMove("e5xd6");
-    Move m2 = board.parseMove("E5xd6");
-    Move m3 = board.parseMove("e5xD6");
-    Move m4 = board.parseMove("E5xD6");
+    Move m = board.parseMove("e5d6");
+    Move m2 = board.parseMove("E5d6");
+    Move m3 = board.parseMove("e5D6");
+    Move m4 = board.parseMove("E5D6");
     ASSERT_TRUE(m == m2);
     ASSERT_TRUE(m2 == m3);
     ASSERT_TRUE(m3 == m4);
@@ -152,7 +152,7 @@ TEST(BoardTestSuite, ParseMoveTakeMiddlePawn) { // checks parsing taking middle 
     Board board;
     ASSERT_EQ(board.setFEN("rnbqkbnr/pppp1ppp/8/4p3/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"), 0);
     ASSERT_EQ(board.getLastState().castlingRights, 0b1111);
-    Move m = board.parseMove("d4xe5");
+    Move m = board.parseMove("d4e5");
 
     ASSERT_TRUE(m.isCapture());
     ASSERT_FALSE(m.isEnPassant());
@@ -171,7 +171,7 @@ TEST(BoardTestSuite, ParseMoveTakeQueenWithBishop) { // checks parsing taking mi
     Board board;
     ASSERT_EQ(board.setFEN("rn1qkbnr/ppp1pppp/3p4/8/5Pb1/3PP3/PPP3PP/RNBQKBNR b KQkq - 0 3"), 0);
     ASSERT_EQ(board.getLastState().castlingRights, 0b1111);
-    Move m = board.parseMove("g4xd1");
+    Move m = board.parseMove("g4d1");
 
     ASSERT_TRUE(m.isCapture());
     ASSERT_FALSE(m.isEnPassant());

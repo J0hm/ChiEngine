@@ -17,7 +17,7 @@ public:
     };
 
     static std::string bitBoardToString(int64 bb) {
-        std::string res = "";
+        std::string res;
         std::stringstream ss;
         std::bitset<64>b(bb);
         std::string tmp = b.to_string();

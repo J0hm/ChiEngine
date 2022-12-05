@@ -21,44 +21,44 @@ public:
     // constructors
     inline Move() : bitMove(0), rating(0) {}
 
-    inline Move(int move) : bitMove(move), rating(0) {}
+    inline Move(unsigned int move) : bitMove(move), rating(0) {}
 
     Move(unsigned int to, unsigned int from, unsigned int moved, unsigned int captured, unsigned int flags, unsigned int castlingRights);
 
     // getters
-    inline ESquare getDest() {
+    inline ESquare getDest() const {
         return (ESquare) (bitMove & 0x3f);
     }
 
-    inline ESquare getOrigin() {
+    inline ESquare getOrigin() const {
         return (ESquare) ((bitMove >> 6) & 0x3f);
     }
 
-    inline ESquare getFlags() {
+    inline ESquare getFlags() const {
         return (ESquare) ((bitMove >> 12) & 0x0f);
     }
 
-    inline PieceType getPieceType() {
+    inline PieceType getPieceType() const {
         return (PieceType) ((bitMove >> 16) & 0x7);
     }
 
-    inline PieceType getPromotedPieceType() {
+    inline PieceType getPromotedPieceType() const {
         return (PieceType) ((getFlags() & 0b11) + 1);
     }
 
-    inline PieceType getCapturedPieceType() {
+    inline PieceType getCapturedPieceType() const {
         return (PieceType) ((bitMove >> 19) & 0x7);
     }
 
-    inline unsigned int getPreviousCastlingRights() {
+    inline unsigned int getPreviousCastlingRights() const {
         return (bitMove >> 22) & 0xf;
     }
 
-    inline unsigned int getMoveRating() {
+    inline unsigned int getMoveRating() const {
         return rating;
     }
 
-    inline unsigned int getMove() {
+    inline unsigned int getMove() const {
         return bitMove;
     }
 
@@ -89,50 +89,50 @@ public:
         bitMove |= ((state & 0xf) << 22);
     }
 
-    inline void setMoveRating(unsigned int moveRating) {
+    inline void setMoveRating(int moveRating) {
         rating = moveRating;
     }
 
     // predicates
     //isQuiet returns true for quiet AND double pawn push move
-    inline bool isQuiet() {
+    inline bool isQuiet() const {
         bool isNotQuiet = getFlags() & 0b1110;
         return !isNotQuiet;
     }
 
-    inline bool isCapture() { return getFlags() & CAPTURE_FLAG; }
+    inline bool isCapture() const { return getFlags() & CAPTURE_FLAG; }
 
-    inline bool isEnPassant() { return getFlags() == EP_CAPTURE_FLAG; }
+    inline bool isEnPassant() const { return getFlags() == EP_CAPTURE_FLAG; }
 
-    inline bool isPromotion() { return getFlags() & PROMOTION_FLAG; }
+    inline bool isPromotion() const { return getFlags() & PROMOTION_FLAG; }
 
-    inline bool isQueenSideCastling() { return getFlags() == QUEEN_SIDE_CASTLING; }
+    inline bool isQueenSideCastling() const { return getFlags() == QUEEN_SIDE_CASTLING; }
 
-    inline bool isKingSideCastling() { return getFlags() == KING_SIDE_CASTLING; }
+    inline bool isKingSideCastling() const { return getFlags() == KING_SIDE_CASTLING; }
 
-    inline bool isCastling() {
+    inline bool isCastling() const {
         return isKingSideCastling() || isQueenSideCastling();
     }
 
-    inline bool isDoublePawnPush() { return getFlags() == DOUBLE_PAWN_PUSH_FLAG; }
+    inline bool isDoublePawnPush() const { return getFlags() == DOUBLE_PAWN_PUSH_FLAG; }
 
-    inline bool isNullMove() { return bitMove == NULL_MOVE; }
+    inline bool isNullMove() const { return bitMove == NULL_MOVE; }
 
     // returns this move in LAN
-    std::string toLAN();
+    std::string toLAN() const;
 
     // Equality to check if two moves are identical for killer moves
-    inline bool operator==(Move &otherMove) {
+    inline bool operator==(Move &otherMove) const {
         return (getOrigin() == otherMove.getOrigin())
                && (getDest() == otherMove.getDest())
                && (getFlags() == otherMove.getFlags());
     };
 
     // Defines an order for moves ratings, used to order moves TODO not yet implemented
-    inline bool operator<(Move &otherMove) {return getMoveRating() < otherMove.getMoveRating();};
-    inline bool operator>(Move &otherMove) {return getMoveRating() > otherMove.getMoveRating();};
-    inline bool operator<=(Move &otherMove) {return getMoveRating() <= otherMove.getMoveRating();};
-    inline bool operator>=(Move &otherMove) {return getMoveRating() >= otherMove.getMoveRating();};
+    inline bool operator<(Move &otherMove) const {return getMoveRating() < otherMove.getMoveRating();};
+    inline bool operator>(Move &otherMove) const {return getMoveRating() > otherMove.getMoveRating();};
+    inline bool operator<=(Move &otherMove) const {return getMoveRating() <= otherMove.getMoveRating();};
+    inline bool operator>=(Move &otherMove) const {return getMoveRating() >= otherMove.getMoveRating();};
 
     // for printing a move for debug
     friend std::ostream& operator<<(std::ostream &os, Move &move) {

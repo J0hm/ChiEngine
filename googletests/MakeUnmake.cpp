@@ -951,7 +951,7 @@ TEST(BoardTestSuite, MakeUnmakePawnMoves) {
     pawnMoves = m.getPawnMoves();
     ASSERT_EQ(pawnMoves.size(), 16);
 
-    board.makeMove("c4xd5");
+    board.makeMove("c4d5");
     pawnMoves = m.getPawnMoves();
     ASSERT_EQ(pawnMoves.size(), 14);
 
@@ -992,7 +992,7 @@ TEST(BoardTestSuite, MakeUnmakeEnPassant) {
     pawnMoves = m.getPawnMoves();
     ASSERT_EQ(pawnMoves.size(), 16);
 
-    board.makeMove("d5xe6");
+    board.makeMove("d5e6");
     pawnMoves = m.getPawnMoves();
     ASSERT_EQ(pawnMoves.size(), 14);
 
@@ -1089,7 +1089,7 @@ TEST(BoardTestSuite, MakeUnmakePromotions) {
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("d7xe8q");
+    board.makeMove("d7e8q");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));
@@ -1123,7 +1123,7 @@ TEST(BoardTestSuite, MakeUnmakePromotions) {
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("d2xc1q");
+    board.makeMove("d2c1q");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));
@@ -1157,25 +1157,25 @@ TEST(BoardTestSuite, MakeUnmakePromotions) {
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("g2xh1n");
+    board.makeMove("g2h1n");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("g2xh1b");
+    board.makeMove("g2h1b");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("g2xh1r");
+    board.makeMove("g2h1r");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));
 
     before = Board::copyBB(board.bb);
-    board.makeMove("g2xh1q");
+    board.makeMove("g2h1q");
     board.unmakeMove();
     after = Board::copyBB(board.bb);
     ASSERT_TRUE(board.bbEqual(before, after));

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <functional>
+#include <utility>
 #include "Board.h"
 #include "Algorithms.h"
 
@@ -9,9 +10,7 @@ Board::Board() {
     movegen = new MoveGen(this);
 }
 
-Board::~Board() {
-
-}
+Board::~Board() = default;
 
 // initialize the utility BitBoards after setting the squares
 void Board::initializeBitBoards() {
@@ -32,12 +31,12 @@ void Board::initializeBitBoards() {
 
 // set the board to the position specified by the given FEN
 int Board::setFEN(std::string FEN) {
-    unsigned int i, j, castle;
+    unsigned int i, castle;
     ESquare sq;
     char letter;
     unsigned int file, rank;
     std::vector<std::string> strList;
-    Algorithms::split(strList, FEN, " ");
+    Algorithms::split(strList, std::move(FEN), " ");
 
     // empty the board squares
     for (sq = A1; sq <= H8; sq++) bb.squares[sq] = EMPTY;
@@ -174,7 +173,6 @@ int Board::setFEN(std::string FEN) {
     return 0;
 }
 
-// TODO change parsemove to not require an "x" for capture
 // parse a move according to the CURRENT board state
 Move Board::parseMove(std::string lan) {
     unsigned int move = 0;
@@ -224,7 +222,7 @@ Move Board::parseMove(std::string lan) {
         // set flags in move
         move |= (flags << 12);
 
-        return Move(move);
+        return {move};
     }
 
     /// set the origin square
@@ -234,14 +232,6 @@ Move Board::parseMove(std::string lan) {
     move |= (originSquare << 6);
     index += 2;
 
-    /// check for capture and set capture flag
-    bool capture = false;
-    if (Algorithms::asciiCharToLower(lan[index]) == 'x') {
-        flags |= 0b0100; // set capture flag to true
-        capture = true;
-        ++index;
-    }
-
     /// set the destination square
     char destFile = Algorithms::asciiCharToLower(lan[index]);
     char destRank = Algorithms::asciiCharToLower(lan[index + 1]);
@@ -249,6 +239,13 @@ Move Board::parseMove(std::string lan) {
     move |= destSquare;
 
     index += 2;
+
+    /// check for capture and set capture flag
+    bool capture = false;
+    if (bb.squares[destSquare] != EMPTY || destSquare == getLastState().enPassantSquare) {
+        flags |= 0b0100; // set capture flag to true
+        capture = true;
+    }
 
     /// set the moved piece field
     PieceType pieceMoved = getPieceType(bb.squares[originSquare]); // piece moved
@@ -263,7 +260,7 @@ Move Board::parseMove(std::string lan) {
     if (capture && !pawnMove) { // no possibility of en passant
         PieceType capturedPieceType = getPieceType(bb.squares[destSquare]);
         move |= (capturedPieceType << 19);
-    } else if (capture && pawnMove) { // possibility of en passant
+    } else if (capture) { // possibility of en passant
         if (destSquare == getLastState().enPassantSquare) { // en passant capture
             flags |= 0b0101; // set EP capture flag
         } else { // normal pawn capture
@@ -307,7 +304,7 @@ Move Board::parseMove(std::string lan) {
     /// set castling rights
     move |= (getLastState().castlingRights << 22);
 
-    return Move(move);
+    return {move};
 }
 
 // make a move, assumes the move is valid
@@ -373,7 +370,7 @@ void Board::makeMove(Move move) {
 
     // if the move is a promotion, promote it...
     if (move.isPromotion()) {
-        EPiece promotionPiece = (EPiece) ((sideToMove == WHITE) ?
+        auto promotionPiece = (EPiece) ((sideToMove == WHITE) ?
                                           (move.getPromotedPieceType() + 1) : (move.getPromotedPieceType() + 7));
         clearSquare(to, movedPiece, sideToMove);
         setSquare(to, promotionPiece, sideToMove);
@@ -563,7 +560,6 @@ int64 Board::perft(int depth, int depthToShow) {
     return nodes;
 }
 
-// TODO remove just here for debugging
 BoardBB Board::copyBB(BoardBB bb) {
     BoardBB res{};
 
