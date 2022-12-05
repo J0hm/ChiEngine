@@ -232,3 +232,20 @@ TEST(MoveGenTestSuite, GetAllLegalMoves) {
 
 //    std::cout << Algorithms::bitBoardToString(board.bb.occupiedSquares) << std::endl;
 }
+
+TEST(MoveGenTestSuire, GetAllLegalMovesFrom) {
+    Board board;
+    MoveGen m = MoveGen(&board);
+    std::vector<Move> legalMoves;
+
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+    legalMoves = m.getLegalMoves(); // should get the 20 initial moves
+    ASSERT_EQ(legalMoves.size(), 20);
+
+    board.makeMove("g1f3");
+    board.makeMove("f7f6");
+    board.makeMove("f3e5");
+    legalMoves = m.getLegalMoves();
+    for(Move m : legalMoves) std::cout << m << std::endl;
+    ASSERT_EQ(legalMoves.size(), 18);
+}

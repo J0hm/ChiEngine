@@ -174,6 +174,7 @@ int Board::setFEN(std::string FEN) {
     return 0;
 }
 
+// TODO change parsemove to not require an "x" for capture
 // parse a move according to the CURRENT board state
 Move Board::parseMove(std::string lan) {
     unsigned int move = 0;
@@ -501,8 +502,8 @@ int64 Board::perft(int depth) {
     int64 nodes = 0;
     std::vector<Move> legalMoves = movegen->getLegalMoves();
 
-    if (depth == 0) {
-        return 1ULL;
+    if (depth == 1) {
+        return legalMoves.size();
     }
 
     for (Move m: legalMoves) {
@@ -513,10 +514,10 @@ int64 Board::perft(int depth) {
         unmakeMove();
         BoardBB after = copyBB(bb);
 
-//        if (!bbEqual(before, after)) {
-//            std::cout << m << std::endl;
-//        }
-        if(depth == 4) {
+        if (!bbEqual(before, after)) {
+            std::cout << m << std::endl;
+        }
+        if(depth == 5) {
             std::cout << m << " at depth " << (depth - 1) << ": " << newNodes << " new nodes" << std::endl;
         }
     }

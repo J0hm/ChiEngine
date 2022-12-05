@@ -6,6 +6,17 @@
 
 #define RESERVE_SIZE 196
 
+void MoveGen::calcKnightAttackBitboard(EColor side) {
+    int64 bb = 0;
+    EBitBoard knightOcc = board->bb.pcs[2 + 6 * side];
+
+    while (knightOcc) {
+        bb |= (knightAttackTable[SHIFTED_SQUARE[pop_LSB(knightOcc)]] & ~board->bb.pcsOfColor[side]);
+    }
+
+    knightAttackBitboard[side] = bb;
+}
+
 void MoveGen::calcBishopAttackBitboard(EColor side) {
     int64 bb = 0;
     EBitBoard bishopOcc = board->bb.pcs[3 + 6 * side];
@@ -44,18 +55,31 @@ void MoveGen::calcQueenAttackBitboard(EColor side) {
     rookAttackBitBoard[side] = bb;
 }
 
+// TODO this needs to be based off of actual movegen?
 void MoveGen::calcPawnAttackBitboard(EColor side) {
     int64 bb = 0;
     int64 pawnOcc = board->bb.pcs[1 + 6 * side];
 
     while (pawnOcc) {
-        int square = SHIFTED_SQUARE[pop_LSB(pawnOcc)];
-        if (side == WHITE && square < 55) {
-            bb |= square << 7;
-            bb |= square << 9;
-        } else if (side == BLACK && square > 7) {
-            bb |= square >> 7;
-            bb |= square >> 9;
+        int64 bbSquare = (1ULL << pop_LSB(pawnOcc));
+        if(side == WHITE) {
+            if ((NORTH(EAST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
+                (bbSquare & ~0x0101010101010101)) {
+                bb |= NORTH(EAST(bbSquare));
+            }
+            if ((NORTH(WEST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
+                (bbSquare & ~0x8080808080808080)) {
+                bb |= NORTH(WEST(bbSquare));
+            }
+        } else {
+            if ((SOUTH(EAST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
+                (bbSquare & ~0x0101010101010101)) {
+                bb |= NORTH(EAST(bbSquare));
+            }
+            if ((SOUTH(WEST(bbSquare)) & ~board->bb.pcsOfColor[side]) &&
+                (bbSquare & ~0x8080808080808080)) {
+                bb |= NORTH(WEST(bbSquare));
+            }
         }
     }
 
@@ -70,18 +94,22 @@ void MoveGen::calcKingAttackBitboard(EColor side) {
                ((square << 8) & ~0xFF) |
                ((square >> 8) & ~0xFF00000000000000);
 
+    bb &= ~board->bb.pcsOfColor[side]; // cant attack own pieces
+
     kingAttackBitboard[side] = bb;
 }
 
 void MoveGen::calcAllAttackBitboard(EColor side) {
     int64 bb = 0;
     calcPawnAttackBitboard(side);
+    calcKnightAttackBitboard(side);
     calcBishopAttackBitboard(side);
     calcRookAttackBitboard(side);
     calcQueenAttackBitboard(side);
     calcKingAttackBitboard(side);
 
     bb |= pawnAttackBitBoard[side] |
+          knightAttackBitboard[side] |
           bishopAttackBitBoard[side] |
           rookAttackBitBoard[side] |
           queenAttackBitBoard[side] |
@@ -106,20 +134,23 @@ void MoveGen::initKnightAttackTable() {
 bool MoveGen::inCheck(EColor side) {
     int64 king = board->bb.pcs[6 + 6 * side];
     calcAllAttackBitboard((side == WHITE) ? BLACK : WHITE);
+
     return king & allAttackBitBoard[(side == WHITE) ? BLACK : WHITE];
 }
 
 bool MoveGen::isLegal(Move m) {
     if (board->getLastState().inCheck) { // if we are in check, only moves that resolve check are legal
         return resolvesCheck(m) && !doesCheck(m, board->sideToMove);;
+    } else {
+        return !doesCheck(m, board->sideToMove);
     }
-    return !doesCheck(m, board->sideToMove);
+    EColor color = (board->sideToMove == WHITE) ? WHITE : BLACK;
+    return !doesCheck(m, color);
 }
 
 bool MoveGen::doesCheck(Move m, EColor toColor) {
-    bool doesCheck = false;
-    // TODO THIS IS (ONE OF) THE BUGS
-    // MAKE UNMAKE MESSED UP BOARD STATE -> COLOR PCS BB MESSED UP
+    bool doesCheck;
+
     BoardBB start = board->copyBB(board->bb);
     board->makeMove(m);
     doesCheck = inCheck(toColor);
@@ -135,7 +166,7 @@ bool MoveGen::doesCheck(Move m, EColor toColor) {
         std::cout << Algorithms::bitBoardToString(start.pcs[B_PAWN]) << std::endl;
         std::cout << Algorithms::bitBoardToString(start.pcs[W_PAWN]) << std::endl;
         std::cout << "line:\n";
-        while(board->getStateCount() > 1) {
+        while (board->getStateCount() > 1) {
             BoardState s = board->popBoardState();
             std::cout << s.move << std::endl;
         }

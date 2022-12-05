@@ -23,6 +23,8 @@ public:
         initKnightAttackTable();
     }
 
+    EBitBoard allAttackBitBoard[2];
+
     // is the given move a legal move for the board state?
     bool isLegal(Move m);
 
@@ -41,6 +43,8 @@ public:
     // get all moves which will resolve the check
     std::vector<Move> getEvasions();
 
+    void calcAllAttackBitboard(EColor side);
+
     // determines if the board is in check
     bool inCheck(EColor side);
 
@@ -58,21 +62,22 @@ private:
 
     // attack bitboard for each color, must be calculated first. 0 = white, 1 = black
     EBitBoard pawnAttackBitBoard[2];
+    EBitBoard knightAttackBitboard[2];
     EBitBoard bishopAttackBitBoard[2];
     EBitBoard rookAttackBitBoard[2];
     EBitBoard queenAttackBitBoard[2];
     EBitBoard kingAttackBitboard[2];
-    EBitBoard allAttackBitBoard[2];
+
 
     void initKnightAttackTable();
 
     // calculate and update bitboards for piece attacks for the given side
     void calcPawnAttackBitboard(EColor side); // does not have all pawn moves, only capture threats not incl. en passant
+    void calcKnightAttackBitboard(EColor side);
     void calcBishopAttackBitboard(EColor side);
     void calcRookAttackBitboard(EColor side);
     void calcQueenAttackBitboard(EColor side);
     void calcKingAttackBitboard(EColor side); // does not include castling
-    void calcAllAttackBitboard(EColor side);
 };
 
 
