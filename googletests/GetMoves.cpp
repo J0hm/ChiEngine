@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "MoveGen.h"
-#include "Algorithms.h"
 
 TEST(MoveGenTestSuite, GetPawnMoves) {
     Board board;

@@ -4,6 +4,8 @@
 
 #include "Types.h"
 
+#pragma warning(disable:4146)
+
 class MagicMoves {
 #define Bmagic(square, occupancy) bishopDB[square][(((occupancy)&bishopMasks[square])*bishopMagics[square])>>bishopShifts[square]]
 #define Rmagic(square, occupancy) rookDB[square][(((occupancy)&rookMasks[square])*rookMagics[square])>>rookShifts[square]]
