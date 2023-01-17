@@ -20,8 +20,12 @@ bool Evaluator::evaluate(std::vector<uint8_t> a, std::vector<uint8_t> b) {
     std::vector<torch::jit::IValue> inputs;
     inputs.emplace_back(torch::tensor(a));
     inputs.emplace_back(torch::tensor(b));
+    std::cout << "Created input tensors." << std::endl;
+    std::cout << "Input size: " << inputs.size() << std::endl;
+    //std::cout << inputs << std::endl;
 
     at::Tensor output = module.forward(inputs).toTensor();
+    std::cout << "Evaluated output." << std::endl;
 
     if (torch::argmax(output).equal(torch::tensor(0))) {
         return true;

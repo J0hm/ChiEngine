@@ -89,6 +89,8 @@ public:
 
     static bool bbEqual(BoardBB bb1, BoardBB bb2);
 
+    std::vector<uint8_t> getFlattenedBitBoard();
+
 
 private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board
