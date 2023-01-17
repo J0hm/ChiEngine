@@ -8,7 +8,8 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
 add_executable(Google_Tests_run ParseFen.cpp ParseMove.cpp MagicMoves.cpp GetMoves.cpp MakeUnmake.cpp Perft.cpp IsLegal.cpp InferenceTest.cpp)
-target_link_libraries(Google_Tests_run gtest gmock gtest_main src)
+target_link_libraries(Google_Tests_run gtest gmock gtest_main)
+
 #get_filename_component(PARENT_DIR ../ ABSOLUTE)
-#include_directories(${PARENT_DIR}MoveGen.h)
+#include_directories(${PARENT_DIR}/engine)
 
