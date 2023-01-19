@@ -11,7 +11,7 @@ from torch.utils.data import TensorDataset
 from sklearn.model_selection import train_test_split
 import torch.nn.functional as F
 
-DATA_PATH = "processed/data_2500wins_1Mpositions.h5"
+DATA_PATH = "processed/data_3000wins_1Mpositions_ccrl.h5"
 NET_PATH = "net/"
 TRAINING = False
 TEST = False
@@ -22,11 +22,11 @@ hf = h5py.File(DATA_PATH, 'r')
 X_win_train, X_win_val, Y_win_train, Y_win_val = train_test_split(np.array(hf.get('X_win')),
                                                                   np.array(
                                                                       hf.get('Y_win')),
-                                                                  test_size=0.1, random_state=2)
+                                                                  test_size=0.1, random_state=3)
 X_lose_train, X_lose_val, Y_lose_train, Y_lose_val = train_test_split(np.array(hf.get('X_lose')),
                                                                       np.array(
                                                                           hf.get('Y_lose')),
-                                                                      test_size=0.1, random_state=2)
+                                                                      test_size=0.1, random_state=3)
 
 hf.close()
 
@@ -94,7 +94,7 @@ class EvalNN(nn.Module):
         )
 
     def forward(self, x1, x2):
-        x1_b, x1_i = x1[:768], x1[768:] # 768 not 773?
+        x1_b, x1_i = x1[:768], x1[768:]
         x2_b, x2_i = x2[:768], x2[768:]
 
         x1_b = self.p2v(x1_b.view(1, 2, 6, 64))
@@ -133,11 +133,13 @@ def test_on_validation(model,winData=winData_val,loseData=loseData_val):
         return acc
 
 evalNN = EvalNN()
+
 if(TRAINING):
-    lr_h = 1e-5
+    #lr_h = 1e-5
+    lr_h =  0.00005
     criterion = nn.MSELoss()
     optimizer = optim.Adam(evalNN.parameters(), lr=lr_h)
-    MAX_EPOCHS = 200
+    MAX_EPOCHS = 50
     accuracy = []
     DATASET_RANGE_W = range(len(winData_train))
     DATASET_RANGE_L = range(len(loseData_train))
@@ -182,15 +184,15 @@ if(TRAINING):
 
 
     print('Finished training.')
-    torch.save(evalNN.state_dict(), NET_PATH + 'evalNN' + str(MAX_EPOCHS) + 'epoch.pth')
+    torch.save(evalNN.state_dict(), NET_PATH + 'ccrl3000evalNN' + str(MAX_EPOCHS) + 'epoch.pth')
     test_on_validation(evalNN)
 
 if(TEST):
-    evalNN.load_state_dict(torch.load('net/evalNN50epoch.pth'))
+    evalNN.load_state_dict(torch.load('net/ccrl3000evalNN50epoch.pth'))
     test_on_validation(evalNN)
 
 if(EXPORT):
-    evalNN.load_state_dict(torch.load('net/evalNN200epoch.pth'))
+    evalNN.load_state_dict(torch.load('net\ccrl3000evalNN50epoch.pth'))
 
     b1 = "r1bqkb1r/pppp1ppp/2n5/1B2p3/2P1n3/5N2/PP1PKPPP/RNBQ3R b kq - 0 5"
     b2 = "r1bqkb1r/pppp1ppp/2n5/1B2p3/4n3/5N2/PPPPKPPP/RNBQR3 b kq - 1 5"
@@ -200,18 +202,20 @@ if(EXPORT):
     x2 = torch.tensor(to_bitboard(chess.Board(b2))).float()
 
     unscripted_output = evalNN(x1, x2)         # Get the unscripted model's prediction...
-    scripted_output = evalNN_scripted(x1, x2)  # ...and do the same for the scripted version
+    #scripted_output = evalNN_scripted(x1, x2)  # ...and do the same for the scripted version
+    scripted_output = torch.jit.script(evalNN)
 
-    print('Python model result:')
-    if torch.argmax(unscripted_output) == torch.tensor(0):
-        print((b1,b2))
-    else:
-        print((b2,b1))
+    # print('Python model result:')
+    # if torch.argmax(unscripted_output) == torch.tensor(0):
+    #     print((b1,b2))
+    # else:
+    #     print((b2,b1))
 
-    print('TorchScript model result:')
-    if torch.argmax(scripted_output) == torch.tensor(0):
-        print((b1,b2))
-    else:
-        print((b2,b1))
+    # print('TorchScript model result:')
+    # if torch.argmax(scripted_output) == torch.tensor(0):
+    #     print((b1,b2))
+    # else:
+    #     print((b2,b1))
 
-    evalNN_scripted.save('evalNN200epoch_scripted.pt')
+    torch.jit.save(scripted_output, 'net\ccrl3000eval.p')
+    #evalNN_scripted.save('evalNN200epoch_scripted.pt')

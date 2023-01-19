@@ -23,7 +23,7 @@ set(SOURCE_FILES
         ZobristHasher.cpp
         Evaluate.cpp)
 
-set(REQUIRE_TORCH Evaluate.cpp Evaluate.h)
+set(DEBUG 1)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
@@ -41,6 +41,12 @@ target_link_libraries(Debug_run src)
 
 set_property(TARGET Debug_run PROPERTY CXX_STANDARD 14)
 # set_property(TARGET ChiEngine_run PROPERTY CXX_STANDARD 14)
+
+target_compile_definitions(Debug_run PRIVATE
+        $<$<CONFIG:Debug>:
+        Debug_run_DEBUG=1
+        >
+        )
 
 if (MSVC)
     file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
