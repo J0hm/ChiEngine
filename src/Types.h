@@ -102,7 +102,7 @@ inline EPiece getPiece(PieceType p, EColor color) {
 //}
 
 inline int pop_LSB(int64 &b) {
-    int i = (int) get_LSB(b);
+    int i = get_LSB(b);
     b &= b - 1;
     return i;
 }

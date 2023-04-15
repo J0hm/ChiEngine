@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "Board.h"
-#include <bitset>
 
 /* For default position depth 5:
  * 6.723s before removing validity checking
