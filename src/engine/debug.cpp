@@ -29,22 +29,19 @@ int main() {
     torch::NoGradGuard no_grad; // ensures that autograd is off
     module.eval(); // turn off dropout and other training-time layers/functions
 
-//    auto t_a = torch::tensor(a);
-//    auto t_b = torch::tensor(b);
-//    t_a = torch::unsqueeze(t_a, 0);
-//    t_b = torch::unsqueeze(t_b, 0);
-//    auto t_input = torch::cat({t_a, t_b}, 0);
-//
-//    std::cout << "Shape:" << std::endl << torch::_shape_as_tensor(t_input) << std::endl;
+    auto t_a = torch::tensor(a);
+    auto t_b = torch::tensor(b);
+    t_a = torch::unsqueeze(t_a, 0);
+    t_b = torch::unsqueeze(t_b, 0);
+    auto t_input = torch::cat({t_a, t_b}, 0);
+
+    std::cout << "Shape:" << std::endl << torch::_shape_as_tensor(t_input) << std::endl;
 
     std::vector<torch::jit::IValue> inputs(0);
-    //inputs.push_back(t_input);
-    inputs.push_back(torch::tensor(a));
-    //inputs.push_back(torch::tensor(b));
+    inputs.push_back(t_input);
 
     try {
-        std::cout << inputs.size() << std::endl;
-        module.forward(inputs);
+        module.forward({at::tensor(a), at::tensor(b)});
         //at::Tensor output = module.forward(inputs).toTensor();
         std::cout << "Evaluated output." << std::endl;
 
