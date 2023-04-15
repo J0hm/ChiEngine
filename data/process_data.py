@@ -13,7 +13,7 @@ IGNORE_FIRST = 6  # ignore the first few moves
 VOLUME_SIZE = 50000
 VOLUME_COUNT = 20
 OUT_FILE = "processed/data_3000wins_1Mpositions_ccrl.h5"  # path to output file
-PGN_FILE = "raw\ccrl\ccrl_over_3000.pgn"  # path to PGN input file
+PGN_FILE = "raw/CCRL2020-2022/3000wins_ccrl2020-22.pgn"  # path to PGN input file
 
 
 def get_positions(game, num_pos=10):
