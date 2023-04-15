@@ -1,11 +1,8 @@
 #ifndef CHIENGINE_ALGORITHMS_H
 #define CHIENGINE_ALGORITHMS_H
-
-#include <bitset>
 #include <vector>
 #include <iterator>
 #include <regex>
-#include <sstream>
 #include "Types.h"
 
 class Algorithms {
@@ -22,7 +19,7 @@ public:
     static std::string bitBoardToString(int64 bb) {
         std::string res;
         std::stringstream ss;
-        std::bitset<64> b(bb);
+        std::bitset<64>b(bb);
         std::string tmp = b.to_string();
         int count =0;
         for (int i =0; i < 8; i ++)

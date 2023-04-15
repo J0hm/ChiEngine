@@ -1,10 +1,6 @@
 #ifndef CHIENGINE_TYPES_H
 #define CHIENGINE_TYPES_H
 
-#include <intrin.h>
-
-#pragma intrinsic(_BitScanForward64)
-
 // BitBoard definitions
 typedef unsigned long long EBitBoard;
 typedef unsigned long long int64;
@@ -69,7 +65,7 @@ struct BoardBB {
 
 // get PieceType from EPiece
 inline PieceType getPieceType(EPiece piece) {
-    if (piece == EMPTY) return NO_PIECE;
+    if(piece == EMPTY) return NO_PIECE;
     return (PieceType) ((piece > 6) ? piece - 7 : piece - 1);
 }
 
@@ -80,7 +76,7 @@ inline EPiece getPiece(PieceType p, EColor color) {
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1Ull << i))
 #define clear_bit(b, i) ((b) &= ~(1Ull << i))
-#define get_LSB(b) (_tzcnt_u64(b))
+#define get_LSB(b) (__builtin_ctzll(b))
 
 #define NORTH(square) (square << 8)
 #define SOUTH(square) (square >> 8)
@@ -90,16 +86,6 @@ inline EPiece getPiece(PieceType p, EColor color) {
 #define NORTHWEST(square) (WEST(NORTH(square)))
 #define SOUTHEAST(square) (EAST(SOUTH(square)))
 #define SOUTHWEST(square) (WEST(SOUTH(square)))
-
-//inline int ctz(unsigned long long value) {
-//    unsigned long trailing_zero = 0;
-//
-//    if (_BitScanForward64(&trailing_zero, value)) {
-//        return (int) trailing_zero;
-//    } else {
-//        return 64;
-//    }
-//}
 
 inline int pop_LSB(int64 &b) {
     int i = get_LSB(b);

@@ -1,217 +1,138 @@
-import chess
-import chess.svg
-import chess.pgn
+import tensorflow as tf
+import pandas as pd
 import numpy as np
-import h5py
+import math
 import random
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import TensorDataset
-from sklearn.model_selection import train_test_split
-import torch.nn.functional as F
+from loader import *
 
-DATA_PATH = "processed/data_2500wins_1Mpositions.h5"
-NET_PATH = "net/"
-TRAINING = False
-TEST = False
-EXPORT = True
+from tensorflow.python.keras import layers, losses
+from tensorflow.python.keras.models import Model
 
-# Load Data and Compute Train/Test Splits
-hf = h5py.File(DATA_PATH, 'r')
-X_win_train, X_win_val, Y_win_train, Y_win_val = train_test_split(np.array(hf.get('X_win')),
-                                                                  np.array(
-                                                                      hf.get('Y_win')),
-                                                                  test_size=0.1, random_state=2)
-X_lose_train, X_lose_val, Y_lose_train, Y_lose_val = train_test_split(np.array(hf.get('X_lose')),
-                                                                      np.array(
-                                                                          hf.get('Y_lose')),
-                                                                      test_size=0.1, random_state=2)
+TRAIN_AUTOENCODER = 1
+TRAIN_NET = 0
 
-hf.close()
+TOTAL_AE = 250000
+TOTAL_MLP = 750000
 
-# Convert Data To Tensors
+# TOTAL_AE = 25000
+# TOTAL_MLP = 50000
 
-# Train
-X_win_train = torch.tensor(X_win_train).float()
-Y_win_train = torch.tensor(Y_win_train)
-winData_train = TensorDataset(X_win_train, Y_win_train)
+BS_AE = 20
+BS_MLP = 50
+EPOCHS_AE = 50 
+EPOCHS_MLP = 201 
+RATE_AE = 0.005
+DECAY_AE = 0.98
+RATE_MLP = 0.005
+DECAY_MLP = 0.98
 
-X_lose_train = torch.tensor(X_lose_train).float()
-Y_lose_train = torch.tensor(Y_lose_train)
-loseData_train = TensorDataset(X_lose_train, Y_lose_train)
+BIAS = 0.15
 
-# Val
-X_win_val = torch.tensor(X_win_val).float()
-Y_win_val = torch.tensor(Y_win_val)
-winData_val = TensorDataset(X_win_val, Y_win_val)
+N_INPUT = 773
+ENCODING_1 = 600 
+ENCODING_2 = 400 
+ENCODING_3 = 200
+ENCODING_4 = 100
 
-X_lose_val = torch.tensor(X_lose_val).float()
-Y_lose_val = torch.tensor(Y_lose_val)
-loseData_val = TensorDataset(X_lose_val, Y_lose_val)
+HIDDEN_1 = 200
+HIDDEN_2 = 400 
+HIDDEN_3 = 200
+HIDDEN_4 = 100 
+N_OUT = 2
 
-def to_bitboard(board):
-    bb = np.zeros((2, 6, 64), dtype=np.uint8)  # players x pieces x board-size
-    for colour in range(2):
-        for piece in range(6):
-            for square in range(64):
-                cur_piece = board.piece_at(square)
-                if cur_piece is not None:
-                    if cur_piece.piece_type == piece+1 and cur_piece.color == bool(colour):
-                        bb[colour][piece][square] = 1
+VOLUME_SIZE = 50000
 
-    flags = np.zeros(5, dtype=np.uint8)
-    flags[0] = board.has_kingside_castling_rights(chess.WHITE)
-    flags[1] = board.has_kingside_castling_rights(chess.BLACK)
-    flags[2] = board.has_queenside_castling_rights(chess.WHITE)
-    flags[3] = board.has_queenside_castling_rights(chess.BLACK)
-    flags[4] = board.turn
+EXPORT_PATH = 'net/'
 
-    bb = bb.flatten()
-    bb = np.concatenate((bb, flags))
-    return bb
+#Get the data from the game files
+white_wins, black_wins = getTrain(N_INPUT, TOTAL_MLP, VOLUME_SIZE)
 
-class EvalNN(nn.Module):
-    def __init__(self):
-        super(EvalNN, self).__init__()
-        self.p2v = nn.Sequential(
-            nn.Conv2d(2, 32, 3),
-            nn.ReLU(inplace=True),
+def getBatchMLP(start, size):
+	global white_wins 
+	global black_wins 
 
-            nn.Conv2d(32, 64, 3),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(2, 2)
-        )
-        self.p2v_last = nn.Linear(1920, 100)
-        self.comp_pos = nn.Sequential(
-            nn.Linear(210, 400),
-            nn.ReLU(inplace=True),
-            nn.Linear(400, 200),
-            nn.ReLU(inplace=True),
-            nn.Linear(200, 100),
-            nn.ReLU(inplace=True),
-            nn.Linear(100, 2)
-        )
+	xR = []
+	lR = []
+	
+	for i in range(math.floor(start), math.ceil(start+size)):
+		if random.random() > 0.5:
+			elem = [white_wins[i], black_wins[i]]
+			elem_l = [1,0]
+		else:
+			elem = [black_wins[i], white_wins[i]]
+			elem_l = [0,1]
+		xR.append(elem)
+		lR.append(elem_l)
+	return (xR, lR)
 
-    def forward(self, x1, x2):
-        x1_b, x1_i = x1[:768], x1[768:] # 768 not 773?
-        x2_b, x2_i = x2[:768], x2[768:]
+def getBatchAE(size):
+	global black_wins
+	global white_wins
 
-        x1_b = self.p2v(x1_b.view(1, 2, 6, 64))
-        x1_b = self.p2v_last(x1_b.view(1, 1920))
+	random.shuffle(black_wins)
+	random.shuffle(white_wins)
+	
+	res = np.zeros((size, N_INPUT))
 
-        x2_b = self.p2v(x2_b.view(1, 2, 6, 64))
-        x2_b = self.p2v_last(x2_b.view(1, 1920))
+	for i in range(size):
+		if(random.random() > 0.5):
+			res[i] = black_wins[i]
+		else:
+			res[i] = white_wins[i]
+		
+	random.shuffle(res)
 
-        x1 = torch.cat((x1_b, x1_i.unsqueeze(0)), 1)
-        x2 = torch.cat((x2_b, x2_i.unsqueeze(0)), 1)
-
-        x = torch.cat((x1, x2), 1)
-        x = self.comp_pos(x)
-        return F.softmax(x, dim=1)
-
-def test_on_validation(model,winData=winData_val,loseData=loseData_val):
-    model.eval()
-    correct = 0
-    with torch.no_grad():
-        for (data1,data2) in zip(winData,loseData):   
-            input_w,_ = data1
-            input_l,_ = data2
-
-            if random.randint(1,2) == 1:
-                # Reverse wins and losses
-                output = model(input_l,input_w)
-                if torch.argmax(output) == torch.tensor(1):
-                    correct += 1
-            else:    
-                output = model(input_w,input_l)
-                if torch.argmax(output) == torch.tensor(0):
-                    correct += 1
-            
-        acc = 100 * correct / len(winData_val)
-        print('Accuracy on Validation Set:', acc,'%')
-        return acc
-
-evalNN = EvalNN()
-if(TRAINING):
-    lr_h = 1e-5
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(evalNN.parameters(), lr=lr_h)
-    MAX_EPOCHS = 200
-    accuracy = []
-    DATASET_RANGE_W = range(len(winData_train))
-    DATASET_RANGE_L = range(len(loseData_train))
-    k = 25000
-
-    print("Starting training...")
-    for epoch in range(MAX_EPOCHS):  # loop over the dataset multiple times
-        running_loss = 0.0
-        evalNN.train()
-
-        # Selects k Random Samples
-        idx_w = random.sample(DATASET_RANGE_W, k)
-        idx_l = random.sample(DATASET_RANGE_L, k)
-
-        for i in range(k):
-            input_w, _ = winData_train[idx_w[i]]
-            input_l, _ = loseData_train[idx_l[i]]
-            # zero the parameter gradients
-            optimizer.zero_grad()
-            # forward + backward + optimize
-            if random.randint(1, 2) == 1:
-                # Reverse wins and losses
-                output = evalNN(input_l, input_w)
-                loss = criterion(output, torch.tensor([[0, 1]]).float())
-            else:
-                output = evalNN(input_w, input_l)
-                loss = criterion(output, torch.tensor([[1, 0]]).float())
-
-            loss.backward()
-            optimizer.step()
-
-            running_loss += loss.item()
-
-        # Print Statistics
-        print('Epoch: %d of %d, loss: %.4f' %
-            (epoch + 1, MAX_EPOCHS, running_loss / k))
-
-        # Decrease Learning Rate
-        lr_h = lr_h * 0.98
-        for g in optimizer.param_groups:
-            g['lr'] = lr_h
+	return res
 
 
-    print('Finished training.')
-    torch.save(evalNN.state_dict(), NET_PATH + 'evalNN' + str(MAX_EPOCHS) + 'epoch.pth')
-    test_on_validation(evalNN)
+#full model
+# y = model(x, weights, biases)
 
-if(TEST):
-    evalNN.load_state_dict(torch.load('net/evalNN50epoch.pth'))
-    test_on_validation(evalNN)
+# cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y,y_))
+# mlp_train_step = tf.keras.optimizers.Adam(learning_rate=learning_rate).minimize(cross_entropy)
 
-if(EXPORT):
-    evalNN.load_state_dict(torch.load('net/evalNN200epoch.pth'))
+# TODO weights??
+class Pos2Vec(Model):
+	def __init__(self):
+		super(Pos2Vec, self).__init__()
+		self.encoder = tf.keras.Sequential([
+			layers.Dense(N_INPUT, activation='relu'),
+			layers.Dense(ENCODING_1, activation='relu'),
+			layers.Dense(ENCODING_2, activation='relu'),
+			layers.Dense(ENCODING_3, activation='relu'),
+			layers.Dense(ENCODING_4, activation='relu')
+		])
+		self.decoder = tf.keras.Sequential([
+			layers.Dense(ENCODING_4, activation='relu'),
+			layers.Dense(ENCODING_3, activation='relu'),
+			layers.Dense(ENCODING_2, activation='relu'),
+			layers.Dense(ENCODING_1, activation='relu'),
+			layers.Dense(N_INPUT, activation='sigmoid')])
+		
+	def call(self, x):
+		encoded = self.encoder(x)
+		decoded = self.decoder(encoded)
+		return decoded
 
-    b1 = "r1bqkb1r/pppp1ppp/2n5/1B2p3/2P1n3/5N2/PP1PKPPP/RNBQ3R b kq - 0 5"
-    b2 = "r1bqkb1r/pppp1ppp/2n5/1B2p3/4n3/5N2/PPPPKPPP/RNBQR3 b kq - 1 5"
+autoencoder = Pos2Vec()
+autoencoder.compile(optimizer='SGD', loss=losses.MeanSquaredError()) # mean squared error?
 
-    evalNN_scripted = torch.jit.script(evalNN)         # *** This is the TorchScript export
-    x1 = torch.tensor(to_bitboard(chess.Board(b1))).float()
-    x2 = torch.tensor(to_bitboard(chess.Board(b2))).float()
+print("Getting auto-encoder data...")
+ae_train = getBatchAE(TOTAL_AE)
 
-    unscripted_output = evalNN(x1, x2)         # Get the unscripted model's prediction...
-    scripted_output = evalNN_scripted(x1, x2)  # ...and do the same for the scripted version
+print("Beginning auto-encoder training...")
+autoencoder.fit(ae_train, ae_train,
+                epochs=EPOCHS_AE,
+				steps_per_epoch=int(TOTAL_AE/EPOCHS_AE),
+                shuffle=True,
+				verbose=2)
 
-    print('Python model result:')
-    if torch.argmax(unscripted_output) == torch.tensor(0):
-        print((b1,b2))
-    else:
-        print((b2,b1))
+autoencoder.summary()
+autoencoder.save(EXPORT_PATH + 'autoencoder')
 
-    print('TorchScript model result:')
-    if torch.argmax(scripted_output) == torch.tensor(0):
-        print((b1,b2))
-    else:
-        print((b2,b1))
+# test_data = getBatchAE(100000)
 
-    evalNN_scripted.save('evalNN200epoch_scripted.pt')
+# # Evaluate the model on the test data using `evaluate`
+# print("Evaluate on test data")
+# results = autoencoder.evaluate(test_data, test_data, batch_size=128)
+# print("test loss, test acc:", results)
