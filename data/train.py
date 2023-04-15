@@ -13,9 +13,9 @@ import torch.nn.functional as F
 
 DATA_PATH = "processed/data_3000wins_1Mpositions_ccrl.h5"
 NET_PATH = "net/"
-TRAINING = False
+TRAINING = True
 TEST = False
-EXPORT = True
+EXPORT = False
 
 # Load Data and Compute Train/Test Splits
 hf = h5py.File(DATA_PATH, 'r')
@@ -93,7 +93,9 @@ class EvalNN(nn.Module):
             nn.Linear(100, 2)
         )
 
-    def forward(self, x1, x2):
+    def forward(self, input):
+        x1 = input[0]
+        x2 = input[1]
         x1_b, x1_i = x1[:768], x1[768:]
         x2_b, x2_i = x2[:768], x2[768:]
 
@@ -120,11 +122,13 @@ def test_on_validation(model,winData=winData_val,loseData=loseData_val):
 
             if random.randint(1,2) == 1:
                 # Reverse wins and losses
-                output = model(input_l,input_w)
+                input = torch.cat([input_l.unsqueeze(0), input_w.unsqueeze(0)])
+                output = model(input)
                 if torch.argmax(output) == torch.tensor(1):
                     correct += 1
             else:    
-                output = model(input_w,input_l)
+                input = torch.cat([input_w.unsqueeze(0), input_l.unsqueeze(0)])
+                output = model(input)
                 if torch.argmax(output) == torch.tensor(0):
                     correct += 1
             
@@ -135,11 +139,11 @@ def test_on_validation(model,winData=winData_val,loseData=loseData_val):
 evalNN = EvalNN()
 
 if(TRAINING):
-    #lr_h = 1e-5
-    lr_h =  0.00005
+    lr_h = 1e-5
+    #lr_h =  0.00005
     criterion = nn.MSELoss()
     optimizer = optim.Adam(evalNN.parameters(), lr=lr_h)
-    MAX_EPOCHS = 50
+    MAX_EPOCHS = 25
     accuracy = []
     DATASET_RANGE_W = range(len(winData_train))
     DATASET_RANGE_L = range(len(loseData_train))
@@ -157,15 +161,18 @@ if(TRAINING):
         for i in range(k):
             input_w, _ = winData_train[idx_w[i]]
             input_l, _ = loseData_train[idx_l[i]]
+            
             # zero the parameter gradients
             optimizer.zero_grad()
             # forward + backward + optimize
             if random.randint(1, 2) == 1:
                 # Reverse wins and losses
-                output = evalNN(input_l, input_w)
+                input = torch.cat([input_l.unsqueeze(0), input_w.unsqueeze(0)])
+                output = evalNN(input)
                 loss = criterion(output, torch.tensor([[0, 1]]).float())
             else:
-                output = evalNN(input_w, input_l)
+                input = torch.cat([input_w.unsqueeze(0), input_l.unsqueeze(0)])
+                output = evalNN(input)
                 loss = criterion(output, torch.tensor([[1, 0]]).float())
 
             loss.backward()
@@ -186,6 +193,9 @@ if(TRAINING):
     print('Finished training.')
     torch.save(evalNN.state_dict(), NET_PATH + 'ccrl3000evalNN' + str(MAX_EPOCHS) + 'epoch.pth')
     test_on_validation(evalNN)
+
+    scripted_output = torch.jit.script(evalNN)
+    torch.jit.save(scripted_output, 'net\ccrl3000eval_scripted_short.p')
 
 if(TEST):
     evalNN.load_state_dict(torch.load('net/ccrl3000evalNN50epoch.pth'))
