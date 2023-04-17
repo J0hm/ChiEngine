@@ -293,7 +293,7 @@ std::vector<Move> MoveGen::getKnightMoves() {
 
             if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
                 PieceType captured = getPieceType(board->bb.squares[to]);
-                moves.emplace_back(to, from, 0b001, captured, 0b0100, castle, captured - 1);
+                moves.emplace_back(to, from, 0b001, captured, 0b0100, castle, 6 + captured - 1);
             } else if (toBBSquare & board->bb.emptySquares) {
                 moves.emplace_back(to, from, 0b001, 0b110, 0b000, castle, 0);
             }
@@ -320,7 +320,7 @@ std::vector<Move> MoveGen::getBishopMoves() {
 
             if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
                 PieceType captured = getPieceType(board->bb.squares[to]);
-                moves.emplace_back(to, from, 0b010, captured, 0b0100, castle, captured - 2);
+                moves.emplace_back(to, from, 0b010, captured, 0b0100, castle, 6 + captured - 2);
             } else if (toBBSquare & board->bb.emptySquares) { // no capture
                 moves.emplace_back(to, from, 0b010, 0b110, 0b0000, castle, 0);
             }
@@ -346,7 +346,7 @@ std::vector<Move> MoveGen::getRookMoves() {
 
             if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
                 PieceType captured = getPieceType(board->bb.squares[to]);
-                moves.emplace_back(to, from, 0b011, captured, 0b0100, castle, captured - 3);
+                moves.emplace_back(to, from, 0b011, captured, 0b0100, castle, 6 + captured - 3);
             } else if (toBBSquare & board->bb.emptySquares) { // no capture
                 moves.emplace_back(to, from, 0b011, 0b110, 0b0000, castle, 0);
             }
@@ -373,7 +373,7 @@ std::vector<Move> MoveGen::getQueenMoves() {
 
             if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
                 PieceType captured = getPieceType(board->bb.squares[to]);
-                moves.emplace_back(to, from, 0b100, captured, 0b0100, castle, captured - 4);
+                moves.emplace_back(to, from, 0b100, captured, 0b0100, castle, 6 + captured - 4);
             } else if (toBBSquare & board->bb.emptySquares) { // no capture
                 moves.emplace_back(to, from, 0b100, 0b110, 0b0000, castle, 0);
             }
@@ -401,7 +401,7 @@ std::vector<Move> MoveGen::getKingMoves() {
 
         if (toBBSquare & board->bb.pcsOfColor[otherSide]) { // capture
             PieceType captured = getPieceType(board->bb.squares[to]);
-            moves.emplace_back(to, from, 0b101, captured, 0b0100, castle, captured - 5);
+            moves.emplace_back(to, from, 0b101, captured, 0b0100, castle, 6 + captured - 5);
         } else if (toBBSquare & board->bb.emptySquares) { // no capture
             moves.emplace_back(to, from, 101, 0b110, 0b0000, castle, 0);
         }
@@ -463,4 +463,15 @@ std::vector<Move> MoveGen::getLegalMoves() {
     std::sort(moves.begin(), moves.end(), std::greater <>());
 
     return moves;
+}
+
+std::vector<Move> MoveGen::getCaptures() {
+    std::vector<Move> moves = this->getLegalMoves();
+
+    std::vector<Move> captures;
+    std::copy_if(moves.begin(), moves.end(), std::back_inserter(captures), [this](Move m) {
+        return m.isCapture();
+    });
+
+    return captures;
 }

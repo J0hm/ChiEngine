@@ -36,6 +36,7 @@ public:
     std::vector<Move> getBishopMoves();
     std::vector<Move> getQueenMoves();
     std::vector<Move> getKingMoves();
+    std::vector<Move> getCaptures();
 
     // get all the legal moves
     std::vector<Move> getLegalMoves();
