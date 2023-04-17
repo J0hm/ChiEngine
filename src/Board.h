@@ -82,6 +82,9 @@ public:
     // get the number of stored board states
     inline int getStateCount() { return boardHistory->getStateCount(); };
 
+    // get the piece at a square
+    inline EPiece getPieceAt(ESquare sq) { return this->bb.squares[sq]; }
+
     // returns the total number of moves to the specified depth
     int64 perft(int depth, int depthToShow);
 

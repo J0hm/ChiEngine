@@ -226,7 +226,9 @@ TEST(MoveGenTestSuite, GetAllLegalMovesFrom) {
     legalMoves = board.movegen->getLegalMoves();
     ASSERT_EQ(legalMoves.size(), 21);
 
-    for(Move m : legalMoves) std::cout << m << std::endl;
+    ASSERT_EQ(board.setFEN("4k3/1Q4P1/8/8/5n2/8/2r5/4K1q1 w - - 0 1"), 0);
+    legalMoves = board.movegen->getLegalMoves(); // should get the 20 initial moves
+    ASSERT_EQ(legalMoves.size(), 0);
 }
 
 TEST(MoveGenTestSuite, GetKingCastleMoves) {
