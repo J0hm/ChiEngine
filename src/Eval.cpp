@@ -60,10 +60,7 @@ int Eval::evaluate() {
         }
     }
 
-    std::cout << "score after minor pieces: " << whiteScore << "," << blackScore << std::endl;
-
     // piece value evaluation
-
     whiteScore += pieceCounts[W_PAWN] * PIECE_VALUES[PAWN];
     blackScore += pieceCounts[B_PAWN] * PIECE_VALUES[PAWN];
     whiteScore += pieceCounts[W_KNIGHT] * PIECE_VALUES[KNIGHT];
@@ -74,8 +71,6 @@ int Eval::evaluate() {
     blackScore += pieceCounts[B_ROOK] * PIECE_VALUES[ROOK];
     whiteScore += pieceCounts[W_QUEEN] * PIECE_VALUES[QUEEN];
     blackScore += pieceCounts[B_QUEEN] * PIECE_VALUES[QUEEN];
-
-    std::cout << "score after piece counts: " << whiteScore << "," << blackScore << std::endl;
 
     int whiteMinors = pieceCounts[W_ROOK] + pieceCounts[W_BISHOP] + pieceCounts[W_KNIGHT];
     int blackMinors = pieceCounts[B_ROOK] + pieceCounts[B_BISHOP] + pieceCounts[B_KNIGHT];
@@ -89,15 +84,12 @@ int Eval::evaluate() {
 
     // decide king values based on game stage
     if(endgame) {
-        std::cout << "endgame detected" << std::endl;
         whiteScore += END_KING_WEIGHTS[whiteKing];
         blackScore += END_KING_WEIGHTS[VERT_MIRROR_INDEX[blackKing]];
     } else {
         whiteScore += MIDDLE_KING_WEIGHTS[whiteKing];
         blackScore += MIDDLE_KING_WEIGHTS[VERT_MIRROR_INDEX[blackKing]];
     }
-
-    std::cout << "score after kings: " << whiteScore << "," << blackScore << std::endl;
 
     return whiteScore - blackScore;
 }
