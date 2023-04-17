@@ -28,7 +28,7 @@ int Search::quiesce(int alpha, int beta) {
     this->visitedNodes++;
     int stand_pat = this->evaluator->evaluate();
 
-    if (stand_pat >= beta) return stand_pat;
+    if (stand_pat >= beta) return beta;
     if (alpha < stand_pat) alpha = stand_pat;
 
     std::vector<Move> captures = this->gameBoard->movegen->getCaptures();
@@ -47,7 +47,9 @@ int Search::quiesce(int alpha, int beta) {
 }
 
 int Search::alphaBeta(int alpha, int beta, int depth) {
-    if (depth == 0) return quiesce(alpha, beta);
+    if (depth == 0) {
+        return quiesce(alpha, beta);
+    }
     std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
 
     for (Move m: moves) {

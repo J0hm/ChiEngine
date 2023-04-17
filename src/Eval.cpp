@@ -9,6 +9,7 @@ int Eval::evaluate() {
     const int minorLimit = 2; // endgame if minors <= minor limit
     int blackScore = 0;
     int whiteScore = 0;
+    EColor sideToMove = this->gameBoard->sideToMove;
     int pieceCounts[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 
     // iterate over each square
@@ -91,5 +92,5 @@ int Eval::evaluate() {
         blackScore += MIDDLE_KING_WEIGHTS[VERT_MIRROR_INDEX[blackKing]];
     }
 
-    return whiteScore - blackScore;
+    return sideToMove == WHITE ? (whiteScore - blackScore) : (blackScore - whiteScore);
 }
