@@ -1,20 +1,7 @@
 # ChiEngine
-A UCI chess engine written in C++ using deep neural networks for evaluation.
+A basic UCI chess engine written in C++.
 
-### Dataset: Cassiabase
-	- Figure out how to extract and use games from this dataset
+The game board is represented with a bitboard, more about its structure can be seen in Board.h
 
-### GUI:
-	- Communication with common chess GUIs
+Magic moves are used for move generation and, search will use basic move ordering and alpha-beta pruning to find a solution.
 
-### Important links:
-- [Cassiabase Dataset](http://caissabase.co.uk/)
-- [Chess Programming Wiki](https://www.chessprogramming.org/)
-- [SCID](https://scid.sourceforge.net/)
-- [Getting Started with Building Chess Engines](http://www.fam-petzke.de/cp_getstarted_en.shtml)
-- [UCI Protocol](http://wbec-ridderkerk.nl/html/UCIProtocol.html)
-  
-### TODO:
-  - [ ] Bitify/fenify poisitions
-  - [ ] Process Cassiabase dataset
-  - [ ] Create a database of winning and losing positions for black/white
