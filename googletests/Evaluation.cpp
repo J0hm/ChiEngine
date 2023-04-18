@@ -22,4 +22,7 @@ TEST(EvalTestSuite, BasicTestEval) {
 
     ASSERT_EQ(b.setFEN("2b5/4Bpbp/7r/p1Np4/2p2P1P/5P1p/1k1P4/1B3R1K w - - 0 13"), 0);
     ASSERT_EQ(evaluator.evaluate(), 20);
+
+    ASSERT_EQ(b.setFEN("r3k2r/p1pNqpb1/bn2pnp1/3P4/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1"), 0);
+    ASSERT_EQ(evaluator.evaluate(), 20);
 }

@@ -6,7 +6,7 @@ TEST(SearchTestSuite, BasicSearchTest) {
     Board b;
     Search s = Search(&b);
 
-    ASSERT_EQ(b.setFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - "), 0);
+    ASSERT_EQ(b.setFEN("r6r/p1k2Pb1/1n1p1np1/8/4P3/1p2Q2N/P1P2PPP/5K2 b - - 0 10"), 0);
     s.fixedSearch(5);
     Move best = s.getBestMove();
     std::cout << best << std::endl;
