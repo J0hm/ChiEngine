@@ -25,6 +25,9 @@ private:
 
     int alphaBeta(int alpha, int beta, int depth);
     int quiesce( int alpha, int beta);
+
+    int alphaBetaMax( int alpha, int beta, int depth);
+    int alphaBetaMin( int alpha, int beta, int depth);
 };
 
 #endif //CHIENGINE_SEARCH_H

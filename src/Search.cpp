@@ -18,9 +18,9 @@ int Search::getBestMoveEval() const {
 void Search::fixedSearch(int depth) {
     std::cout << "Search started..." << std::endl;
     this->visitedNodes = 0;
-    this->bestMoveRating = alphaBeta(INT_MIN+1, INT_MAX-1, depth);
+    this->bestMoveRating = alphaBetaMax(INT_MIN+1, INT_MAX-1, depth);
     std::cout << "Evaluated " << this->visitedNodes << " nodes to reach depth " << depth
-              << " and find move with eval " << this->bestMoveRating;
+              << " and find move with eval " << this->bestMoveRating << std::endl;
 
 }
 
@@ -62,4 +62,50 @@ int Search::alphaBeta(int alpha, int beta, int depth) {
             alpha = score;
     }
     return alpha;
+}
+
+int Search::alphaBetaMax(int alpha, int beta, int depth) {
+    if (depth == 0) {
+        this->visitedNodes++;
+        return this->evaluator->evaluate();
+    }
+
+    std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
+
+    for (Move m : moves) {
+        this->gameBoard->makeMove(m);
+        int score = alphaBetaMin( alpha, beta, depth - 1 );
+        this->gameBoard->unmakeMove();
+        if( score >= beta )
+            return beta;   // fail hard beta-cutoff
+        if( score > alpha ) {
+            bestMove = m;
+            alpha = score; // alpha acts like max in MiniMax
+        }
+
+    }
+    return alpha;
+}
+
+int Search::alphaBetaMin(int alpha, int beta, int depth) {
+    if (depth == 0) {
+        this->visitedNodes++;
+        return -this->evaluator->evaluate();
+    }
+
+    std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
+
+    for (Move m : moves) {
+        this->gameBoard->makeMove(m);
+        int score = alphaBetaMax( alpha, beta, depth - 1 );
+        this->gameBoard->unmakeMove();
+        if( score <= alpha )
+            return alpha; // fail hard alpha-cutoff
+        if( score < beta ) {
+            //bestMove = m;
+            beta = score; // beta acts like min in MiniMax
+        }
+
+    }
+    return beta;
 }
