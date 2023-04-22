@@ -2,7 +2,7 @@
 #define CHIENGINE_ENGINE_H
 
 #include "InputThread.h"
-#include "Board.h"
+#include "Search.h"
 
 
 // the main ChessEngine class which "runs" the engine, communicates with the GUI via UCI, and houses all other
@@ -25,8 +25,11 @@ private:
     // processes messages from the UCI GUI
     bool processGuiMessages(int wait);
 
+    void sendUCIResponse();
+
     InputThread inputThread;
     Board* board;
+    Search* searcher;
 };
 
 

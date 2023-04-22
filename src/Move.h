@@ -136,9 +136,7 @@ public:
 
     // for printing a move for debug
     friend std::ostream& operator<<(std::ostream &os, Move &move) {
-        std::bitset<4> flags(move.getFlags());
-
-        os << move.toLAN() << " Flags: " << flags << " : " << " Score: " << move.getMoveRating();
+        os << move.toLAN();
 
         return os;
     }
