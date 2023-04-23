@@ -10,7 +10,7 @@
 
 option(gmock_build_tests "Build all of Google Mock's own tests." OFF)
 
-# A directory to find Google Test sources.
+# A directory to find Google InputTest sources.
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt")
   set(gtest_dir gtest)
 else()
@@ -21,7 +21,7 @@ endif()
 include("${gtest_dir}/cmake/hermetic_build.cmake" OPTIONAL)
 
 if (COMMAND pre_project_set_up_hermetic_build)
-  # Google Test also calls hermetic setup functions from add_subdirectory,
+  # Google InputTest also calls hermetic setup functions from add_subdirectory,
   # although its changes will not affect things at the current scope.
   pre_project_set_up_hermetic_build()
 endif()
@@ -44,8 +44,8 @@ if (COMMAND set_up_hermetic_build)
   set_up_hermetic_build()
 endif()
 
-# Instructs CMake to process Google Test's CMakeLists.txt and add its
-# targets to the current scope.  We are placing Google Test's binary
+# Instructs CMake to process Google InputTest's CMakeLists.txt and add its
+# targets to the current scope.  We are placing Google InputTest's binary
 # directory in a subdirectory of our own as VC compilation may break
 # if they are the same (the default).
 add_subdirectory("${gtest_dir}" "${gmock_BINARY_DIR}/${gtest_dir}")
@@ -60,17 +60,17 @@ else()
   mark_as_advanced(gmock_build_tests)
 endif()
 
-# Although Google Test's CMakeLists.txt calls this function, the
+# Although Google InputTest's CMakeLists.txt calls this function, the
 # changes there don't affect the current scope.  Therefore we have to
 # call it again here.
 config_compiler_and_linker()  # from ${gtest_dir}/cmake/internal_utils.cmake
 
-# Adds Google Mock's and Google Test's header directories to the search path.
+# Adds Google Mock's and Google InputTest's header directories to the search path.
 set(gmock_build_include_dirs
   "${gmock_SOURCE_DIR}/include"
   "${gmock_SOURCE_DIR}"
   "${gtest_SOURCE_DIR}/include"
-  # This directory is needed to build directly from Google Test sources.
+  # This directory is needed to build directly from Google InputTest sources.
   "${gtest_SOURCE_DIR}")
 include_directories(${gmock_build_include_dirs})
 

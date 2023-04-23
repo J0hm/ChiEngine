@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Macros and functions for implementing parameterized tests
-// in Google C++ Testing and Mocking Framework (Google Test)
+// in Google C++ Testing and Mocking Framework (Google InputTest)
 
 // IWYU pragma: private, include "gtest/gtest.h"
 // IWYU pragma: friend gtest/.*
@@ -48,7 +48,7 @@
 // class. It is usually derived from testing::TestWithParam<T> (see below for
 // another inheritance scheme that's sometimes useful in more complicated
 // class hierarchies), where the type of your parameter values.
-// TestWithParam<T> is itself derived from testing::Test. T can be any
+// TestWithParam<T> is itself derived from testing::InputTest. T can be any
 // copyable type. If it's a raw pointer, you are responsible for managing the
 // lifespan of the pointed values.
 
@@ -72,7 +72,7 @@ TEST_P(FooTest, HasBlahBlah) {
 }
 
 // Finally, you can use INSTANTIATE_TEST_SUITE_P to instantiate the test
-// case with any set of parameters you want. Google Test defines a number
+// case with any set of parameters you want. Google InputTest defines a number
 // of functions for generating test parameters. They return what we call
 // (surprise!) parameter generators. Here is a summary of them, which
 // are all in the testing namespace:
@@ -136,7 +136,7 @@ INSTANTIATE_TEST_SUITE_P(AnotherInstantiationName, FooTest, ValuesIn(pets));
 // generators) are evaluated in InitGoogleTest(), after main() has started.
 // This allows the user on one hand, to adjust generator parameters in order
 // to dynamically determine a set of tests to run and on the other hand,
-// give the user a chance to inspect the generated tests with Google Test
+// give the user a chance to inspect the generated tests with Google InputTest
 // reflection API before RUN_ALL_TESTS() is executed.
 //
 // You can see samples/sample7_unittest.cc and samples/sample8_unittest.cc
@@ -147,14 +147,14 @@ INSTANTIATE_TEST_SUITE_P(AnotherInstantiationName, FooTest, ValuesIn(pets));
 // implementation and is subject to change.
 //
 //
-// A parameterized test fixture must be derived from testing::Test and from
+// A parameterized test fixture must be derived from testing::InputTest and from
 // testing::WithParamInterface<T>, where T is the type of the parameter
 // values. Inheriting from TestWithParam<T> satisfies that requirement because
-// TestWithParam<T> inherits from both Test and WithParamInterface. In more
+// TestWithParam<T> inherits from both InputTest and WithParamInterface. In more
 // complicated hierarchies, however, it is occasionally useful to inherit
-// separately from Test and WithParamInterface. For example:
+// separately from InputTest and WithParamInterface. For example:
 
-class BaseTest : public ::testing::Test {
+class BaseTest : public ::testing::InputTest {
   // You can inherit all the usual members for a non-parameterized test
   // fixture here.
 };
@@ -185,9 +185,9 @@ namespace testing {
 
 // Functions producing parameter generators.
 //
-// Google Test uses these generators to produce parameters for value-
+// Google InputTest uses these generators to produce parameters for value-
 // parameterized tests. When a parameterized test suite is instantiated
-// with a particular generator, Google Test creates and runs tests
+// with a particular generator, Google InputTest creates and runs tests
 // for each element in the sequence produced by the generator.
 //
 // In the following sample, tests from test suite FooTest are instantiated
@@ -397,7 +397,7 @@ inline internal::ParamGenerator<bool> Bool() { return Values(false, true); }
 // };
 //
 // TEST_P(FlagDependentTest, TestFeature1) {
-//   // Test your code using external_flag_1 and external_flag_2 here.
+//   // InputTest your code using external_flag_1 and external_flag_2 here.
 // }
 // INSTANTIATE_TEST_SUITE_P(TwoBoolSequence, FlagDependentTest,
 //                          Combine(Bool(), Bool()));

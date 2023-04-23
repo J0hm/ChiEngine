@@ -142,7 +142,7 @@ class GTEST_API_ UntypedFunctionMockerBase {
   virtual ~UntypedFunctionMockerBase();
 
   // Verifies that all expectations on this mock function have been
-  // satisfied.  Reports one or more Google Test non-fatal failures
+  // satisfied.  Reports one or more Google InputTest non-fatal failures
   // and returns false if not.
   bool VerifyAndClearExpectationsLocked()
       GTEST_EXCLUSIVE_LOCK_REQUIRED_(g_gmock_mutex);
@@ -368,7 +368,7 @@ class GTEST_API_ Mock {
 
   // Verifies and clears all expectations on the given mock object.
   // If the expectations aren't satisfied, generates one or more
-  // Google Test non-fatal failures and returns false.
+  // Google InputTest non-fatal failures and returns false.
   static bool VerifyAndClearExpectations(void* mock_obj)
       GTEST_LOCK_EXCLUDED_(internal::g_gmock_mutex);
 
@@ -429,7 +429,7 @@ class GTEST_API_ Mock {
       const void* mock_obj) GTEST_LOCK_EXCLUDED_(internal::g_gmock_mutex);
 
   // Verifies that all expectations on the given mock object have been
-  // satisfied.  Reports one or more Google Test non-fatal failures
+  // satisfied.  Reports one or more Google InputTest non-fatal failures
   // and returns false if not.
   static bool VerifyAndClearExpectationsLocked(void* mock_obj)
       GTEST_EXCLUSIVE_LOCK_REQUIRED_(internal::g_gmock_mutex);
@@ -1425,7 +1425,7 @@ class FunctionMocker<R(Args...)> final : public UntypedFunctionMockerBase {
   FunctionMocker& operator=(const FunctionMocker&) = delete;
 
   // The destructor verifies that all expectations on this mock
-  // function have been satisfied.  If not, it will report Google Test
+  // function have been satisfied.  If not, it will report Google InputTest
   // non-fatal failures for the violations.
   ~FunctionMocker() override GTEST_LOCK_EXCLUDED_(g_gmock_mutex) {
     MutexLock l(&g_gmock_mutex);

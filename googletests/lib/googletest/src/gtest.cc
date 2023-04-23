@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
-// The Google C++ Testing and Mocking Framework (Google Test)
+// The Google C++ Testing and Mocking Framework (Google InputTest)
 
 #include "gtest/gtest.h"
 
@@ -402,8 +402,8 @@ uint32_t Random::Generate(uint32_t range) {
 }
 
 // GTestIsInitialized() returns true if and only if the user has initialized
-// Google Test.  Useful for catching the user mistake of not initializing
-// Google Test before calling RUN_ALL_TESTS().
+// Google InputTest.  Useful for catching the user mistake of not initializing
+// Google InputTest before calling RUN_ALL_TESTS().
 static bool GTestIsInitialized() { return GetArgvs().size() > 0; }
 
 // Iterates over a vector of TestSuites, keeping a running sum of the
@@ -847,11 +847,11 @@ bool UnitTestOptions::FilterMatchesTest(const std::string& test_suite_name,
 }
 
 #if GTEST_HAS_SEH
-// Returns EXCEPTION_EXECUTE_HANDLER if Google Test should handle the
+// Returns EXCEPTION_EXECUTE_HANDLER if Google InputTest should handle the
 // given SEH exception, or EXCEPTION_CONTINUE_SEARCH otherwise.
 // This function is useful as an __except condition.
 int UnitTestOptions::GTestShouldProcessSEH(DWORD exception_code) {
-  // Google Test should handle a SEH exception if:
+  // Google InputTest should handle a SEH exception if:
   //   1. the user wants it to, AND
   //   2. this is not a breakpoint exception, AND
   //   3. this is not a C++ exception (VC++ implements them via SEH,
@@ -877,7 +877,7 @@ int UnitTestOptions::GTestShouldProcessSEH(DWORD exception_code) {
 }  // namespace internal
 
 // The c'tor sets this object as the test part result reporter used by
-// Google Test.  The 'result' parameter specifies where to report the
+// Google InputTest.  The 'result' parameter specifies where to report the
 // results. Intercepts only failures from the current thread.
 ScopedFakeTestPartResultReporter::ScopedFakeTestPartResultReporter(
     TestPartResultArray* result)
@@ -886,7 +886,7 @@ ScopedFakeTestPartResultReporter::ScopedFakeTestPartResultReporter(
 }
 
 // The c'tor sets this object as the test part result reporter used by
-// Google Test.  The 'result' parameter specifies where to report the
+// Google InputTest.  The 'result' parameter specifies where to report the
 // results.
 ScopedFakeTestPartResultReporter::ScopedFakeTestPartResultReporter(
     InterceptMode intercept_mode, TestPartResultArray* result)
@@ -905,7 +905,7 @@ void ScopedFakeTestPartResultReporter::Init() {
   }
 }
 
-// The d'tor restores the test part result reporter used by Google Test
+// The d'tor restores the test part result reporter used by Google InputTest
 // before.
 ScopedFakeTestPartResultReporter::~ScopedFakeTestPartResultReporter() {
   internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
@@ -925,18 +925,18 @@ void ScopedFakeTestPartResultReporter::ReportTestPartResult(
 
 namespace internal {
 
-// Returns the type ID of ::testing::Test.  We should always call this
-// instead of GetTypeId< ::testing::Test>() to get the type ID of
-// testing::Test.  This is to work around a suspected linker bug when
-// using Google Test as a framework on Mac OS X.  The bug causes
-// GetTypeId< ::testing::Test>() to return different values depending
-// on whether the call is from the Google Test framework itself or
+// Returns the type ID of ::testing::InputTest.  We should always call this
+// instead of GetTypeId< ::testing::InputTest>() to get the type ID of
+// testing::InputTest.  This is to work around a suspected linker bug when
+// using Google InputTest as a framework on Mac OS X.  The bug causes
+// GetTypeId< ::testing::InputTest>() to return different values depending
+// on whether the call is from the Google InputTest framework itself or
 // from user test code.  GetTestTypeId() is guaranteed to always
 // return the same value, as it always calls GetTypeId<>() from the
-// gtest.cc, which is within the Google Test framework.
+// gtest.cc, which is within the Google InputTest framework.
 TypeId GetTestTypeId() { return GetTypeId<Test>(); }
 
-// The value of GetTestTypeId() as seen from within the Google Test
+// The value of GetTestTypeId() as seen from within the Google InputTest
 // library.  This is solely for testing GetTestTypeId().
 extern const TypeId kTestTypeIdInGoogleTest = GetTestTypeId();
 
@@ -2199,7 +2199,7 @@ std::string StringStreamToString(::std::stringstream* ss) {
   return result;
 }
 
-// Appends the user-supplied message to the Google-Test-generated message.
+// Appends the user-supplied message to the Google-InputTest-generated message.
 std::string AppendUserMessage(const std::string& gtest_msg,
                               const Message& user_msg) {
   // Appends the user message if it's non-empty.
@@ -2418,9 +2418,9 @@ int TestResult::test_property_count() const {
   return static_cast<int>(test_properties_.size());
 }
 
-// class Test
+// class InputTest
 
-// Creates a Test object.
+// Creates a InputTest object.
 
 // The c'tor saves the states of all flags.
 Test::Test() : gtest_flag_saver_(new GTEST_FLAG_SAVER_) {}
@@ -2466,10 +2466,10 @@ void ReportFailureInUnknownLocation(TestPartResult::Type result_type,
 
 }  // namespace internal
 
-// Google Test requires all tests in the same test suite to use the same test
+// Google InputTest requires all tests in the same test suite to use the same test
 // fixture class.  This function checks if the current test has the
 // same fixture class as the first test in the current test suite.  If
-// yes, it returns true; otherwise it generates a Google Test failure and
+// yes, it returns true; otherwise it generates a Google InputTest failure and
 // returns false.
 bool Test::HasSameFixtureClass() {
   internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
@@ -2614,7 +2614,7 @@ Result HandleSehExceptionsInMethodIfSupported(T* object, Result (T::*method)(),
 template <class T, typename Result>
 Result HandleExceptionsInMethodIfSupported(T* object, Result (T::*method)(),
                                            const char* location) {
-  // NOTE: The user code can affect the way in which Google Test handles
+  // NOTE: The user code can affect the way in which Google InputTest handles
   // exceptions by setting GTEST_FLAG(catch_exceptions), but only before
   // RUN_ALL_TESTS() starts. It is technically possible to check the flag
   // after the exception is caught and either report or re-throw the
@@ -2635,7 +2635,7 @@ Result HandleExceptionsInMethodIfSupported(T* object, Result (T::*method)(),
   // lost and the debugger will stop the program at the point of the
   // re-throw in this function -- instead of at the point of the original
   // throw statement in the code under test.  For this reason, we perform
-  // the check early, sacrificing the ability to affect Google Test's
+  // the check early, sacrificing the ability to affect Google InputTest's
   // exception handling in the method where the exception is thrown.
   if (internal::GetUnitTestImpl()->catch_exceptions()) {
 #if GTEST_HAS_EXCEPTIONS
@@ -2645,7 +2645,7 @@ Result HandleExceptionsInMethodIfSupported(T* object, Result (T::*method)(),
       // This failure was reported already.
     } catch (const internal::GoogleTestFailureException&) {  // NOLINT
       // This exception type can only be thrown by a failed Google
-      // Test assertion with the intention of letting another testing
+      // InputTest assertion with the intention of letting another testing
       // framework catch it.  Therefore we just re-throw it.
       throw;
     } catch (const std::exception& e) {  // NOLINT
@@ -2737,7 +2737,7 @@ TestInfo::~TestInfo() { delete factory_; }
 
 namespace internal {
 
-// Creates a new TestInfo object and registers it with Google Test;
+// Creates a new TestInfo object and registers it with Google InputTest;
 // returns the created object.
 //
 // Arguments:
@@ -2965,7 +2965,7 @@ TestSuite::TestSuite(const char* a_name, const char* a_type_param,
 
 // Destructor of TestSuite.
 TestSuite::~TestSuite() {
-  // Deletes every Test in the collection.
+  // Deletes every InputTest in the collection.
   ForEach(test_info_list_, internal::Delete<TestInfo>);
 }
 
@@ -3239,7 +3239,7 @@ static const char* GetAnsiColorCode(GTestColor color) {
 
 #endif  // GTEST_OS_WINDOWS && !GTEST_OS_WINDOWS_MOBILE
 
-// Returns true if and only if Google Test should use colors in the output.
+// Returns true if and only if Google InputTest should use colors in the output.
 bool ShouldUseColor(bool stdout_is_tty) {
   std::string c = GTEST_FLAG_GET(color);
   const char* const gtest_color = c.c_str();
@@ -3324,7 +3324,7 @@ static void ColoredPrintf(GTestColor color, const char* fmt, ...) {
   va_end(args);
 }
 
-// Text printed in Google Test's text output and --gtest_list_tests
+// Text printed in Google InputTest's text output and --gtest_list_tests
 // output to label the type parameter and value parameter for a test.
 static const char kTypeParamLabel[] = "TypeParam";
 static const char kValueParamLabel[] = "GetParam()";
@@ -3647,7 +3647,7 @@ void PrettyUnitTestResultPrinter::OnTestIterationEnd(const UnitTest& unit_test,
     ColoredPrintf(GTestColor::kYellow, "  YOU HAVE %d DISABLED %s\n\n",
                   num_disabled, num_disabled == 1 ? "TEST" : "TESTS");
   }
-  // Ensure that Google Test output is printed before, e.g., heapchecker output.
+  // Ensure that Google InputTest output is printed before, e.g., heapchecker output.
   fflush(stdout);
 }
 
@@ -3752,7 +3752,7 @@ void BriefUnitTestResultPrinter::OnTestIterationEnd(const UnitTest& unit_test,
     ColoredPrintf(GTestColor::kYellow, "  YOU HAVE %d DISABLED %s\n\n",
                   num_disabled, num_disabled == 1 ? "TEST" : "TESTS");
   }
-  // Ensure that Google Test output is printed before, e.g., heapchecker output.
+  // Ensure that Google InputTest output is printed before, e.g., heapchecker output.
   fflush(stdout);
 }
 
@@ -4084,7 +4084,7 @@ std::string XmlUnitTestResultPrinter::RemoveInvalidXmlCharacters(
 // The following routines generate an XML representation of a UnitTest
 // object.
 //
-// This is how Google Test concepts map to the DTD:
+// This is how Google InputTest concepts map to the DTD:
 //
 // <testsuites name="AllTests">        <-- corresponds to a UnitTest object
 //   <testsuite name="testcase-name">  <-- corresponds to a TestSuite object
@@ -5268,7 +5268,7 @@ TestSuite* UnitTest::GetMutableTestSuite(int i) {
 }
 
 // Returns the list of event listeners that can be used to track events
-// inside Google Test.
+// inside Google InputTest.
 TestEventListeners& UnitTest::listeners() { return *impl()->listeners(); }
 
 // Registers and returns a global test environment.  When a test
@@ -5290,7 +5290,7 @@ Environment* UnitTest::AddEnvironment(Environment* env) {
   return env;
 }
 
-// Adds a TestPartResult to the current TestResult object.  All Google Test
+// Adds a TestPartResult to the current TestResult object.  All Google InputTest
 // assertion macros (e.g. ASSERT_TRUE, EXPECT_EQ, etc) eventually call
 // this to report their results.  The user code should use the
 // assertion macros instead of calling this directly.
@@ -5327,7 +5327,7 @@ void UnitTest::AddTestPartResult(TestPartResult::Type result_type,
       result_type != TestPartResult::kSkip) {
     // gtest_break_on_failure takes precedence over
     // gtest_throw_on_failure.  This allows a user to set the latter
-    // in the code (perhaps in order to use Google Test assertions
+    // in the code (perhaps in order to use Google InputTest assertions
     // with another testing framework) and specify the former on the
     // command line for debugging.
     if (GTEST_FLAG_GET(break_on_failure)) {
@@ -5382,16 +5382,16 @@ int UnitTest::Run() {
   const bool in_death_test_child_process =
       GTEST_FLAG_GET(internal_run_death_test).length() > 0;
 
-  // Google Test implements this protocol for catching that a test
-  // program exits before returning control to Google Test:
+  // Google InputTest implements this protocol for catching that a test
+  // program exits before returning control to Google InputTest:
   //
-  //   1. Upon start, Google Test creates a file whose absolute path
+  //   1. Upon start, Google InputTest creates a file whose absolute path
   //      is specified by the environment variable
   //      TEST_PREMATURE_EXIT_FILE.
-  //   2. When Google Test has finished its work, it deletes the file.
+  //   2. When Google InputTest has finished its work, it deletes the file.
   //
   // This allows a test runner to set TEST_PREMATURE_EXIT_FILE before
-  // running a Google-Test-based test program and check the existence
+  // running a Google-InputTest-based test program and check the existence
   // of the file at the end of the test execution to see if it has
   // exited prematurely.
 
@@ -5413,7 +5413,7 @@ int UnitTest::Run() {
   impl()->set_catch_exceptions(GTEST_FLAG_GET(catch_exceptions));
 
 #if GTEST_OS_WINDOWS
-  // Either the user wants Google Test to catch exceptions thrown by the
+  // Either the user wants Google InputTest to catch exceptions thrown by the
   // tests or this is executing in the context of death test child
   // process. In either case the user does not want to see pop-up dialogs
   // about crashes - they are expected.
@@ -5435,7 +5435,7 @@ int UnitTest::Run() {
     // In the debug version, Visual Studio pops up a separate dialog
     // offering a choice to debug the aborted program. We need to suppress
     // this dialog or it will pop up for every EXPECT/ASSERT_DEATH statement
-    // executed. Google Test will notify the user of any unexpected
+    // executed. Google InputTest will notify the user of any unexpected
     // failure via stderr.
     if (!GTEST_FLAG_GET(break_on_failure))
       _set_abort_behavior(
@@ -5510,14 +5510,14 @@ UnitTest::UnitTest() { impl_ = new internal::UnitTestImpl(this); }
 UnitTest::~UnitTest() { delete impl_; }
 
 // Pushes a trace defined by SCOPED_TRACE() on to the per-thread
-// Google Test trace stack.
+// Google InputTest trace stack.
 void UnitTest::PushGTestTrace(const internal::TraceInfo& trace)
     GTEST_LOCK_EXCLUDED_(mutex_) {
   internal::MutexLock lock(&mutex_);
   impl_->gtest_trace_stack().push_back(trace);
 }
 
-// Pops a trace from the per-thread Google Test trace stack.
+// Pops a trace from the per-thread Google InputTest trace stack.
 void UnitTest::PopGTestTrace() GTEST_LOCK_EXCLUDED_(mutex_) {
   internal::MutexLock lock(&mutex_);
   impl_->gtest_trace_stack().pop_back();
@@ -5760,7 +5760,7 @@ static void TearDownEnvironment(Environment* env) { env->TearDown(); }
 // All other functions called from RunAllTests() may safely assume that
 // parameterized tests are ready to be counted and run.
 bool UnitTestImpl::RunAllTests() {
-  // True if and only if Google Test is initialized before RUN_ALL_TESTS() is
+  // True if and only if Google InputTest is initialized before RUN_ALL_TESTS() is
   // called.
   const bool gtest_is_initialized_before_run_all_tests = GTestIsInitialized();
 
@@ -6382,11 +6382,11 @@ static bool ParseFlag(const char* str, const char* flag_name, String* value) {
   return true;
 }
 
-// Determines whether a string has a prefix that Google Test uses for its
+// Determines whether a string has a prefix that Google InputTest uses for its
 // flags, i.e., starts with GTEST_FLAG_PREFIX_ or GTEST_FLAG_PREFIX_DASH_.
-// If Google Test detects that a command line flag has its prefix but is not
+// If Google InputTest detects that a command line flag has its prefix but is not
 // recognized, it will print its help message. Flags starting with
-// GTEST_INTERNAL_PREFIX_ followed by "internal_" are considered Google Test
+// GTEST_INTERNAL_PREFIX_ followed by "internal_" are considered Google InputTest
 // internal flags and do not trigger the help message.
 static bool HasGoogleTestFlagPrefix(const char* str) {
   return (SkipPrefix("--", &str) || SkipPrefix("-", &str) ||
@@ -6444,7 +6444,7 @@ static const char kColorEncodedHelpMessage[] =
     ". You can use the\n"
     "following command line flags to control its behavior:\n"
     "\n"
-    "Test Selection:\n"
+    "InputTest Selection:\n"
     "  @G--" GTEST_FLAG_PREFIX_
     "list_tests@D\n"
     "      List the names of all tests instead of running them. The name of\n"
@@ -6461,7 +6461,7 @@ static const char kColorEncodedHelpMessage[] =
     "also_run_disabled_tests@D\n"
     "      Run all disabled tests too.\n"
     "\n"
-    "Test Execution:\n"
+    "InputTest Execution:\n"
     "  @G--" GTEST_FLAG_PREFIX_
     "repeat=@Y[COUNT]@D\n"
     "      Run the tests repeatedly; use a negative count to repeat forever.\n"
@@ -6477,7 +6477,7 @@ static const char kColorEncodedHelpMessage[] =
     "      Sets up and tears down the global test environment on each repeat\n"
     "      of the test.\n"
     "\n"
-    "Test Output:\n"
+    "InputTest Output:\n"
     "  @G--" GTEST_FLAG_PREFIX_
     "color=@Y(@Gyes@Y|@Gno@Y|@Gauto@Y)@D\n"
     "      Enable/disable colored output. The default is @Gauto@D.\n"
@@ -6587,8 +6587,8 @@ static void LoadFlagsFromFile(const std::string& path) {
 }
 #endif  // GTEST_USE_OWN_FLAGFILE_FLAG_
 
-// Parses the command line for Google Test flags, without initializing
-// other parts of Google Test.  The type parameter CharType can be
+// Parses the command line for Google InputTest flags, without initializing
+// other parts of Google InputTest.  The type parameter CharType can be
 // instantiated to either char or wchar_t.
 template <typename CharType>
 void ParseGoogleTestFlagsOnlyImpl(int* argc, CharType** argv) {
@@ -6609,7 +6609,7 @@ void ParseGoogleTestFlagsOnlyImpl(int* argc, CharType** argv) {
       remove_flag = true;
 #endif  // GTEST_USE_OWN_FLAGFILE_FLAG_
     } else if (arg_string == "--help" || HasGoogleTestFlagPrefix(arg)) {
-      // Both help flag and unrecognized Google Test flags (excluding
+      // Both help flag and unrecognized Google InputTest flags (excluding
       // internal ones) trigger help display.
       g_help_flag = true;
     }
@@ -6635,13 +6635,13 @@ void ParseGoogleTestFlagsOnlyImpl(int* argc, CharType** argv) {
   if (g_help_flag) {
     // We print the help here instead of in RUN_ALL_TESTS(), as the
     // latter may not be called at all if the user is using Google
-    // Test with another testing framework.
+    // InputTest with another testing framework.
     PrintColorEncoded(kColorEncodedHelpMessage);
   }
 }
 
-// Parses the command line for Google Test flags, without initializing
-// other parts of Google Test.
+// Parses the command line for Google InputTest flags, without initializing
+// other parts of Google InputTest.
 void ParseGoogleTestFlagsOnly(int* argc, char** argv) {
 #if GTEST_HAS_ABSL
   if (*argc > 0) {
@@ -6712,12 +6712,12 @@ void InitGoogleTestImpl(int* argc, CharType** argv) {
 
 }  // namespace internal
 
-// Initializes Google Test.  This must be called before calling
+// Initializes Google InputTest.  This must be called before calling
 // RUN_ALL_TESTS().  In particular, it parses a command line for the
-// flags that Google Test recognizes.  Whenever a Google Test flag is
+// flags that Google InputTest recognizes.  Whenever a Google InputTest flag is
 // seen, it is removed from argv, and *argc is decremented.
 //
-// No value is returned.  Instead, the Google Test flag variables are
+// No value is returned.  Instead, the Google InputTest flag variables are
 // updated.
 //
 // Calling the function for the second time has no user-visible effect.
@@ -6816,7 +6816,7 @@ std::string SrcDir() {
 // Class ScopedTrace
 
 // Pushes the given source file location and message onto a per-thread
-// trace stack maintained by Google Test.
+// trace stack maintained by Google InputTest.
 void ScopedTrace::PushTrace(const char* file, int line, std::string message) {
   internal::TraceInfo trace;
   trace.file = file;

@@ -9,7 +9,7 @@ set(HEADER_FILES
         Engine.h
         MoveGen.h
         MagicMoves.h
-        ZobristHasher.h Eval.h Search.h)
+        ZobristHasher.h Eval.h Search.h InputTest.h)
 
 set(SOURCE_FILES
         Main.cpp
@@ -19,7 +19,7 @@ set(SOURCE_FILES
         Move.cpp
         MoveGen.cpp
         MagicMoves.cpp
-        ZobristHasher.cpp Eval.cpp Search.cpp)
+        ZobristHasher.cpp Eval.cpp Search.cpp InputTest.cpp InputTest.h)
 
 add_library(src STATIC ${SOURCE_FILES} ${HEADER_FILES})
 

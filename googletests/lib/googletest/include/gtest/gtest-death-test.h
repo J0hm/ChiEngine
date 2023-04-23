@@ -27,7 +27,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// The Google C++ Testing and Mocking Framework (Google Test)
+// The Google C++ Testing and Mocking Framework (Google InputTest)
 //
 // This header file defines the public API for death tests.  It is
 // #included by gtest.h so a user doesn't need to include this
@@ -109,7 +109,7 @@ GTEST_API_ bool InDeathTestChild();
 //   which uses the POSIX extended regex syntax.
 //
 //   On other platforms (e.g. Windows or Mac), we only support a simple regex
-//   syntax implemented as part of Google Test.  This limited
+//   syntax implemented as part of Google InputTest.  This limited
 //   implementation should be enough most of the time when writing
 //   death tests; though it lacks many features you can find in PCRE
 //   or POSIX extended regex syntax.  For example, we don't support

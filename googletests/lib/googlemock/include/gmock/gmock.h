@@ -78,8 +78,8 @@ namespace testing {
 // No value is returned.  Instead, the Google Mock flag variables are
 // updated.
 //
-// Since Google Test is needed for Google Mock to work, this function
-// also initializes Google Test and parses its flags, if that hasn't
+// Since Google InputTest is needed for Google Mock to work, this function
+// also initializes Google InputTest and parses its flags, if that hasn't
 // been done.
 GTEST_API_ void InitGoogleMock(int* argc, char** argv);
 

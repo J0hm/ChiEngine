@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Google Test filepath utilities
+// Google InputTest filepath utilities
 //
 // This header file declares classes and functions used internally by
-// Google Test.  They are subject to change without notice.
+// Google InputTest.  They are subject to change without notice.
 //
 // This file is #included in gtest/internal/gtest-internal.h.
 // Do not include this header file separately!

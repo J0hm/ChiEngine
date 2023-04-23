@@ -46,11 +46,11 @@
 #include <iostream>
 
 // Most of the utilities needed for porting Google Mock are also
-// required for Google Test and are defined in gtest-port.h.
+// required for Google InputTest and are defined in gtest-port.h.
 //
 // Note to maintainers: to reduce code duplication, prefer adding
-// portability utilities to Google Test's gtest-port.h instead of
-// here, as Google Mock depends on Google Test.  Only add a utility
+// portability utilities to Google InputTest's gtest-port.h instead of
+// here, as Google Mock depends on Google InputTest.  Only add a utility
 // here if it's truly specific to Google Mock.
 
 #include "gmock/internal/custom/gmock-port.h"

@@ -94,9 +94,9 @@ GTEST_API_ std::string ConvertIdentifierNameToWords(const char* id_name) {
   return result;
 }
 
-// This class reports Google Mock failures as Google Test failures.  A
+// This class reports Google Mock failures as Google InputTest failures.  A
 // user can define another class in a similar fashion if they intend to
-// use Google Mock with a testing framework other than Google Test.
+// use Google Mock with a testing framework other than Google InputTest.
 class GoogleTestFailureReporter : public FailureReporterInterface {
  public:
   void ReportFailure(FailureType type, const char* file, int line,

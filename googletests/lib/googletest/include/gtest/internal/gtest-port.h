@@ -27,16 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Low-level types and utilities for porting Google Test to various
+// Low-level types and utilities for porting Google InputTest to various
 // platforms.  All macros ending with _ and symbols defined in an
 // internal namespace are subject to change without notice.  Code
-// outside Google Test MUST NOT USE THEM DIRECTLY.  Macros that don't
-// end with _ are part of Google Test's public API and can be used by
-// code outside Google Test.
+// outside Google InputTest MUST NOT USE THEM DIRECTLY.  Macros that don't
+// end with _ are part of Google InputTest's public API and can be used by
+// code outside Google InputTest.
 //
-// This file is fundamental to Google Test.  All other Google Test source
+// This file is fundamental to Google InputTest.  All other Google InputTest source
 // files are expected to #include this.  Therefore, it cannot #include
-// any other Google Test header.
+// any other Google InputTest header.
 
 // IWYU pragma: private, include "gtest/gtest.h"
 // IWYU pragma: friend gtest/.*
@@ -48,18 +48,18 @@
 // Environment-describing macros
 // -----------------------------
 //
-// Google Test can be used in many different environments.  Macros in
-// this section tell Google Test what kind of environment it is being
-// used in, such that Google Test can provide environment-specific
+// Google InputTest can be used in many different environments.  Macros in
+// this section tell Google InputTest what kind of environment it is being
+// used in, such that Google InputTest can provide environment-specific
 // features and implementations.
 //
-// Google Test tries to automatically detect the properties of its
+// Google InputTest tries to automatically detect the properties of its
 // environment, so users usually don't need to worry about these
 // macros.  However, the automatic detection is not perfect.
 // Sometimes it's necessary for a user to define some of the following
-// macros in the build script to override Google Test's decisions.
+// macros in the build script to override Google InputTest's decisions.
 //
-// If the user doesn't define a macro in the list, Google Test will
+// If the user doesn't define a macro in the list, Google InputTest will
 // provide a default definition.  After this header is #included, all
 // macros in this list will be defined to either 1 or 0.
 //
@@ -81,7 +81,7 @@
 //   GTEST_HAS_RTTI           - Define it to 1/0 to indicate that RTTI is/isn't
 //                              enabled.
 //   GTEST_HAS_STD_WSTRING    - Define it to 1/0 to indicate that
-//                              std::wstring does/doesn't work (Google Test can
+//                              std::wstring does/doesn't work (Google InputTest can
 //                              be used where std::wstring is unavailable).
 //   GTEST_HAS_SEH            - Define it to 1/0 to indicate whether the
 //                              compiler supports Microsoft's "Structured
@@ -92,10 +92,10 @@
 //                              dup() and dup2().
 //   GTEST_LINKED_AS_SHARED_LIBRARY
 //                            - Define to 1 when compiling tests that use
-//                              Google Test as a shared library (known as
+//                              Google InputTest as a shared library (known as
 //                              DLL on Windows).
 //   GTEST_CREATE_SHARED_LIBRARY
-//                            - Define to 1 when compiling Google Test itself
+//                            - Define to 1 when compiling Google InputTest itself
 //                              as a shared library.
 //   GTEST_DEFAULT_DEATH_TEST_STYLE
 //                            - The default value of --gtest_death_test_style.
@@ -107,10 +107,10 @@
 // Platform-indicating macros
 // --------------------------
 //
-// Macros indicating the platform on which Google Test is being used
+// Macros indicating the platform on which Google InputTest is being used
 // (a macro is defined to 1 if compiled on the given platform;
-// otherwise UNDEFINED -- it's never defined to 0.).  Google Test
-// defines these macros automatically.  Code outside Google Test MUST
+// otherwise UNDEFINED -- it's never defined to 0.).  Google InputTest
+// defines these macros automatically.  Code outside Google InputTest MUST
 // NOT define them.
 //
 //   GTEST_OS_AIX      - IBM AIX
@@ -141,7 +141,7 @@
 //   GTEST_OS_ZOS      - z/OS
 //
 // Among the platforms, Cygwin, Linux, Mac OS X, and Windows have the
-// most stable support.  Since core members of the Google Test project
+// most stable support.  Since core members of the Google InputTest project
 // don't have access to other platforms, support for them may be less
 // stable.  If you notice any problems on your platform, please notify
 // googletestframework@googlegroups.com (patches for fixing them are
@@ -152,10 +152,10 @@
 // Feature-indicating macros
 // -------------------------
 //
-// Macros indicating which Google Test features are available (a macro
+// Macros indicating which Google InputTest features are available (a macro
 // is defined to 1 if the corresponding feature is supported;
-// otherwise UNDEFINED -- it's never defined to 0.).  Google Test
-// defines these macros automatically.  Code outside Google Test MUST
+// otherwise UNDEFINED -- it's never defined to 0.).  Google InputTest
+// defines these macros automatically.  Code outside Google InputTest MUST
 // NOT define them.
 //
 // These macros are public so that portable tests can be written.
@@ -169,7 +169,7 @@
 //   GTEST_HAS_DEATH_TEST   - death tests
 //   GTEST_HAS_TYPED_TEST   - typed tests
 //   GTEST_HAS_TYPED_TEST_P - type-parameterized tests
-//   GTEST_IS_THREADSAFE    - Google Test is thread-safe.
+//   GTEST_IS_THREADSAFE    - Google InputTest is thread-safe.
 //   GTEST_USES_RE2         - the RE2 regular expression library is used
 //   GTEST_USES_POSIX_RE    - enhanced POSIX regex is used. Do not confuse with
 //                            GTEST_HAS_POSIX_RE (see above) which users can
@@ -181,13 +181,13 @@
 // ------------------
 //
 //   GTEST_FLAG(flag_name)  - references the variable corresponding to
-//                            the given Google Test flag.
+//                            the given Google InputTest flag.
 
 // Internal utilities
 // ------------------
 //
-// The following macros and utilities are for Google Test's INTERNAL
-// use only.  Code outside Google Test MUST NOT USE THEM DIRECTLY.
+// The following macros and utilities are for Google InputTest's INTERNAL
+// use only.  Code outside Google InputTest MUST NOT USE THEM DIRECTLY.
 //
 // Macros for basic C++ coding:
 //   GTEST_AMBIGUOUS_ELSE_BLOCKER_ - for disabling a gcc warning.
@@ -298,7 +298,7 @@
 #define GTEST_FLAG_PREFIX_ "gtest_"
 #define GTEST_FLAG_PREFIX_DASH_ "gtest-"
 #define GTEST_FLAG_PREFIX_UPPER_ "GTEST_"
-#define GTEST_NAME_ "Google Test"
+#define GTEST_NAME_ "Google InputTest"
 #define GTEST_PROJECT_URL_ "https://github.com/google/googletest/"
 #endif  // !defined(GTEST_DEV_EMAIL_)
 
@@ -378,7 +378,7 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #include <android/api-level.h>  // NOLINT
 #endif
 
-// Defines this to true if and only if Google Test can use POSIX regular
+// Defines this to true if and only if Google InputTest can use POSIX regular
 // expressions.
 #ifndef GTEST_HAS_POSIX_RE
 #if GTEST_OS_LINUX_ANDROID
@@ -526,12 +526,12 @@ typedef struct _RTL_CRITICAL_SECTION GTEST_CRITICAL_SECTION;
 #include <typeinfo>
 #endif
 
-// Determines whether Google Test can use the pthreads library.
+// Determines whether Google InputTest can use the pthreads library.
 #ifndef GTEST_HAS_PTHREAD
 // The user didn't tell us explicitly, so we make reasonable assumptions about
 // which platforms have pthreads support.
 //
-// To disable threading support in Google Test, add -DGTEST_HAS_PTHREAD=0
+// To disable threading support in Google InputTest, add -DGTEST_HAS_PTHREAD=0
 // to your compiler flags.
 #define GTEST_HAS_PTHREAD                                                      \
   (GTEST_OS_LINUX || GTEST_OS_MAC || GTEST_OS_HPUX || GTEST_OS_QNX ||          \
@@ -845,7 +845,7 @@ using std::tuple_size;
 
 namespace internal {
 
-// A secret type that Google Test users don't know about.  It has no
+// A secret type that Google InputTest users don't know about.  It has no
 // definition on purpose.  Therefore it's impossible to create a
 // Secret object, which is what we want.
 class Secret;
@@ -1204,7 +1204,7 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 // threads until notified.  Instances of this class must be created
 // and destroyed in the controller thread.
 //
-// This class is only for testing Google Test's own constructs. Do not
+// This class is only for testing Google InputTest's own constructs. Do not
 // use it in user tests, either directly or indirectly.
 // TODO(b/203539622): Replace unconditionally with absl::Notification.
 class GTEST_API_ Notification {
@@ -1263,7 +1263,7 @@ extern "C" inline void* ThreadFuncWithCLinkage(void* thread) {
   return nullptr;
 }
 
-// Helper class for testing Google Test's multi-threading constructs.
+// Helper class for testing Google InputTest's multi-threading constructs.
 // To use it, write:
 //
 //   void ThreadFunc(int param) { /* Do things with param */ }
@@ -1273,7 +1273,7 @@ extern "C" inline void* ThreadFuncWithCLinkage(void* thread) {
 //   ThreadWithParam<int> thread(&ThreadFunc, 5, &thread_can_start);
 //   thread_can_start.Notify();
 //
-// These classes are only for testing Google Test's own constructs. Do
+// These classes are only for testing Google InputTest's own constructs. Do
 // not use them in user tests, either directly or indirectly.
 template <typename T>
 class ThreadWithParam : public ThreadWithParamBase {
@@ -1468,7 +1468,7 @@ class GTEST_API_ ThreadWithParamBase {
   AutoHandle thread_;
 };
 
-// Helper class for testing Google Test's multi-threading constructs.
+// Helper class for testing Google InputTest's multi-threading constructs.
 template <typename T>
 class ThreadWithParam : public ThreadWithParamBase {
  public:
@@ -1520,10 +1520,10 @@ class ThreadWithParam : public ThreadWithParamBase {
 // destroying it. Otherwise, the per-thread objects managed for them by the
 // ThreadLocal instance are not guaranteed to be destroyed on all platforms.
 //
-// Google Test only uses global ThreadLocal objects.  That means they
+// Google InputTest only uses global ThreadLocal objects.  That means they
 // will die after main() has returned.  Therefore, no per-thread
-// object managed by Google Test will be leaked as long as all threads
-// using Google Test have exited when main() returns.
+// object managed by Google InputTest will be leaked as long as all threads
+// using Google InputTest have exited when main() returns.
 template <typename T>
 class ThreadLocal : public ThreadLocalBase {
  public:
@@ -1829,8 +1829,8 @@ class GTEST_API_ ThreadLocal {
 #else  // GTEST_IS_THREADSAFE
 
 // A dummy implementation of synchronization primitives (mutex, lock,
-// and thread-local variable).  Necessary for compiling Google Test where
-// mutex is not supported - using Google Test in multiple threads is not
+// and thread-local variable).  Necessary for compiling Google InputTest where
+// mutex is not supported - using Google InputTest in multiple threads is not
 // supported on such platforms.
 
 class Mutex {
@@ -2099,7 +2099,7 @@ GTEST_DISABLE_MSC_DEPRECATED_POP_()
 
 #if GTEST_OS_WINDOWS_MOBILE
 // Windows CE has no C library. The abort() function is used in
-// several places in Google Test. This implementation provides a reasonable
+// several places in Google InputTest. This implementation provides a reasonable
 // imitation of standard behaviour.
 [[noreturn]] void Abort();
 #else
@@ -2144,10 +2144,10 @@ constexpr BiggestInt kMaxBiggestInt = (std::numeric_limits<BiggestInt>::max)();
 // Such functionality should belong to STL, but I cannot find it
 // there.
 //
-// Google Test uses this class in the implementation of floating-point
+// Google InputTest uses this class in the implementation of floating-point
 // comparison.
 //
-// For now it only handles UInt (unsigned int) as that's all Google Test
+// For now it only handles UInt (unsigned int) as that's all Google InputTest
 // needs.  Other types can be easily added in the future if need
 // arises.
 template <size_t size>
@@ -2268,7 +2268,7 @@ GTEST_API_ bool ParseInt32(const Message& src_text, const char* str,
                            int32_t* value);
 
 // Parses a bool/int32_t/string from the environment variable
-// corresponding to the given Google Test flag.
+// corresponding to the given Google InputTest flag.
 bool BoolFromGTestEnv(const char* flag, bool default_val);
 GTEST_API_ int32_t Int32FromGTestEnv(const char* flag, int32_t default_val);
 std::string OutputFlagAlsoCheckEnvVar();

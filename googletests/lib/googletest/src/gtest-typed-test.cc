@@ -70,7 +70,7 @@ const char* TypedTestSuitePState::VerifyRegisteredTestNames(
        name_it != name_vec.end(); ++name_it) {
     const std::string& name = *name_it;
     if (tests.count(name) != 0) {
-      errors << "Test " << name << " is listed more than once.\n";
+      errors << "InputTest " << name << " is listed more than once.\n";
       continue;
     }
 

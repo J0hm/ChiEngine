@@ -428,7 +428,7 @@ class TestMetaFactoryBase {
 // MakeAndRegisterTestInfo function. Since MakeAndRegisterTestInfo receives
 // ownership of test factory pointer, same factory object cannot be passed
 // into that method twice. But ParameterizedTestSuiteInfo is going to call
-// it for each Test/Parameter value combination. Thus it needs meta factory
+// it for each InputTest/Parameter value combination. Thus it needs meta factory
 // creator class.
 template <class TestSuite>
 class TestMetaFactory
@@ -463,7 +463,7 @@ class ParameterizedTestSuiteInfoBase {
 
   // Base part of test suite name for display purposes.
   virtual const std::string& GetTestSuiteName() const = 0;
-  // Test suite id to verify identity.
+  // InputTest suite id to verify identity.
   virtual TypeId GetTestSuiteTypeId() const = 0;
   // UnitTest class invokes this method to register tests in this
   // test suite right before running them in RUN_ALL_TESTS macro.
@@ -514,11 +514,11 @@ class ParameterizedTestSuiteInfo : public ParameterizedTestSuiteInfoBase {
                                       CodeLocation code_location)
       : test_suite_name_(name), code_location_(code_location) {}
 
-  // Test suite base name for display purposes.
+  // InputTest suite base name for display purposes.
   const std::string& GetTestSuiteName() const override {
     return test_suite_name_;
   }
-  // Test suite id to verify identity.
+  // InputTest suite id to verify identity.
   TypeId GetTestSuiteTypeId() const override { return GetTypeId<TestSuite>(); }
   // TEST_P macro uses AddTestPattern() to record information
   // about a single test in a LocalTestInfo structure.
@@ -704,7 +704,7 @@ class ParameterizedTestSuiteRegistry {
     for (auto& test_suite_info : test_suite_infos_) {
       if (test_suite_info->GetTestSuiteName() == test_suite_name) {
         if (test_suite_info->GetTestSuiteTypeId() != GetTypeId<TestSuite>()) {
-          // Complain about incorrect usage of Google Test facilities
+          // Complain about incorrect usage of Google InputTest facilities
           // and terminate the program since we cannot guaranty correct
           // test suite setup and tear-down in this case.
           ReportInvalidTestSuiteType(test_suite_name, code_location);

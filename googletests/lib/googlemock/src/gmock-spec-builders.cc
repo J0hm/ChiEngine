@@ -392,7 +392,7 @@ Expectation UntypedFunctionMockerBase::GetHandleOf(ExpectationBase* exp) {
 }
 
 // Verifies that all expectations on this mock function have been
-// satisfied.  Reports one or more Google Test non-fatal failures
+// satisfied.  Reports one or more Google InputTest non-fatal failures
 // and returns false if not.
 bool UntypedFunctionMockerBase::VerifyAndClearExpectationsLocked()
     GTEST_EXCLUSIVE_LOCK_REQUIRED_(g_gmock_mutex) {
@@ -527,7 +527,7 @@ class MockObjectRegistry {
       std::cout.flush();
       ::std::cerr.flush();
       // RUN_ALL_TESTS() has already returned when this destructor is
-      // called.  Therefore we cannot use the normal Google Test
+      // called.  Therefore we cannot use the normal Google InputTest
       // failure reporting mechanism.
 #if GTEST_OS_QURT
       qurt_exception_raise_fatal();
@@ -618,7 +618,7 @@ void Mock::AllowLeak(const void* mock_obj)
 
 // Verifies and clears all expectations on the given mock object.  If
 // the expectations aren't satisfied, generates one or more Google
-// Test non-fatal failures and returns false.
+// InputTest non-fatal failures and returns false.
 bool Mock::VerifyAndClearExpectations(void* mock_obj)
     GTEST_LOCK_EXCLUDED_(internal::g_gmock_mutex) {
   internal::MutexLock l(&internal::g_gmock_mutex);
@@ -637,7 +637,7 @@ bool Mock::VerifyAndClear(void* mock_obj)
 
 // Verifies and clears all expectations on the given mock object.  If
 // the expectations aren't satisfied, generates one or more Google
-// Test non-fatal failures and returns false.
+// InputTest non-fatal failures and returns false.
 bool Mock::VerifyAndClearExpectationsLocked(void* mock_obj)
     GTEST_EXCLUSIVE_LOCK_REQUIRED_(internal::g_gmock_mutex) {
   internal::g_gmock_mutex.AssertHeld();

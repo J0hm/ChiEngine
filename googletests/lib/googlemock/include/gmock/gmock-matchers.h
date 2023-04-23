@@ -1570,7 +1570,7 @@ class PredicateFormatterFromMatcher {
 
   // This template () operator allows a PredicateFormatterFromMatcher
   // object to act as a predicate-formatter suitable for using with
-  // Google Test's EXPECT_PRED_FORMAT1() macro.
+  // Google InputTest's EXPECT_PRED_FORMAT1() macro.
   template <typename T>
   AssertionResult operator()(const char* value_text, const T& x) const {
     // We convert matcher_ to a Matcher<const T&> *now* instead of
@@ -5440,7 +5440,7 @@ PolymorphicMatcher<internal::ExceptionMatcherImpl<Err>> ThrowsMessage(
 
 #endif  // GTEST_HAS_EXCEPTIONS
 
-// These macros allow using matchers to check values in Google Test
+// These macros allow using matchers to check values in Google InputTest
 // tests.  ASSERT_THAT(value, matcher) and EXPECT_THAT(value, matcher)
 // succeed if and only if the value matches the matcher.  If the assertion
 // fails, the value and the description of the matcher will be printed.

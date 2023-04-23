@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Utility functions and classes used by the Google C++ testing framework.//
-// This file contains purely Google Test's internal implementation.  Please
+// This file contains purely Google InputTest's internal implementation.  Please
 // DO NOT #INCLUDE IT IN A USER PROGRAM.
 
 #ifndef GOOGLETEST_SRC_GTEST_INTERNAL_INL_H_
@@ -67,14 +67,14 @@ GTEST_DISABLE_MSC_WARNINGS_PUSH_(4251 \
 // Declares the flags.
 //
 // We don't want the users to modify this flag in the code, but want
-// Google Test's own unit tests to be able to access it. Therefore we
+// Google InputTest's own unit tests to be able to access it. Therefore we
 // declare it here as opposed to in gtest.h.
 GTEST_DECLARE_bool_(death_test_use_fork);
 
 namespace testing {
 namespace internal {
 
-// The value of GetTestTypeId() as seen from within the Google Test
+// The value of GetTestTypeId() as seen from within the Google InputTest
 // library.  This is solely for testing GetTestTypeId().
 GTEST_API_ extern const TypeId kTestTypeIdInGoogleTest;
 
@@ -88,7 +88,7 @@ GTEST_API_ extern bool g_help_flag;
 // Returns the current time in milliseconds.
 GTEST_API_ TimeInMillis GetTimeInMillis();
 
-// Returns true if and only if Google Test should use colors in the output.
+// Returns true if and only if Google InputTest should use colors in the output.
 GTEST_API_ bool ShouldUseColor(bool stdout_is_tty);
 
 // Formats the given time in milliseconds as seconds.
@@ -133,7 +133,7 @@ inline int GetNextRandomSeed(int seed) {
   return (next_seed > kMaxRandomSeed) ? 1 : next_seed;
 }
 
-// This class saves the values of all Google Test flags in its c'tor, and
+// This class saves the values of all Google InputTest flags in its c'tor, and
 // restores them in its d'tor.
 class GTestFlagSaver {
  public:
@@ -385,7 +385,7 @@ class GTEST_API_ UnitTestOptions {
 #if GTEST_OS_WINDOWS
   // Function for supporting the gtest_catch_exception flag.
 
-  // Returns EXCEPTION_EXECUTE_HANDLER if Google Test should handle the
+  // Returns EXCEPTION_EXECUTE_HANDLER if Google InputTest should handle the
   // given SEH exception, or EXCEPTION_CONTINUE_SEARCH otherwise.
   // This function is useful as an __except condition.
   static int GTestShouldProcessSEH(DWORD exception_code);
@@ -414,13 +414,13 @@ class OsStackTraceGetterInterface {
   //                against max_depth.
   virtual std::string CurrentStackTrace(int max_depth, int skip_count) = 0;
 
-  // UponLeavingGTest() should be called immediately before Google Test calls
+  // UponLeavingGTest() should be called immediately before Google InputTest calls
   // user code. It saves some information about the current stack that
-  // CurrentStackTrace() will use to find and hide Google Test stack frames.
+  // CurrentStackTrace() will use to find and hide Google InputTest stack frames.
   virtual void UponLeavingGTest() = 0;
 
   // This string is inserted in place of stack frames that are part of
-  // Google Test's implementation.
+  // Google InputTest's implementation.
   static const char* const kElidedFramesMarker;
 
  private:
@@ -452,7 +452,7 @@ class OsStackTraceGetter : public OsStackTraceGetterInterface {
   OsStackTraceGetter& operator=(const OsStackTraceGetter&) = delete;
 };
 
-// Information about a Google Test trace point.
+// Information about a Google InputTest trace point.
 struct TraceInfo {
   const char* file;
   int line;
@@ -766,7 +766,7 @@ class GTEST_API_ UnitTestImpl {
   // before/after the tests are run.
   std::vector<Environment*>& environments() { return environments_; }
 
-  // Getters for the per-thread Google Test trace stack.
+  // Getters for the per-thread Google InputTest trace stack.
   std::vector<TraceInfo>& gtest_trace_stack() {
     return *(gtest_trace_stack_.pointer());
   }
@@ -890,29 +890,29 @@ class GTEST_API_ UnitTestImpl {
   int last_death_test_suite_;
 
   // This points to the TestSuite for the currently running test.  It
-  // changes as Google Test goes through one test suite after another.
-  // When no test is running, this is set to NULL and Google Test
+  // changes as Google InputTest goes through one test suite after another.
+  // When no test is running, this is set to NULL and Google InputTest
   // stores assertion results in ad_hoc_test_result_.  Initially NULL.
   TestSuite* current_test_suite_;
 
   // This points to the TestInfo for the currently running test.  It
-  // changes as Google Test goes through one test after another.  When
-  // no test is running, this is set to NULL and Google Test stores
+  // changes as Google InputTest goes through one test after another.  When
+  // no test is running, this is set to NULL and Google InputTest stores
   // assertion results in ad_hoc_test_result_.  Initially NULL.
   TestInfo* current_test_info_;
 
   // Normally, a user only writes assertions inside a TEST or TEST_F,
   // or inside a function called by a TEST or TEST_F.  Since Google
-  // Test keeps track of which test is current running, it can
+  // InputTest keeps track of which test is current running, it can
   // associate such an assertion with the test it belongs to.
   //
   // If an assertion is encountered when no TEST or TEST_F is running,
-  // Google Test attributes the assertion result to an imaginary "ad hoc"
+  // Google InputTest attributes the assertion result to an imaginary "ad hoc"
   // test, and records the result in ad_hoc_test_result_.
   TestResult ad_hoc_test_result_;
 
   // The list of event listeners that can be used to track events inside
-  // Google Test.
+  // Google InputTest.
   TestEventListeners listeners_;
 
   // The OS stack trace getter.  Will be deleted when the UnitTest
@@ -982,8 +982,8 @@ GTEST_API_ bool MatchRegexAnywhere(const char* regex, const char* str);
 
 #endif  // GTEST_USES_SIMPLE_RE
 
-// Parses the command line for Google Test flags, without initializing
-// other parts of Google Test.
+// Parses the command line for Google InputTest flags, without initializing
+// other parts of Google InputTest.
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, char** argv);
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv);
 
@@ -1027,10 +1027,10 @@ bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
 #endif  // GTEST_HAS_DEATH_TEST
 
 // TestResult contains some private methods that should be hidden from
-// Google Test user but are required for testing. This class allow our tests
+// Google InputTest user but are required for testing. This class allow our tests
 // to access them.
 //
-// This class is supplied only for the purpose of testing Google Test's own
+// This class is supplied only for the purpose of testing Google InputTest's own
 // constructs. Do not use it in user tests, either directly or indirectly.
 class TestResultAccessor {
  public:
@@ -1133,7 +1133,7 @@ class StreamingListener : public EmptyTestEventListener {
   }
 
   void OnTestProgramEnd(const UnitTest& unit_test) override {
-    // Note that Google Test current only report elapsed time for each
+    // Note that Google InputTest current only report elapsed time for each
     // test iteration, not for the entire test program.
     SendLn("event=TestProgramEnd&passed=" + FormatBool(unit_test.Passed()));
 

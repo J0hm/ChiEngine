@@ -27,11 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// The Google C++ Testing and Mocking Framework (Google Test)
+// The Google C++ Testing and Mocking Framework (Google InputTest)
 //
 // This header file declares the String class and functions used internally by
-// Google Test.  They are subject to change without notice. They should not used
-// by code external to Google Test.
+// Google InputTest.  They are subject to change without notice. They should not used
+// by code external to Google InputTest.
 //
 // This header file is #included by gtest-internal.h.
 // It should not be #included by other files.

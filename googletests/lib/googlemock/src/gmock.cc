@@ -141,7 +141,7 @@ static bool ParseGoogleMockFlag(const char* str, const char* flag_name,
 // wchar_t.
 template <typename CharType>
 void InitGoogleMockImpl(int* argc, CharType** argv) {
-  // Makes sure Google Test is initialized.  InitGoogleTest() is
+  // Makes sure Google InputTest is initialized.  InitGoogleTest() is
   // idempotent, so it's fine if the user has already called it.
   InitGoogleTest(argc, argv);
   if (*argc <= 0) return;
@@ -195,8 +195,8 @@ void InitGoogleMockImpl(int* argc, CharType** argv) {
 // No value is returned.  Instead, the Google Mock flag variables are
 // updated.
 //
-// Since Google Test is needed for Google Mock to work, this function
-// also initializes Google Test and parses its flags, if that hasn't
+// Since Google InputTest is needed for Google Mock to work, this function
+// also initializes Google InputTest and parses its flags, if that hasn't
 // been done.
 GTEST_API_ void InitGoogleMock(int* argc, char** argv) {
   internal::InitGoogleMockImpl(argc, argv);

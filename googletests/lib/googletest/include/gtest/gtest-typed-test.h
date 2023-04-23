@@ -43,9 +43,9 @@
 #if 0
 
 // First, define a fixture class template.  It should be parameterized
-// by a type.  Remember to derive it from testing::Test.
+// by a type.  Remember to derive it from testing::InputTest.
 template <typename T>
-class FooTest : public testing::Test {
+class FooTest : public testing::InputTest {
  public:
   ...
   typedef std::list<T> List;
@@ -121,9 +121,9 @@ TYPED_TEST(FooTest, HasPropertyA) { ... }
 #if 0
 
 // First, define a fixture class template.  It should be parameterized
-// by a type.  Remember to derive it from testing::Test.
+// by a type.  Remember to derive it from testing::InputTest.
 template <typename T>
-class FooTest : public testing::Test {
+class FooTest : public testing::InputTest {
   ...
 };
 

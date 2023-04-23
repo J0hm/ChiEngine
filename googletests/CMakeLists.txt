@@ -1,7 +1,7 @@
 # 'Google_test' is the subproject name
 project(googletests)
 
-# 'lib' is the folder with Google Test sources
+# 'lib' is the folder with Google InputTest sources
 add_subdirectory(lib)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 

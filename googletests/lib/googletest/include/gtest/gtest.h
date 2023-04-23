@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// The Google C++ Testing and Mocking Framework (Google Test)
+// The Google C++ Testing and Mocking Framework (Google InputTest)
 //
-// This header file defines the public API for Google Test.  It should be
-// included by any test program that uses Google Test.
+// This header file defines the public API for Google InputTest.  It should be
+// included by any test program that uses Google InputTest.
 //
 // IMPORTANT NOTE: Due to limitation of the C++ language, we have to
 // leave some internal implementation details in this header file.
@@ -42,7 +42,7 @@
 // to CHANGE WITHOUT NOTICE.  Therefore DO NOT DEPEND ON IT in a user
 // program!
 //
-// Acknowledgment: Google Test borrowed the idea of automatic test
+// Acknowledgment: Google InputTest borrowed the idea of automatic test
 // registration from Barthelemy Dagenais' (barthelemy@prologique.com)
 // easyUnit framework.
 
@@ -81,13 +81,13 @@ GTEST_DECLARE_bool_(also_run_disabled_tests);
 // This flag brings the debugger on an assertion failure.
 GTEST_DECLARE_bool_(break_on_failure);
 
-// This flag controls whether Google Test catches all test-thrown exceptions
+// This flag controls whether Google InputTest catches all test-thrown exceptions
 // and logs them as failures.
 GTEST_DECLARE_bool_(catch_exceptions);
 
 // This flag enables using colors in terminal output. Available values are
 // "yes" to enable colors, "no" (disable colors), or "auto" (the default)
-// to let Google Test decide.
+// to let Google InputTest decide.
 GTEST_DECLARE_string_(color);
 
 // This flag controls whether the test runner should continue execution past
@@ -98,26 +98,26 @@ GTEST_DECLARE_bool_(fail_fast);
 // the tests to run. If the filter is not given all tests are executed.
 GTEST_DECLARE_string_(filter);
 
-// This flag controls whether Google Test installs a signal handler that dumps
+// This flag controls whether Google InputTest installs a signal handler that dumps
 // debugging information when fatal signals are raised.
 GTEST_DECLARE_bool_(install_failure_signal_handler);
 
-// This flag causes the Google Test to list tests. None of the tests listed
+// This flag causes the Google InputTest to list tests. None of the tests listed
 // are actually run if the flag is provided.
 GTEST_DECLARE_bool_(list_tests);
 
-// This flag controls whether Google Test emits a detailed XML report to a file
+// This flag controls whether Google InputTest emits a detailed XML report to a file
 // in addition to its normal textual output.
 GTEST_DECLARE_string_(output);
 
-// This flags control whether Google Test prints only test failures.
+// This flags control whether Google InputTest prints only test failures.
 GTEST_DECLARE_bool_(brief);
 
-// This flags control whether Google Test prints the elapsed time for each
+// This flags control whether Google InputTest prints the elapsed time for each
 // test.
 GTEST_DECLARE_bool_(print_time);
 
-// This flags control whether Google Test prints UTF8 characters as text.
+// This flags control whether Google InputTest prints UTF8 characters as text.
 GTEST_DECLARE_bool_(print_utf8);
 
 // This flag specifies the random number seed.
@@ -127,13 +127,13 @@ GTEST_DECLARE_int32_(random_seed);
 // is 1. If the value is -1 the tests are repeating forever.
 GTEST_DECLARE_int32_(repeat);
 
-// This flag controls whether Google Test Environments are recreated for each
+// This flag controls whether Google InputTest Environments are recreated for each
 // repeat of the tests. The default value is true. If set to false the global
 // test Environment objects are only set up once, for the first iteration, and
 // only torn down once, for the last.
 GTEST_DECLARE_bool_(recreate_environments_when_repeating);
 
-// This flag controls whether Google Test includes Google Test internal
+// This flag controls whether Google InputTest includes Google InputTest internal
 // stack frames in failure stack traces.
 GTEST_DECLARE_bool_(show_internal_stack_frames);
 
@@ -219,17 +219,17 @@ class UnitTest;
 
 // The abstract class that all tests inherit from.
 //
-// In Google Test, a unit test program contains one or many TestSuites, and
+// In Google InputTest, a unit test program contains one or many TestSuites, and
 // each TestSuite contains one or many Tests.
 //
 // When you define a test using the TEST macro, you don't need to
-// explicitly derive from Test - the TEST macro automatically does
+// explicitly derive from InputTest - the TEST macro automatically does
 // this for you.
 //
-// The only time you derive from Test is when defining a test fixture
+// The only time you derive from InputTest is when defining a test fixture
 // to be used in a TEST_F.  For example:
 //
-//   class FooTest : public testing::Test {
+//   class FooTest : public testing::InputTest {
 //    protected:
 //     void SetUp() override { ... }
 //     void TearDown() override { ... }
@@ -239,17 +239,17 @@ class UnitTest;
 //   TEST_F(FooTest, Bar) { ... }
 //   TEST_F(FooTest, Baz) { ... }
 //
-// Test is not copyable.
+// InputTest is not copyable.
 class GTEST_API_ Test {
  public:
   friend class TestInfo;
 
-  // The d'tor is virtual as we intend to inherit from Test.
+  // The d'tor is virtual as we intend to inherit from InputTest.
   virtual ~Test();
 
   // Sets up the stuff shared by all tests in this test suite.
   //
-  // Google Test will call Foo::SetUpTestSuite() before running the first
+  // Google InputTest will call Foo::SetUpTestSuite() before running the first
   // test in test suite Foo.  Hence a sub-class can define its own
   // SetUpTestSuite() method to shadow the one defined in the super
   // class.
@@ -257,7 +257,7 @@ class GTEST_API_ Test {
 
   // Tears down the stuff shared by all tests in this test suite.
   //
-  // Google Test will call Foo::TearDownTestSuite() after running the last
+  // Google InputTest will call Foo::TearDownTestSuite() after running the last
   // test in test suite Foo.  Hence a sub-class can define its own
   // TearDownTestSuite() method to shadow the one defined in the super
   // class.
@@ -295,12 +295,12 @@ class GTEST_API_ Test {
   // corresponding <testsuite> element.  Calls to RecordProperty made in the
   // global context (before or after invocation of RUN_ALL_TESTS and from
   // SetUp/TearDown method of Environment objects registered with Google
-  // Test) will be output as attributes of the <testsuites> element.
+  // InputTest) will be output as attributes of the <testsuites> element.
   static void RecordProperty(const std::string& key, const std::string& value);
   static void RecordProperty(const std::string& key, int64_t value);
 
  protected:
-  // Creates a Test object.
+  // Creates a InputTest object.
   Test();
 
   // Sets up the test fixture.
@@ -332,7 +332,7 @@ class GTEST_API_ Test {
   const std::unique_ptr<GTEST_FLAG_SAVER_> gtest_flag_saver_;
 
   // Often a user misspells SetUp() as Setup() and spends a long time
-  // wondering why it is never called by Google Test.  The declaration of
+  // wondering why it is never called by Google InputTest.  The declaration of
   // the following method is solely for catching such an error at
   // compile time:
   //
@@ -385,10 +385,10 @@ class TestProperty {
   std::string value_;
 };
 
-// The result of a single Test.  This includes a list of
+// The result of a single InputTest.  This includes a list of
 // TestPartResults, a list of TestProperties, a count of how many
-// death tests there are in the Test, and how much time it took to run
-// the Test.
+// death tests there are in the InputTest, and how much time it took to run
+// the InputTest.
 //
 // TestResult is not copyable.
 class GTEST_API_ TestResult {
@@ -473,7 +473,7 @@ class GTEST_API_ TestResult {
   void RecordProperty(const std::string& xml_element,
                       const TestProperty& test_property);
 
-  // Adds a failure if the key is a reserved attribute of Google Test
+  // Adds a failure if the key is a reserved attribute of Google InputTest
   // testsuite tags.  Returns true if the property is valid.
   // FIXME: Validate attribute names are legal and human readable.
   static bool ValidateTestProperty(const std::string& xml_element,
@@ -516,11 +516,11 @@ class GTEST_API_ TestResult {
 
 // A TestInfo object stores the following information about a test:
 //
-//   Test suite name
-//   Test name
+//   InputTest suite name
+//   InputTest name
 //   Whether the test should be run
 //   A function pointer that creates the test object when invoked
-//   Test result
+//   InputTest result
 //
 // The constructor of TestInfo registers itself with the UnitTest
 // singleton such that the RUN_ALL_TESTS() macro knows which tests to
@@ -569,7 +569,7 @@ class GTEST_API_ TestInfo {
   // disabled (or it is disabled but the also_run_disabled_tests flag has
   // been specified) and its full name matches the user-specified filter.
   //
-  // Google Test allows the user to filter the tests by their full names.
+  // Google InputTest allows the user to filter the tests by their full names.
   // The full name of a test Bar in test suite Foo is defined as
   // "Foo.Bar".  Only the tests that match the filter will run.
   //
@@ -636,7 +636,7 @@ class GTEST_API_ TestInfo {
 
   // These fields are immutable properties of the test.
   const std::string test_suite_name_;  // test suite name
-  const std::string name_;             // Test name
+  const std::string name_;             // InputTest name
   // Name of the parameter type, or NULL if this is not a typed or a
   // type-parameterized test.
   const std::unique_ptr<const ::std::string> type_param_;
@@ -880,7 +880,7 @@ class GTEST_API_ TestSuite {
 // destructor, as:
 //
 //   1. You cannot safely throw from a destructor.  This is a problem
-//      as in some cases Google Test is used where exceptions are enabled, and
+//      as in some cases Google InputTest is used where exceptions are enabled, and
 //      we may want to implement ASSERT_* using exceptions where they are
 //      available.
 //   2. You cannot use ASSERT_* directly in a constructor or
@@ -1013,13 +1013,13 @@ class EmptyTestEventListener : public TestEventListener {
   void OnTestProgramEnd(const UnitTest& /*unit_test*/) override {}
 };
 
-// TestEventListeners lets users add listeners to track events in Google Test.
+// TestEventListeners lets users add listeners to track events in Google InputTest.
 class GTEST_API_ TestEventListeners {
  public:
   TestEventListeners();
   ~TestEventListeners();
 
-  // Appends an event listener to the end of the list. Google Test assumes
+  // Appends an event listener to the end of the list. Google InputTest assumes
   // the ownership of the listener (i.e. it will delete the listener when
   // the test program finishes).
   void Append(TestEventListener* listener);
@@ -1218,7 +1218,7 @@ class GTEST_API_ UnitTest {
   const TestResult& ad_hoc_test_result() const;
 
   // Returns the list of event listeners that can be used to track events
-  // inside Google Test.
+  // inside Google InputTest.
   TestEventListeners& listeners();
 
  private:
@@ -1234,7 +1234,7 @@ class GTEST_API_ UnitTest {
   Environment* AddEnvironment(Environment* env);
 
   // Adds a TestPartResult to the current TestResult object.  All
-  // Google Test assertion macros (e.g. ASSERT_TRUE, EXPECT_EQ, etc)
+  // Google InputTest assertion macros (e.g. ASSERT_TRUE, EXPECT_EQ, etc)
   // eventually call this to report their results.  The user code
   // should use the assertion macros instead of calling this directly.
   void AddTestPartResult(TestPartResult::Type result_type,
@@ -1278,11 +1278,11 @@ class GTEST_API_ UnitTest {
   virtual ~UnitTest();
 
   // Pushes a trace defined by SCOPED_TRACE() on to the per-thread
-  // Google Test trace stack.
+  // Google InputTest trace stack.
   void PushGTestTrace(const internal::TraceInfo& trace)
       GTEST_LOCK_EXCLUDED_(mutex_);
 
-  // Pops a trace from the per-thread Google Test trace stack.
+  // Pops a trace from the per-thread Google InputTest trace stack.
   void PopGTestTrace() GTEST_LOCK_EXCLUDED_(mutex_);
 
   // Protects mutable state in *impl_.  This is mutable as some const
@@ -1322,12 +1322,12 @@ inline Environment* AddGlobalTestEnvironment(Environment* env) {
   return UnitTest::GetInstance()->AddEnvironment(env);
 }
 
-// Initializes Google Test.  This must be called before calling
+// Initializes Google InputTest.  This must be called before calling
 // RUN_ALL_TESTS().  In particular, it parses a command line for the
-// flags that Google Test recognizes.  Whenever a Google Test flag is
+// flags that Google InputTest recognizes.  Whenever a Google InputTest flag is
 // seen, it is removed from argv, and *argc is decremented.
 //
-// No value is returned.  Instead, the Google Test flag variables are
+// No value is returned.  Instead, the Google InputTest flag variables are
 // updated.
 //
 // Calling the function for the second time has no user-visible effect.
@@ -1628,10 +1628,10 @@ class GTEST_API_ AssertHelper {
 }  // namespace internal
 
 // The pure interface class that all value-parameterized tests inherit from.
-// A value-parameterized class must inherit from both ::testing::Test and
+// A value-parameterized class must inherit from both ::testing::InputTest and
 // ::testing::WithParamInterface. In most cases that just means inheriting
 // from ::testing::TestWithParam, but more complicated test hierarchies
-// may need to inherit from Test and WithParamInterface at different levels.
+// may need to inherit from InputTest and WithParamInterface at different levels.
 //
 // This interface has support for accessing the test parameter value via
 // the GetParam() method.
@@ -1684,7 +1684,7 @@ class WithParamInterface {
   // Static value used for accessing parameter during a test lifetime.
   static const ParamType* parameter_;
 
-  // TestClass must be a subclass of WithParamInterface<T> and Test.
+  // TestClass must be a subclass of WithParamInterface<T> and InputTest.
   template <class TestClass>
   friend class internal::ParameterizedTestFactory;
 };
@@ -1819,7 +1819,7 @@ class TestWithParam : public Test, public WithParamInterface<T> {};
 //    * {ASSERT|EXPECT}_GT(v1, v2): Tests that v1 > v2
 //    * {ASSERT|EXPECT}_GE(v1, v2): Tests that v1 >= v2
 //
-// When they are not, Google Test prints both the tested expressions and
+// When they are not, Google InputTest prints both the tested expressions and
 // their actual values.  The values must be compatible built-in types,
 // or you will get a compiler error.  By "compatible" we mean that the
 // values can be compared by the respective operator.
@@ -1952,7 +1952,7 @@ class TestWithParam : public Test, public WithParamInterface<T> {};
 //    * {ASSERT|EXPECT}_NEAR(v1, v2, abs_error):
 //         Tests that v1 and v2 are within the given distance to each other.
 //
-// Google Test uses ULP-based comparison to automatically pick a default
+// Google InputTest uses ULP-based comparison to automatically pick a default
 // error bound that is appropriate for the operands.  See the
 // FloatingPoint template class in gtest-internal.h if you are
 // interested in the implementation details.
@@ -2000,7 +2000,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 //
 //    * {ASSERT|EXPECT}_HRESULT_{SUCCEEDED|FAILED}(expr)
 //
-// When expr unexpectedly fails or succeeds, Google Test prints the
+// When expr unexpectedly fails or succeeds, Google InputTest prints the
 // expected result and the actual result with both a human-readable
 // string representation of the error, if available, as well as the
 // hex result code.
@@ -2046,7 +2046,7 @@ GTEST_API_ AssertionResult DoubleLE(const char* expr1, const char* expr2,
 class GTEST_API_ ScopedTrace {
  public:
   // The c'tor pushes the given source file location and message onto
-  // a trace stack maintained by Google Test.
+  // a trace stack maintained by Google InputTest.
 
   // Template version. Uses Message() to convert the values into strings.
   // Slow, but flexible.
@@ -2137,10 +2137,10 @@ constexpr bool StaticAssertTypeEq() noexcept {
 // The first parameter is the name of the test suite, and the second
 // parameter is the name of the test within the test suite.
 //
-// The convention is to end the test suite name with "Test".  For
+// The convention is to end the test suite name with "InputTest".  For
 // example, a test suite for the Foo class can be named FooTest.
 //
-// Test code should appear between braces after an invocation of
+// InputTest code should appear between braces after an invocation of
 // this macro.  Example:
 //
 //   TEST(FooTest, InitializesCorrectly) {
@@ -2149,13 +2149,13 @@ constexpr bool StaticAssertTypeEq() noexcept {
 //   }
 
 // Note that we call GetTestTypeId() instead of GetTypeId<
-// ::testing::Test>() here to get the type ID of testing::Test.  This
-// is to work around a suspected linker bug when using Google Test as
+// ::testing::InputTest>() here to get the type ID of testing::InputTest.  This
+// is to work around a suspected linker bug when using Google InputTest as
 // a framework on Mac OS X.  The bug causes GetTypeId<
-// ::testing::Test>() to return different values depending on whether
-// the call is from the Google Test framework itself or from user test
+// ::testing::InputTest>() to return different values depending on whether
+// the call is from the Google InputTest framework itself or from user test
 // code.  GetTestTypeId() is guaranteed to always return the same
-// value, as it always calls GetTypeId<>() from the Google Test
+// value, as it always calls GetTypeId<>() from the Google InputTest
 // framework.
 #define GTEST_TEST(test_suite_name, test_name)             \
   GTEST_TEST_(test_suite_name, test_name, ::testing::Test, \
@@ -2176,7 +2176,7 @@ constexpr bool StaticAssertTypeEq() noexcept {
 // A test fixture class must be declared earlier.  The user should put
 // the test code between braces after using this macro.  Example:
 //
-//   class FooTest : public testing::Test {
+//   class FooTest : public testing::InputTest {
 //    protected:
 //     void SetUp() override { b_.AddElement(3); }
 //
@@ -2221,7 +2221,7 @@ GTEST_API_ std::string SrcDir();
 // most of the complexity of calling this function.
 //
 // The `factory` argument is a factory callable (move-constructible) object or
-// function pointer that creates a new instance of the Test object. It
+// function pointer that creates a new instance of the InputTest object. It
 // handles ownership to the caller. The signature of the callable is
 // `Fixture*()`, where `Fixture` is the test fixture class for the test. All
 // tests registered with the same `test_suite_name` must return the same
@@ -2235,7 +2235,7 @@ GTEST_API_ std::string SrcDir();
 //
 // Use case example:
 //
-// class MyFixture : public ::testing::Test {
+// class MyFixture : public ::testing::InputTest {
 //  public:
 //   // All of these optional, just like in regular macro usage.
 //   static void SetUpTestSuite() { ... }
@@ -2256,7 +2256,7 @@ GTEST_API_ std::string SrcDir();
 // void RegisterMyTests(const std::vector<int>& values) {
 //   for (int v : values) {
 //     ::testing::RegisterTest(
-//         "MyFixture", ("Test" + std::to_string(v)).c_str(), nullptr,
+//         "MyFixture", ("InputTest" + std::to_string(v)).c_str(), nullptr,
 //         std::to_string(v).c_str(),
 //         __FILE__, __LINE__,
 //         // Important to use the fixture type as the return type here.

@@ -624,7 +624,7 @@ bool DeathTestImpl::Passed(bool status_ok) {
 #if GTEST_OS_WINDOWS
 // WindowsDeathTest implements death tests on Windows. Due to the
 // specifics of starting new processes on Windows, death tests there are
-// always threadsafe, and Google Test considers the
+// always threadsafe, and Google InputTest considers the
 // --gtest_death_test_style=fast setting to be equivalent to
 // --gtest_death_test_style=threadsafe there.
 //

@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// The Google C++ Testing and Mocking Framework (Google Test)
+// The Google C++ Testing and Mocking Framework (Google InputTest)
 //
 // This header file declares functions and macros used internally by
-// Google Test.  They are subject to change without notice.
+// Google InputTest.  They are subject to change without notice.
 
 // IWYU pragma: private, include "gtest/gtest.h"
 // IWYU pragma: friend gtest/.*
@@ -140,7 +140,7 @@ class IgnoredValue {
   IgnoredValue(const T& /* ignored */) {}  // NOLINT(runtime/explicit)
 };
 
-// Appends the user-supplied message to the Google-Test-generated message.
+// Appends the user-supplied message to the Google-InputTest-generated message.
 GTEST_API_ std::string AppendUserMessage(const std::string& gtest_msg,
                                          const Message& user_msg);
 
@@ -149,7 +149,7 @@ GTEST_API_ std::string AppendUserMessage(const std::string& gtest_msg,
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(
     4275 /* an exported class was derived from a class that was not exported */)
 
-// This exception is thrown by (and only by) a failed Google Test
+// This exception is thrown by (and only by) a failed Google InputTest
 // assertion when GTEST_FLAG(throw_on_failure) is true (if exceptions
 // are enabled).  We derive it from std::runtime_error, which is for
 // errors presumably detectable only at run time.  Since
@@ -437,15 +437,15 @@ TypeId GetTypeId() {
   return &(TypeIdHelper<T>::dummy_);
 }
 
-// Returns the type ID of ::testing::Test.  Always call this instead
-// of GetTypeId< ::testing::Test>() to get the type ID of
-// ::testing::Test, as the latter may give the wrong result due to a
-// suspected linker bug when compiling Google Test as a Mac OS X
+// Returns the type ID of ::testing::InputTest.  Always call this instead
+// of GetTypeId< ::testing::InputTest>() to get the type ID of
+// ::testing::InputTest, as the latter may give the wrong result due to a
+// suspected linker bug when compiling Google InputTest as a Mac OS X
 // framework.
 GTEST_API_ TypeId GetTestTypeId();
 
 // Defines the abstract factory interface that creates instances
-// of a Test object.
+// of a InputTest object.
 class TestFactoryBase {
  public:
   virtual ~TestFactoryBase() {}
@@ -511,7 +511,7 @@ template <typename T>
 //  SetUpTestSuite()/TearDownTestSuite() could be protected. This way
 //  SuiteApiResolver can access them.
 struct SuiteApiResolver : T {
-  // testing::Test is only forward declared at this point. So we make it a
+  // testing::InputTest is only forward declared at this point. So we make it a
   // dependent class for the compiler to be OK with it.
   using Test =
       typename std::conditional<sizeof(T) != 0, ::testing::Test, void>::type;
@@ -525,7 +525,7 @@ struct SuiteApiResolver : T {
         GetNotDefaultOrNull(&T::SetUpTestSuite, &Test::SetUpTestSuite);
 
     GTEST_CHECK_(!test_case_fp || !test_suite_fp)
-        << "Test can not provide both SetUpTestSuite and SetUpTestCase, please "
+        << "InputTest can not provide both SetUpTestSuite and SetUpTestCase, please "
            "make sure there is only one present at "
         << filename << ":" << line_num;
 
@@ -546,7 +546,7 @@ struct SuiteApiResolver : T {
         GetNotDefaultOrNull(&T::TearDownTestSuite, &Test::TearDownTestSuite);
 
     GTEST_CHECK_(!test_case_fp || !test_suite_fp)
-        << "Test can not provide both TearDownTestSuite and TearDownTestCase,"
+        << "InputTest can not provide both TearDownTestSuite and TearDownTestCase,"
            " please make sure there is only one present at"
         << filename << ":" << line_num;
 
@@ -559,7 +559,7 @@ struct SuiteApiResolver : T {
   }
 };
 
-// Creates a new TestInfo object and registers it with Google Test;
+// Creates a new TestInfo object and registers it with Google InputTest;
 // returns the created object.
 //
 // Arguments:
@@ -603,7 +603,7 @@ class GTEST_API_ TypedTestSuitePState {
                    const char* test_name) {
     if (registered_) {
       fprintf(stderr,
-              "%s Test %s must be defined before "
+              "%s InputTest %s must be defined before "
               "REGISTER_TYPED_TEST_SUITE_P(%s, ...).\n",
               FormatFileLocation(file, line).c_str(), test_name, case_name);
       fflush(stderr);
@@ -701,7 +701,7 @@ std::vector<std::string> GenerateNames() {
 }
 
 // TypeParameterizedTest<Fixture, TestSel, Types>::Register()
-// registers a list of type-parameterized tests with Google Test.  The
+// registers a list of type-parameterized tests with Google InputTest.  The
 // return value is insignificant - we just need to return something
 // such that we can call this function in a namespace scope.
 //
@@ -769,7 +769,7 @@ GTEST_API_ void RegisterTypeParameterizedTestSuiteInstantiation(
 
 // TypeParameterizedTestSuite<Fixture, Tests, Types>::Register()
 // registers *all combinations* of 'Tests' and 'Types' with Google
-// Test.  The return value is insignificant - we just need to return
+// InputTest.  The return value is insignificant - we just need to return
 // something such that we can call this function in a namespace scope.
 template <GTEST_TEMPLATE_ Fixture, typename Tests, typename Types>
 class TypeParameterizedTestSuite {
@@ -794,7 +794,7 @@ class TypeParameterizedTestSuite {
 
     typedef typename Tests::Head Head;
 
-    // First, register the first test in 'Test' for each type in 'Types'.
+    // First, register the first test in 'InputTest' for each type in 'Types'.
     TypeParameterizedTest<Fixture, Head, Types>::Register(
         prefix, test_location, case_name, test_names, 0, type_names);
 
