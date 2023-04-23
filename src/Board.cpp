@@ -597,3 +597,5 @@ bool Board::bbEqual(BoardBB bb1, BoardBB bb2) {
 
     return res;
 }
+
+const std::string Board::startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

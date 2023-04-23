@@ -92,6 +92,8 @@ public:
 
     static bool bbEqual(BoardBB bb1, BoardBB bb2);
 
+    static const std::string startingFEN;
+
 
 private:
     BoardStateHistory *boardHistory; // list of BoardState objects representing the history of the board

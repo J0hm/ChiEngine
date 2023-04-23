@@ -18,18 +18,17 @@ public:
     void run();
 
 private:
-    // handles input from the command line
-    // parses and delegates commands
-    bool inputHandler(std::string input);
-
-    // processes messages from the UCI GUI
-    bool processGuiMessages(int wait);
-
-    void sendUCIResponse();
+    void newGame();
+    void printOptions();
+    void setOption(std::istringstream& is);
+    void updatePosition(std::istringstream& is);
+    void search(std::istringstream& is);
 
     InputThread inputThread;
     Board* board;
     Search* searcher;
+
+    bool searching = false;
 };
 
 
