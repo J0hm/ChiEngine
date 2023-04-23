@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <vector>
 #include <iterator>
+#include <iostream>
 #include <sstream>
 #include "Engine.h"
 #include "Algorithms.h"
@@ -17,12 +18,12 @@ Engine::~Engine() {
 void Engine::run() {
     std::cout << "ChiEngine v1.0 by John Kerr\n";
 
-    std::string line;
+    std::string cmd;
     std::string token;
     std::cout.setf(std::ios::unitbuf);
 
-    while (std::getline(std::cin, line)) {
-        std::istringstream istream(line);
+    while (getline(std::cin, cmd)) {
+        std::istringstream istream(cmd);
         token.clear();
         istream >> std::skipws >> token;
 
@@ -40,15 +41,11 @@ void Engine::run() {
         } else if (token == "position") {
             this->updatePosition(istream);
         } else if (token == "go") {
-            // TODO: support different depths, timing, infinite
-//            while (istream >> token)
-//            {
-//                if (token == "infinite")...
-//            }
             this->search(istream);
-            // TODO: set searching = true at beginning, then false when done. In future: stop sets false to stop infinite depth (it.deepening)
         } else if (token == "stop") {
             this->searching = false;
+            Move bestMove =  this->searcher->getBestMove();
+            std::cout << "bestmove " << bestMove << std::endl;//<< " " << this->searcher->getBestMoveEval() << std::endl;
         } else if (token == "quit") {
             std::cout << "info terminating\n";
             break;
@@ -56,8 +53,6 @@ void Engine::run() {
             std::cout << "info unrecognized command\n";
         }
     }
-
-    std::cout << "66\n";
 }
 
 void Engine::printOptions() {
@@ -110,10 +105,10 @@ void Engine::search(std::istringstream& is) {
         is >> depthStr;
         int depth = std::stoi(depthStr);
         this->searcher->fixedSearch(depth);
-    } else if(mode == "infinite") {
-        this->searching = true;
-        // TODO: implement infinite depth search (iterative deepening)
+        Move best = this->searcher->getBestMove();
+        std::cout << "bestmove " << best << std::endl;
     } else {
         std::cout << "info error unsupported search mode: " << mode << "\n";
     }
+
 }

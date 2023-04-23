@@ -7,7 +7,12 @@ int main() {
 
     engine = new Engine();
     engine->run();
-    delete engine;
+
+
+//    std::string cmd;
+//    while (getline(std::cin, cmd)) {
+//        std::cout << cmd << std::endl;
+//    }
 
     return 0;
 }

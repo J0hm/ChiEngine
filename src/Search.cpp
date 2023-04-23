@@ -16,24 +16,26 @@ int Search::getBestMoveEval() const {
 }
 
 void Search::fixedSearch(int depth) {
-    std::cout << "Search started..." << std::endl;
     this->visitedNodes = 0;
+
+    std::cout << "info started search\n";
 
     this->bestMoveRating = INT_MIN;
     std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
-    for(Move m : moves) {
+    for (Move m: moves) {
         this->gameBoard->makeMove(m);
-        int score = alphaBetaMin(INT_MIN+1, INT_MAX-1, depth-1);
+        int score = alphaBetaMin(INT_MIN + 1, INT_MAX - 1, depth - 1);
         this->gameBoard->unmakeMove();
-        if(score > this->bestMoveRating) {
+        if (score > this->bestMoveRating) {
             this->bestMoveRating = score;
             this->bestMove = m;
         }
     }
 
-    std::cout << "Evaluated " << this->visitedNodes << " nodes to reach depth " << depth
-              << " and find move with eval " << this->bestMoveRating << std::endl;
+    Move best = this->getBestMove();
 
+    std::cout << "info found move " << best << " with eval " << this->getBestMoveEval()
+              << ", searched " << this->visitedNodes << " nodes\n";
 }
 
 int Search::quiesce(int alpha, int beta) {
@@ -84,13 +86,13 @@ int Search::alphaBetaMax(int alpha, int beta, int depth) {
 
     std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
 
-    for (Move m : moves) {
+    for (Move m: moves) {
         this->gameBoard->makeMove(m);
-        int score = alphaBetaMin( alpha, beta, depth - 1 );
+        int score = alphaBetaMin(alpha, beta, depth - 1);
         this->gameBoard->unmakeMove();
-        if( score >= beta )
+        if (score >= beta)
             return beta;   // fail hard beta-cutoff
-        if( score > alpha ) {
+        if (score > alpha) {
             alpha = score; // alpha acts like max in MiniMax
         }
 
@@ -106,13 +108,13 @@ int Search::alphaBetaMin(int alpha, int beta, int depth) {
 
     std::vector<Move> moves = this->gameBoard->movegen->getLegalMoves();
 
-    for (Move m : moves) {
+    for (Move m: moves) {
         this->gameBoard->makeMove(m);
-        int score = alphaBetaMax( alpha, beta, depth - 1 );
+        int score = alphaBetaMax(alpha, beta, depth - 1);
         this->gameBoard->unmakeMove();
-        if( score <= alpha )
+        if (score <= alpha)
             return alpha; // fail hard alpha-cutoff
-        if( score < beta ) {
+        if (score < beta) {
             beta = score; // beta acts like min in MiniMax
         }
 
