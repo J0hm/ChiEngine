@@ -16,7 +16,7 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
-    std::cout << "ChiEngine v1.0 by John Kerr\n";
+    std::cout << "ChiEngine v1.1 by John Kerr\n";
 
     std::string cmd;
     std::string token;
@@ -67,7 +67,7 @@ void Engine::setOption(std::istringstream &is) {
 void Engine::newGame() {
     this->searching = false;
     board->setFEN(Board::startingFEN);
-    // TODO: reinit transposition tables
+    this->searcher->resetTable();
 }
 
 void Engine::updatePosition(std::istringstream &is) {
@@ -104,8 +104,9 @@ void Engine::search(std::istringstream& is) {
         std::string depthStr;
         is >> depthStr;
         int depth = std::stoi(depthStr);
-        this->searcher->fixedSearch(depth);
+        this->searcher->negaMaxRoot(depth);
         Move best = this->searcher->getBestMove();
+        std::cout << "info searched " << this->searcher->visitedNodes << " nodes, " << this->searcher->collisions << " collisions." << std::endl;
         std::cout << "bestmove " << best << std::endl;
     } else {
         std::cout << "info error unsupported search mode: " << mode << "\n";

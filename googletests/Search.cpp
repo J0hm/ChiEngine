@@ -6,8 +6,9 @@ TEST(SearchTestSuite, BasicSearchTest) {
     Board b;
     Search s = Search(&b);
 
-    ASSERT_EQ(b.setFEN("r6r/p1k2Pb1/1n1p1np1/8/4P3/1p2Q2N/P1P2PPP/5K2 b - - 0 10"), 0);
-    s.fixedSearch(5);
-    Move best = s.getBestMove();
-    std::cout << best << std::endl;
+    ASSERT_EQ(b.setFEN("rn3rk1/pppbqpp1/3p1n2/1N5p/1QB1P3/5P2/PPP3PP/R1B1K2R b KQ - 1 12"), 0);
+    std::cout << s.negaMaxRoot(5) << std::endl;
+    Move m = s.getBestMove();
+    std::cout << m << std::endl;
+    std::cout << s.visitedNodes << std::endl;
 }
