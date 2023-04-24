@@ -37,7 +37,7 @@ int Search::negaMaxRoot(int depth) {
     Transposition tableEntry = table->getEntry(currHash);
     bool valid = tableEntry.hasEntry && tableEntry.depth > depth;
 
-    if(valid) {
+    if (valid) {
         if (tableEntry.hash == currHash) {
             if (tableEntry.hashType == HASH_EXACT) { // not nullptr, i.e. have a match w/ greater depth
                 this->bestMove = tableEntry.bestMove;
@@ -49,14 +49,13 @@ int Search::negaMaxRoot(int depth) {
     }
 
 
-
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
-    for(Move m : moveList) {
+    for (Move m: moveList) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
         this->gameBoard->unmakeMove();
 
-        if(score > alpha) {
+        if (score > alpha) {
             alpha = score;
             this->bestMove = m;
         }
@@ -71,15 +70,19 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     int alpha_old = alpha;
 
     if (depth <= 0) {
-        visitedNodes++;
-        return this->evaluator->evaluate();
+        if(gameBoard->getLastState().move.isCapture()) { // TODO may need to be second to last state
+            return quiesce(alpha, beta);
+        } else {
+            visitedNodes++;
+            return this->evaluator->evaluate();
+        }
     }
 
     int64 currHash = gameBoard->getLastState().hash; // TODO refactor, getHash
     Transposition tableEntry = table->getEntry(currHash);
     bool valid = tableEntry.hasEntry && tableEntry.depth > depth;
 
-    if(valid) {
+    if (valid) {
         if (tableEntry.hash == currHash) {
             if (tableEntry.hashType == HASH_EXACT) { // not nullptr, i.e. have a match w/ greater depth
                 return tableEntry.eval;
@@ -101,20 +104,20 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     int bestScore = -999999;
 
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
-    for(Move m : moveList) {
+    for (Move m: moveList) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
         this->gameBoard->unmakeMove();
 
-        if(score >= beta) {
+        if (score >= beta) {
             this->table->setTTEntry(gameBoard->getLastState().hash, HASH_ALPHA, depth, score, m);
             return beta;
         }
 
-        if(score > bestScore) {
+        if (score > bestScore) {
             bestScore = score;
             localBestMove = m;
-            if(score > alpha) {
+            if (score > alpha) {
                 alpha = score;
             }
         }
@@ -129,7 +132,38 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     return alpha;
 }
 
+int Search::quiesce(int alpha, int beta) {
+    int standPat = this->evaluator->evaluate();
+    visitedNodes++;
+
+    if (standPat >= beta) {
+        return beta;
+    } else if (alpha < standPat) {
+        alpha = standPat;
+    }
+
+    std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
+    for (Move m: moveList) {
+        if (m.isCapture()) {
+            int score = 0;
+            gameBoard->makeMove(m);
+            score = -quiesce(-beta, -alpha);
+            gameBoard->unmakeMove();
+
+            if (score >= beta) {
+                return beta;
+            } else if (score > alpha) {
+                alpha = score;
+            }
+        }
+    }
+
+    return alpha;
+}
+
 void Search::resetTable() {
     table->reset();
 }
+
+
 

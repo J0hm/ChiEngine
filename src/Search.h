@@ -30,6 +30,7 @@ private:
     Move bestMove;
     int bestMoveRating{};
     int negaMax(int depth, int alpha, int beta);
+    int quiesce(int alpha, int beta);
 
 };
 
