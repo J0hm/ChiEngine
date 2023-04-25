@@ -12,7 +12,7 @@
 
 enum HashType {HASH_EXACT, HASH_BETA, HASH_ALPHA, HASH_NONE};
 
-const unsigned int size = 26;
+const unsigned int size = 24;
 
 struct Transposition {
     bool hasEntry{}; // used to check if there is actually an entry at this position

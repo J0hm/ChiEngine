@@ -83,6 +83,11 @@ int Eval::evaluate() {
     int whiteKing = SHIFTED_SQUARE[get_LSB(this->gameBoard->bb.pcs[W_KING])];
     int blackKing = SHIFTED_SQUARE[get_LSB(this->gameBoard->bb.pcs[B_KING])];
 
+    // TODO TEMP
+    if(blackKing == 0) {
+        std::cout << "MAJOR ISSUE KING = 0" << std::endl;
+    }
+
     // decide king values based on game stage
     if(endgame) {
         whiteScore += END_KING_WEIGHTS[whiteKing];

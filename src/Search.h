@@ -17,6 +17,8 @@ public:
     // the search early, etc
     int negaMaxRoot(int depth);
 
+    int iterativeDeepeningRoot(int depth);
+
     void resetTable();
 
     int visitedNodes;

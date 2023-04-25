@@ -16,7 +16,7 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
-    std::cout << "ChiEngine v1.1 by John Kerr\n";
+    std::cout << "ChiEngine v1.4 by John Kerr\n";
 
     std::string cmd;
     std::string token;

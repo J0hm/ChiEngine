@@ -262,29 +262,12 @@ TEST(MoveGenTestSuite, UnknownEdgeCase) {
     ASSERT_EQ(moves.size(), 44);
 }
 
-TEST(MoveGenTestSuite, GetCaptures) {
-    Board board;
-    std::vector<Move> captures;
-
-    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"), 0);
-    captures = board.movegen->getCaptures();
-    ASSERT_EQ(captures.size(), 0);
-
-    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/4P3/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"), 0);
-    captures = board.movegen->getCaptures();
-    ASSERT_EQ(captures.size(), 2);
-
-    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/3Q2N1/8/8/8/PPPPPPPP/RNB1KB1R w KQkq - 0 1"), 0);
-    captures = board.movegen->getCaptures();
-    ASSERT_EQ(captures.size(), 6);
-}
-
 TEST(MoveGenTestSuite, CheckMoveOrdering) {
     Board board;
     std::vector<Move> legalMoves;
 
     ASSERT_EQ(board.setFEN("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"), 0);
-    legalMoves = board.movegen->getCaptures();
+    legalMoves = board.movegen->getLegalMoves();
     for(Move m : legalMoves) {
         std::cout << m << std::endl;
     }

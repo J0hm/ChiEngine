@@ -10,16 +10,6 @@ Search::Search(Board *board) {
 
 Move Search::getBestMove() {
     return this->bestMove;
-//    int64 currHash = gameBoard->getLastState().hash; // TODO refactor, getHash
-//    Transposition tableEntry = table->getEntry(currHash);
-//    if(tableEntry.hasEntry) {
-//        Move m = tableEntry.bestMove;
-//        std::cout << "has best move entry" << std::endl;
-//        return m;
-//    } else {
-//        std::cout << "does not have best move" << std::endl;
-//        return Move();
-//    }
 }
 
 int Search::getBestMoveEval() {
@@ -54,6 +44,7 @@ int Search::negaMaxRoot(int depth) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
         this->gameBoard->unmakeMove();
+//        std::cout << m << ", " << this->visitedNodes << std::endl;
 
         if (score > alpha) {
             alpha = score;
@@ -61,7 +52,9 @@ int Search::negaMaxRoot(int depth) {
         }
     }
 
-    this->table->setTTEntry(gameBoard->getLastState().hash, HASH_EXACT, depth, alpha, this->bestMove);
+    Transposition entry = table->getEntry(gameBoard->getLastState().hash);
+    if(!entry.hasEntry || entry.depth < depth)
+        this->table->setTTEntry(gameBoard->getLastState().hash, HASH_EXACT, depth, alpha, this->bestMove);
 
     return alpha;
 }
@@ -70,7 +63,8 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     int alpha_old = alpha;
 
     if (depth <= 0) {
-        if(gameBoard->getLastState().move.isCapture()) { // TODO may need to be second to last state
+        Move lastMove = gameBoard->getLastState().move;
+        if(lastMove.isCapture()) { // TODO may need to be second to last state
             return quiesce(alpha, beta);
         } else {
             visitedNodes++;
@@ -110,7 +104,9 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
         this->gameBoard->unmakeMove();
 
         if (score >= beta) {
-            this->table->setTTEntry(gameBoard->getLastState().hash, HASH_ALPHA, depth, score, m);
+            Transposition entry = table->getEntry(gameBoard->getLastState().hash);
+            if(!entry.hasEntry || entry.depth < depth)
+                this->table->setTTEntry(gameBoard->getLastState().hash, HASH_ALPHA, depth, score, m);
             return beta;
         }
 
@@ -124,14 +120,19 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     }
 
     if (alpha > alpha_old) {
-        this->table->setTTEntry(gameBoard->getLastState().hash, HASH_EXACT, depth, bestScore, localBestMove);
+        Transposition entry = table->getEntry(gameBoard->getLastState().hash);
+        if(!entry.hasEntry || entry.depth < depth)
+            this->table->setTTEntry(gameBoard->getLastState().hash, HASH_EXACT, depth, bestScore, localBestMove);
     } else {
-        this->table->setTTEntry(gameBoard->getLastState().hash, HASH_BETA, depth, alpha, localBestMove);
+        Transposition entry = table->getEntry(gameBoard->getLastState().hash);
+        if(!entry.hasEntry || entry.depth < depth)
+            this->table->setTTEntry(gameBoard->getLastState().hash, HASH_BETA, depth, alpha, localBestMove);
     }
 
     return alpha;
 }
 
+// TODO VERY IMPORTANT only check RECAPTURES not just any capture
 int Search::quiesce(int alpha, int beta) {
     int standPat = this->evaluator->evaluate();
     visitedNodes++;
@@ -144,7 +145,9 @@ int Search::quiesce(int alpha, int beta) {
 
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
     for (Move m: moveList) {
-        if (m.isCapture()) {
+        Move lastMove = this->gameBoard->getLastState().move;
+        bool recapture = m.getDest() == lastMove.getDest();
+        if (m.isCapture() && recapture) { // TODO not a promotion? why?
             int score = 0;
             gameBoard->makeMove(m);
             score = -quiesce(-beta, -alpha);
@@ -161,9 +164,25 @@ int Search::quiesce(int alpha, int beta) {
     return alpha;
 }
 
+//int Search::iterativeDeepeningRoot(int depth) {
+//    int nodes = 0;
+//    int totalCollisions = 0;
+//    for(int i = 0; i < depth; i++) {
+//        negaMaxRoot(i);
+//        nodes += visitedNodes;
+//        totalCollisions += collisions;
+//    }
+//
+//    visitedNodes = nodes;
+//    collisions = totalCollisions;
+//    return negaMaxRoot(depth);
+//}
+
 void Search::resetTable() {
     table->reset();
 }
+
+
 
 
 
