@@ -2,100 +2,57 @@
 
 Eval::Eval(Board *board) {
     this->gameBoard = board;
+    this->initTables();
 }
 
-// DOES NOT HANDLE CHECK-MATE!!!! search must manually check for mate and set eval = +/- INT_MAX
-int Eval::evaluate() {
-    const int minorLimit = 2; // endgame if minors <= minor limit
-    int blackScore = 0;
-    int whiteScore = 0;
-    EColor sideToMove = this->gameBoard->sideToMove;
-    int pieceCounts[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
-
-    // iterate over each square
-    // positional evaluation
-    for (ESquare sq = A1; sq <= H8; sq++) {
-        EPiece piece = this->gameBoard->getPieceAt(sq);
-        EColor color = piece > 6 ? BLACK : WHITE;
-        switch (piece) {
-            case W_PAWN:
-                pieceCounts[W_PAWN]++;
-                whiteScore += PAWN_WEIGHTS[sq];
-                break;
-            case B_PAWN:
-                pieceCounts[B_PAWN]++;
-                blackScore += PAWN_WEIGHTS[VERT_MIRROR_INDEX[sq]];
-                break;
-            case W_KNIGHT:
-                pieceCounts[W_KNIGHT]++;
-                whiteScore += KNIGHT_WEIGHTS[sq];
-                break;
-            case B_KNIGHT:
-                pieceCounts[B_KNIGHT]++;
-                blackScore += KNIGHT_WEIGHTS[VERT_MIRROR_INDEX[sq]];
-                break;
-            case W_BISHOP:
-                pieceCounts[W_BISHOP]++;
-                whiteScore += BISHOP_WEIGHTS[sq];
-                break;
-            case B_BISHOP:
-                pieceCounts[B_BISHOP]++;
-                blackScore += BISHOP_WEIGHTS[VERT_MIRROR_INDEX[sq]];
-                break;
-            case W_ROOK:
-                pieceCounts[W_ROOK]++;
-                whiteScore += ROOK_WEIGHTS[sq];
-                break;
-            case B_ROOK:
-                pieceCounts[B_ROOK]++;
-                blackScore += ROOK_WEIGHTS[VERT_MIRROR_INDEX[sq]];
-                break;
-            case W_QUEEN:
-                pieceCounts[W_QUEEN]++;
-                whiteScore += QUEEN_WEIGHTS[sq];
-                break;
-            case B_QUEEN:
-                pieceCounts[B_QUEEN]++;
-                blackScore += QUEEN_WEIGHTS[VERT_MIRROR_INDEX[sq]];
-                break;
+void Eval::initTables() {
+    for (EPiece pc = B_PAWN; pc <= B_KING; pc++) {
+        for (int sq = 0; sq < 64; sq++) {
+            PieceType type = getPieceType(pc);
+            mg_table[pc-1]  [sq] = MG_VALUE[type] + MG_PESTO_TABLE[type][sq];
+            eg_table[pc-1]  [sq] = EG_VALUE[type] + EG_PESTO_TABLE[type][sq];
         }
     }
 
-    // piece value evaluation
-    whiteScore += pieceCounts[W_PAWN] * PIECE_VALUES[PAWN];
-    blackScore += pieceCounts[B_PAWN] * PIECE_VALUES[PAWN];
-    whiteScore += pieceCounts[W_KNIGHT] * PIECE_VALUES[KNIGHT];
-    blackScore += pieceCounts[B_KNIGHT] * PIECE_VALUES[KNIGHT];
-    whiteScore += pieceCounts[W_BISHOP] * PIECE_VALUES[BISHOP];
-    blackScore += pieceCounts[B_BISHOP] * PIECE_VALUES[BISHOP];
-    whiteScore += pieceCounts[W_ROOK] * PIECE_VALUES[ROOK];
-    blackScore += pieceCounts[B_ROOK] * PIECE_VALUES[ROOK];
-    whiteScore += pieceCounts[W_QUEEN] * PIECE_VALUES[QUEEN];
-    blackScore += pieceCounts[B_QUEEN] * PIECE_VALUES[QUEEN];
-
-    int whiteMinors = pieceCounts[W_ROOK] + pieceCounts[W_BISHOP] + pieceCounts[W_KNIGHT];
-    int blackMinors = pieceCounts[B_ROOK] + pieceCounts[B_BISHOP] + pieceCounts[B_KNIGHT];
-
-    bool endgame = (pieceCounts[B_QUEEN] == 0 && pieceCounts[W_QUEEN] == 0)
-                   || (whiteMinors <= minorLimit && blackMinors <= minorLimit);
-
-    // TODO: fix this garbage code
-    int whiteKing = SHIFTED_SQUARE[get_LSB(this->gameBoard->bb.pcs[W_KING])];
-    int blackKing = SHIFTED_SQUARE[get_LSB(this->gameBoard->bb.pcs[B_KING])];
-
-    // TODO TEMP
-    if(blackKing == 0) {
-        std::cout << "MAJOR ISSUE KING = 0" << std::endl;
+    for (EPiece pc = W_PAWN; pc <= W_KING; pc++) {
+        for (int sq = 0; sq < 64; sq++) {
+            PieceType type = getPieceType(pc);
+            mg_table[pc-1][sq] = MG_VALUE[type] + MG_PESTO_TABLE[type][FLIP(sq)];
+            eg_table[pc-1][sq] = EG_VALUE[type] + EG_PESTO_TABLE[type][FLIP(sq)];
+        }
     }
 
-    // decide king values based on game stage
-    if(endgame) {
-        whiteScore += END_KING_WEIGHTS[whiteKing];
-        blackScore += END_KING_WEIGHTS[VERT_MIRROR_INDEX[blackKing]];
-    } else {
-        whiteScore += MIDDLE_KING_WEIGHTS[whiteKing];
-        blackScore += MIDDLE_KING_WEIGHTS[VERT_MIRROR_INDEX[blackKing]];
-    }
-
-    return sideToMove == WHITE ? (whiteScore - blackScore) : (blackScore - whiteScore);
+    std::cout << "Initialized eval tables...\n";
 }
+
+int Eval::evaluate() {
+    EColor sideToMove = this->gameBoard->sideToMove;
+
+    int mg[2];
+    int eg[2];
+    int gamePhase = 0;
+
+    mg[WHITE] = 0;
+    mg[BLACK] = 0;
+    eg[WHITE] = 0;
+    eg[BLACK] = 0;
+
+    /* evaluate each piece */
+    for (int sq = 0; sq < 64; sq++) {
+        EPiece pc = this->gameBoard->bb.squares[sq];
+        if (pc != EMPTY) {
+            mg[pieceColor(pc)] += mg_table[pc-1][sq];
+            eg[pieceColor(pc)] += eg_table[pc-1][sq];
+            gamePhase += gamephaseInc[pc];
+        }
+    }
+
+    /* tapered eval */
+    int mgScore = mg[sideToMove] - mg[OTHER(sideToMove)];
+    int egScore = eg[sideToMove] - eg[OTHER(sideToMove)];
+    int mgPhase = gamePhase;
+    if (mgPhase > 24) mgPhase = 24; /* in case of early promotion */
+    int egPhase = 24 - mgPhase;
+    return (mgScore * mgPhase + egScore * egPhase) / 24;
+}
+

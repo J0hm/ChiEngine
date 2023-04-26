@@ -73,6 +73,10 @@ inline EPiece getPiece(PieceType p, EColor color) {
     return (EPiece) ((color == WHITE) ? p + 1 : p + 7);
 }
 
+inline EColor pieceColor(EPiece piece) {
+    return piece > 6 ? BLACK : WHITE;
+}
+
 #define set_bit(b, i) ((b) |= (1ULL << i))
 #define get_bit(b, i) ((b) & (1Ull << i))
 #define clear_bit(b, i) ((b) &= ~(1Ull << i))
@@ -119,17 +123,6 @@ static const int SHIFTED_SQUARE[64] =
          47, 46, 45, 44, 43, 42, 41, 40,
          55, 54, 53, 52, 51, 50, 49, 48,
          63, 62, 61, 60, 59, 58, 57, 56
-        };
-
-static const int VERT_MIRROR_INDEX[64] =
-        {56, 57, 58, 59, 60, 61, 62, 63,
-         48, 49, 50, 51, 52, 53, 54, 55,
-         40, 41, 42, 43, 44, 45, 46, 47,
-         32, 33, 34, 35,36,37,38,39,
-         24,25,26,27,28,29,30,31,
-         16,17,18,19,20,21,22,23,
-         8,9,10,11,12,13,14,15,
-         0,1,2,3,4,5,6,7
         };
 
 #endif //CHIENGINE_TYPES_H
