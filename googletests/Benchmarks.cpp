@@ -8,7 +8,7 @@ void benchmarkPerftNPS(Board &board, int depth) {
     int64 nodes = board.perft(depth, depth + 1);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    int nps = (nodes / duration.count()) * 1000;
+    int nps = ((double)nodes / duration.count()) * 1000;
     std::cout << nps << " nodes per second." << std::endl;
 }
 
@@ -19,6 +19,13 @@ void benchmarkPerftNPS(Board &board, int depth) {
 879627 nodes per second.
 1051743 nodes per second.
 973648 nodes per second.
+
+5904865 nodes per second.
+6079766 nodes per second.
+7007676 nodes per second.
+5588878 nodes per second.
+6354945 nodes per second.
+6133218 nodes per second.
  */
 TEST(BenchmarkSuite, PerftBenchmark) {
     Board board;
