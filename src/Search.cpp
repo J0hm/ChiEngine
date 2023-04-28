@@ -64,7 +64,7 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
 
     if (depth <= 0) {
         Move lastMove = gameBoard->getLastState().move;
-        if(lastMove.isCapture()) { // TODO may need to be second to last state
+        if(lastMove.isCapture()) {
             return quiesce(alpha, beta);
         } else {
             visitedNodes++;
@@ -132,7 +132,7 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     return alpha;
 }
 
-// TODO VERY IMPORTANT only check RECAPTURES not just any capture
+// search only captures
 int Search::quiesce(int alpha, int beta) {
     int standPat = this->evaluator->evaluate();
     visitedNodes++;
@@ -147,7 +147,7 @@ int Search::quiesce(int alpha, int beta) {
     for (Move m: moveList) {
         Move lastMove = this->gameBoard->getLastState().move;
         bool recapture = m.getDest() == lastMove.getDest();
-        if (m.isCapture() && recapture) { // TODO not a promotion? why?
+        if (m.isCapture() && recapture) {
             int score = 0;
             gameBoard->makeMove(m);
             score = -quiesce(-beta, -alpha);
@@ -178,6 +178,7 @@ int Search::quiesce(int alpha, int beta) {
 //    return negaMaxRoot(depth);
 //}
 
+// reset the transposition table (sets all hasValue to false
 void Search::resetTable() {
     table->reset();
 }

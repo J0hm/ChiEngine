@@ -439,7 +439,6 @@ std::vector<Move> MoveGen::getKingMoves() {
     return moves;
 }
 
-// TODO reserve vector size
 std::vector<Move> MoveGen::getLegalMoves() {
     std::vector<Move> moves;
     moves.reserve(RESERVE_SIZE);

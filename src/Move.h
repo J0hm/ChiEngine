@@ -128,7 +128,7 @@ public:
                && (getFlags() == otherMove.getFlags());
     };
 
-    // Defines an order for moves ratings, used to order moves TODO not yet implemented
+    // Defines an order for moves ratings, used to order moves
     inline bool operator<(Move &otherMove) const {return getMoveRating() < otherMove.getMoveRating();};
     inline bool operator>(Move &otherMove) const {return getMoveRating() > otherMove.getMoveRating();};
     inline bool operator<=(Move &otherMove) const {return getMoveRating() <= otherMove.getMoveRating();};
