@@ -23,6 +23,8 @@ private:
 // Values for each PieceType
 static constexpr const unsigned int MG_VALUE[6] = {82, 337, 365, 477, 1025, 0};
 static constexpr const unsigned int EG_VALUE[6] = {94, 281, 297, 512, 936, 0};
+static constexpr const int MATE_SCORE = 100000;
+static constexpr const int DRAW_SCORE = 0;
 
 // "score" for a piece being on each square
 // this is from Black's POV internally, and White's POV if looked at like a chess board

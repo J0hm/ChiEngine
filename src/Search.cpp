@@ -98,6 +98,14 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     int bestScore = -999999;
 
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
+    if(moveList.empty()) { // MATE or DRAW
+        if(this->gameBoard->movegen->inCheck(this->gameBoard->sideToMove)) { // TODO
+            return -(MATE_SCORE+depth); // closer to root = depth is higher = weighted more
+        } else {
+            return DRAW_SCORE;
+        }
+    }
+
     for (Move m: moveList) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
