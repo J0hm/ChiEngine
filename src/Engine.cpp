@@ -106,8 +106,9 @@ void Engine::search(std::istringstream& is) {
         int depth = std::stoi(depthStr);
         this->searcher->negaMaxRoot(depth);
         Move best = this->searcher->getBestMove();
+        int score = this->searcher->getBestMoveEval();
         std::cout << "info searched " << this->searcher->visitedNodes << " nodes, " << this->searcher->collisions << " collisions." << std::endl;
-        std::cout << "bestmove " << best << std::endl;
+        std::cout << "bestmove " << best << " score " << score << std::endl;
     } else {
         std::cout << "info error unsupported search mode: " << mode << "\n";
     }

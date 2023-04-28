@@ -513,6 +513,11 @@ void BoardStateHistory::initialize(unsigned int c, ESquare sq, int64 hash) {
     state.castlingRights = c;
     state.hash = hash;
     stateList.push_back(state);
+    keyList.push_back(hash);
+}
+
+std::vector<int64> BoardStateHistory::getKeyHistory() {
+    return this->keyList;
 }
 
 void Board::clearSquare(int sq, EPiece piece, EColor side) {
@@ -599,3 +604,8 @@ bool Board::bbEqual(BoardBB bb1, BoardBB bb2) {
 }
 
 const std::string Board::startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+std::vector<int64> Board::getKeyHistory() {
+
+    return this->boardHistory->getKeyHistory();
+}

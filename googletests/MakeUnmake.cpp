@@ -183,6 +183,26 @@ TEST(BoardTestSuite, MakeUnmakePawnMovesSameHash) {
     }
 }
 
+TEST(BoardTestSuite, MakeUnmakeKeyListTest) {
+    Board board;
+    std::vector<int64> keys;
+    ASSERT_EQ(board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), 0);
+
+    keys = board.getKeyHistory();
+    ASSERT_EQ(keys.size(), 1);
+    board.makeMove("b1c3");
+    keys = board.getKeyHistory();
+    ASSERT_EQ(keys.size(), 2);
+//    for(auto key : keys) std::cout << std::hex << key << " ";
+//    std::cout << std::endl;
+    board.unmakeMove();
+    keys = board.getKeyHistory();
+    ASSERT_EQ(keys.size(), 1);
+//    for(auto key : keys) std::cout << std::hex << key << " ";
+//    std::cout << std::endl;
+
+}
+
 TEST(BoardTestSuite, MakeUnmakeKnightMovesSameHash) {
     Board board;
     ZobristHasher hasher;

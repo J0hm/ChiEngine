@@ -1,6 +1,7 @@
 #ifndef CHIENGINE_SEARCH_H
 #define CHIENGINE_SEARCH_H
 
+#include <algorithm>
 #include "Eval.h"
 #include "TTable.h"
 

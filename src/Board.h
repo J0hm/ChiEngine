@@ -34,16 +34,23 @@ public:
     inline BoardState popLastState() {
         BoardState back = stateList.back();
         stateList.pop_back();
+        keyList.pop_back();
         return back;
     }
 
     // add a state to the board state
-    inline void addState(BoardState s) { stateList.push_back(s); };
+    inline void addState(BoardState s) {
+        stateList.push_back(s);
+        keyList.push_back(s.hash);
+    };
 
     int getStateCount() { return stateList.size(); };
 
+    std::vector<int64> getKeyHistory();
+
 private:
     std::vector<BoardState> stateList;
+    std::vector<int64> keyList;
 };
 
 // Represents the actual game board
@@ -77,13 +84,17 @@ public:
     inline BoardState getLastState() { return boardHistory->getLastState(); };
 
     // Pop the last boardstate off of the list
-    inline BoardState popBoardState() { return boardHistory->popLastState(); };
+    inline BoardState popBoardState() {
+        return boardHistory->popLastState();
+    };
 
     // get the number of stored board states
     inline int getStateCount() { return boardHistory->getStateCount(); };
 
     // get the piece at a square
     inline EPiece getPieceAt(ESquare sq) { return this->bb.squares[sq]; }
+
+    std::vector<int64> getKeyHistory();
 
     // returns the total number of moves to the specified depth
     int64 perft(int depth, int depthToShow);

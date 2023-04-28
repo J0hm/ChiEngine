@@ -31,7 +31,8 @@ int Search::negaMaxRoot(int depth) {
         if (tableEntry.hash == currHash) {
             if (tableEntry.hashType == HASH_EXACT) { // not nullptr, i.e. have a match w/ greater depth
                 this->bestMove = tableEntry.bestMove;
-                return tableEntry.eval;
+                this->bestMoveRating = tableEntry.eval;
+                return this->bestMoveRating;
             }
         } else {
             collisions++;
@@ -44,10 +45,9 @@ int Search::negaMaxRoot(int depth) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
         this->gameBoard->unmakeMove();
-//        std::cout << m << ", " << this->visitedNodes << std::endl;
-
         if (score > alpha) {
             alpha = score;
+            this->bestMoveRating = alpha;
             this->bestMove = m;
         }
     }
@@ -73,6 +73,15 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     }
 
     int64 currHash = gameBoard->getLastState().hash; // TODO refactor, getHash
+
+    // check for repetition
+    std::vector<int64> keys = gameBoard->getKeyHistory();
+    keys.pop_back();
+    if (std::find(keys.begin(), keys.end(), currHash) != keys.end()) {
+        return DRAW_SCORE;
+    }
+
+
     Transposition tableEntry = table->getEntry(currHash);
     bool valid = tableEntry.hasEntry && tableEntry.depth > depth;
 
