@@ -262,6 +262,15 @@ TEST(MoveGenTestSuite, UnknownEdgeCase) {
     ASSERT_EQ(moves.size(), 44);
 }
 
+TEST(MoveGenTestSuite, EndgameEvasions) {
+    Board board;
+    std::vector<Move> moves;
+
+    ASSERT_EQ(board.setFEN("8/8/6K1/8/5Q2/8/6k1/8 b - - 8 54"), 0);
+    moves = board.movegen->getLegalMoves();
+    ASSERT_EQ(moves.size(), 3);
+}
+
 TEST(MoveGenTestSuite, CheckMoveOrdering) {
     Board board;
     std::vector<Move> legalMoves;

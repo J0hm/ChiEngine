@@ -165,7 +165,10 @@ static constexpr const int *EG_PESTO_TABLE[6] = {
         EG_QUEEN_TABLE,
         EG_KING_TABLE};
 
-static constexpr const int gamephaseInc[12] = {0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
+static constexpr const int gamephaseInc[13] = {0,
+                                               0, 1, 1, 2, 4, 0,
+                                               0, 1, 1, 2, 4, 0};
+//static constexpr const int gamephaseInc[12] = {0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
 
 
 #endif //CHIENGINE_EVAL_H
