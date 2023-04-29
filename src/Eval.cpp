@@ -25,6 +25,7 @@ void Eval::initTables() {
     std::cout << "Initialized eval tables...\n";
 }
 
+// from CPW
 int Eval::evaluate() {
     EColor sideToMove = this->gameBoard->sideToMove;
 
@@ -37,7 +38,7 @@ int Eval::evaluate() {
     eg[WHITE] = 0;
     eg[BLACK] = 0;
 
-    /* evaluate each piece */
+    // eval each piece
     for (int sq = 0; sq < 64; sq++) {
         EPiece pc = this->gameBoard->bb.squares[sq];
         if (pc != EMPTY) {
@@ -47,11 +48,11 @@ int Eval::evaluate() {
         }
     }
 
-    /* tapered eval */
+    // tapered eval
     int mgScore = mg[sideToMove] - mg[OTHER(sideToMove)];
     int egScore = eg[sideToMove] - eg[OTHER(sideToMove)];
     int mgPhase = gamePhase;
-    if (mgPhase > 24) mgPhase = 24; /* in case of early promotion */
+    if (mgPhase > 24) mgPhase = 24; // early promotion
     int egPhase = 24 - mgPhase;
     return (mgScore * mgPhase + egScore * egPhase) / 24;
 }

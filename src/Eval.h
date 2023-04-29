@@ -6,11 +6,12 @@
 #define FLIP(sq) ((sq)^56)
 #define OTHER(side) ((side)^ 1)
 
-// Evaluates the game board
+
 class Eval {
 public:
     Eval(Board *board);
 
+    // evaluates the current game board
     int evaluate();
 
 private:
@@ -28,6 +29,7 @@ static constexpr const int DRAW_SCORE = 0;
 
 // "score" for a piece being on each square
 // this is from Black's POV internally, and White's POV if looked at like a chess board
+// these values are from the CPW, and were found using automated tuning (almost like how NN's are trained)
 static constexpr const int MG_PAWN_TABLE[64] = {
         0, 0, 0, 0, 0, 0, 0, 0,
         98, 134, 61, 95, 68, 126, 34, -11,
@@ -165,10 +167,11 @@ static constexpr const int *EG_PESTO_TABLE[6] = {
         EG_QUEEN_TABLE,
         EG_KING_TABLE};
 
+// gamephase value for each piece, "better" pieces are higher
+// pawn = 0, knight = bishop = 1, rook = 2, queen = 4, king = 0
 static constexpr const int gamephaseInc[13] = {0,
                                                0, 1, 1, 2, 4, 0,
                                                0, 1, 1, 2, 4, 0};
-//static constexpr const int gamephaseInc[12] = {0, 0, 1, 1, 1, 1, 2, 2, 4, 4, 0, 0};
 
 
 #endif //CHIENGINE_EVAL_H

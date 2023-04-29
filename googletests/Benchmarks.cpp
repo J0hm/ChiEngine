@@ -3,6 +3,7 @@
 #include "Search.h"
 #include <chrono>
 
+#if 0
 void benchmarkPerftNPS(Board &board, int depth) {
     auto start = std::chrono::high_resolution_clock::now();
     int64 nodes = board.perft(depth, depth + 1);
@@ -106,3 +107,4 @@ TEST(BenchmarkSuite, SearchNPSBenchmark) {
     ASSERT_EQ(b.setFEN("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"), 0);
     benchmarkSearchNPS(s, 7);
 }
+#endif

@@ -39,7 +39,6 @@ int Search::negaMaxRoot(int depth) {
         }
     }
 
-
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
     for (Move m: moveList) {
         this->gameBoard->makeMove(m);
@@ -65,7 +64,7 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     if (depth <= 0) {
         Move lastMove = gameBoard->getLastState().move;
         if(lastMove.isCapture()) {
-            return quiesce(alpha, beta);
+            return quiesce(alpha, beta); // quiesce on captures to avoid horizon effect
         } else {
             visitedNodes++;
             return this->evaluator->evaluate();
@@ -82,9 +81,9 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     }
 
 
+    // use table entry if it exists and is valid
     Transposition tableEntry = table->getEntry(currHash);
     bool valid = tableEntry.hasEntry && tableEntry.depth > depth;
-
     if (valid) {
         if (tableEntry.hash == currHash) {
             if (tableEntry.hashType == HASH_EXACT) { // not nullptr, i.e. have a match w/ greater depth
@@ -99,9 +98,6 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
         }
     }
 
-
-    // TODO stalemate/checkmate
-
     int score = 0;
     Move localBestMove = Move();
     int bestScore = -999999;
@@ -109,12 +105,13 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
     std::vector<Move> moveList = this->gameBoard->movegen->getLegalMoves(); // TODO refactor
     if(moveList.empty()) { // MATE or DRAW
         if(this->gameBoard->movegen->inCheck(this->gameBoard->sideToMove)) { // TODO
-            return -(MATE_SCORE+depth); // closer to root = depth is higher = weighted more
+            return -(MATE_SCORE+depth); // closer to root = depth is higher = weighted more (we want shortest mates)
         } else {
             return DRAW_SCORE;
         }
     }
 
+    // go over each move
     for (Move m: moveList) {
         this->gameBoard->makeMove(m);
         score = -negaMax(depth - 1, -beta, -alpha);
@@ -122,7 +119,7 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
 
         if (score >= beta) {
             Transposition entry = table->getEntry(gameBoard->getLastState().hash);
-            if(!entry.hasEntry || entry.depth < depth)
+            if(!entry.hasEntry || entry.depth < depth) // store alpha cutoff
                 this->table->setTTEntry(gameBoard->getLastState().hash, HASH_ALPHA, depth, score, m);
             return beta;
         }
@@ -138,11 +135,11 @@ int Search::negaMax(const int depth, int alpha, const int beta) {
 
     if (alpha > alpha_old) {
         Transposition entry = table->getEntry(gameBoard->getLastState().hash);
-        if(!entry.hasEntry || entry.depth < depth)
+        if(!entry.hasEntry || entry.depth < depth) // store EXACT since we are between alpha and beta
             this->table->setTTEntry(gameBoard->getLastState().hash, HASH_EXACT, depth, bestScore, localBestMove);
     } else {
         Transposition entry = table->getEntry(gameBoard->getLastState().hash);
-        if(!entry.hasEntry || entry.depth < depth)
+        if(!entry.hasEntry || entry.depth < depth) // store beta cutoff
             this->table->setTTEntry(gameBoard->getLastState().hash, HASH_BETA, depth, alpha, localBestMove);
     }
 
@@ -154,9 +151,9 @@ int Search::quiesce(int alpha, int beta) {
     int standPat = this->evaluator->evaluate();
     visitedNodes++;
 
-    if (standPat >= beta) {
+    if (standPat >= beta) { // good enough, return
         return beta;
-    } else if (alpha < standPat) {
+    } else if (alpha < standPat) { // set alpha cutoff
         alpha = standPat;
     }
 
@@ -164,7 +161,7 @@ int Search::quiesce(int alpha, int beta) {
     for (Move m: moveList) {
         Move lastMove = this->gameBoard->getLastState().move;
         bool recapture = m.getDest() == lastMove.getDest();
-        if (m.isCapture() && recapture) {
+        if (m.isCapture() && recapture) { // search only recaptures...
             int score = 0;
             gameBoard->makeMove(m);
             score = -quiesce(-beta, -alpha);
